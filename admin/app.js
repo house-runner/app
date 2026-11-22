@@ -492,6 +492,7 @@
         if (!DESK && !sub) sub = 'adjust';      // on the phone, open on the children's cards
         var cur = solo ? 'timetable' : sidePane('rewards', [['info', 'ℹ️', 'How rewards work'],
             ['-', 'Set up rewards'], ['tasks', '✅', 'Reward Tasks', 'Jobs that earn points'], ['todos', '☀️', 'Daily To-Dos', 'Daily or weekly checklists'],
+            ['homework', '📚', 'Homework', 'Time targets and homework tasks'],
             ['remdisplay', IC('reminders', '🎒'), 'Reminder Display', 'On Child’s Rewards or not'], ['rules', '⚖️', 'Reward rules', 'Set up the main reward rules'],
             ['-', 'The children'], ['adjust', '✏️', 'Manual adjustments', 'Points by hand, statements']], sub === 'cards' ? 'adjust' : sub);
         title(solo ? 'Reminders' : 'Rewards');
@@ -504,6 +505,7 @@
                 '<ul class="small"><li><b>Reward Tasks</b> – jobs that earn points, e.g. “Empty the dishwasher +20”. Each child sees their next three on their card and taps one when it’s done.</li>' +
                 '<li><b>Daily To-Dos</b> – checklists with no points: daily ones for getting ready (teeth, dressed, bag), which start afresh each morning, and weekly ones (TTRS, drums practice) that reset on a day you choose.</li>' +
                 '<li><b>Reminder Display</b> – whether each child’s reminders (set up on the <a href="#" data-go="reminders">Reminders</a> page) also show on their Child’s Rewards widget. The <b>Reminders</b> widget shows every child’s together.</li>' +
+                '<li><b>Homework</b> – a homework time target for each child (minutes a day, or a week) and the homework tasks they need to do. They show on the <b>Child’s Homework</b> widget, where the child starts and stops a timer and ticks tasks off.</li>' +
                 '<li><b>Reward rules</b> – how many points make a cash-in, what that’s worth, and the penalty buttons.</li>' +
                 '<li><b>Manual adjustments</b> – add or take away points, override a balance, see a statement.</li></ul>');
         else if (cur === 'tasks') {
@@ -544,6 +546,58 @@
             }, 0);
         }
         else if (cur === 'todos') html = head('Daily To-Dos', 'Checklists each child ticks off – no points. <b>Daily</b> ones (teeth, school bag) start afresh each morning, on the days you pick. <b>Weekly</b> ones (TTRS, Numbots, drums practice) stay ticked until they reset on the day you pick. The arrows put them in order (the order they show on the card).') + flat('todos');
+        else if (cur === 'homework') {
+            var kids = (DATA.boys || []).map(function (b) { return b.Name; }).filter(Boolean);
+            var tg = {}; (DATA.hwTargets || []).forEach(function (t) { tg[t.Boy] = t; });
+            var hwk = (DATA.homework || []).filter(function (t) { return !t.Done; });
+            var DAYOPT = [['Mon-Fri', 'Mon to Fri'], ['Daily', 'Every day'], ['Sun-Thu', 'Sun to Thu'], ['Sat,Sun', 'Weekends']];
+            var tgRow = function (n) {
+                var t = tg[n] || { Minutes: 0, Per: 'day', Days: 'Mon-Fri' }, days = DAYOPT.some(function (o) { return o[0] === t.Days; }) ? DAYOPT : DAYOPT.concat([[t.Days, t.Days]]);
+                return '<div class="tk-row hwt-row" data-boy="' + esc(n) + '"><b class="hwt-name">' + esc(n) + '</b>' +
+                    '<input data-hwt="Minutes" type="number" min="0" max="600" step="5" value="' + esc(t.Minutes || '') + '" placeholder="0">' +
+                    '<span class="mute small">minutes</span>' +
+                    '<select data-hwt="Per"><option value="day"' + (t.Per !== 'week' ? ' selected' : '') + '>a day</option><option value="week"' + (t.Per === 'week' ? ' selected' : '') + '>a week</option></select>' +
+                    '<select data-hwt="Days"' + (t.Per === 'week' ? ' disabled' : '') + ' title="Which days the daily target applies">' + days.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === t.Days ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></div>';
+            };
+            var who = ['All'].concat(kids);
+            var hrow = function (t) {
+                return '<div class="tk-row hw-row" data-id="' + esc(t.ID || '') + '"><span class="mv"><button type="button" data-tmv="-1" title="Move up">▲</button><button type="button" data-tmv="1" title="Move down">▼</button></span>' +
+                    '<input data-hw="Task" maxlength="' + (L().hwTask || 40) + '" value="' + esc(t.Task || '') + '" placeholder="e.g. Maths – fractions sheet" autocomplete="off">' +
+                    '<select data-hw="Boy">' + who.map(function (n) { return '<option' + (n === (t.Boy || 'All') ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>' +
+                    '<input data-hw="Due" type="date" value="' + esc(t.Due || '') + '" title="Due date (optional)">' +
+                    '<button type="button" class="x" data-tx title="Delete this homework task">✕</button></div>';
+            };
+            html = head('Homework', 'A homework time target for each child, and the homework tasks they need to do. Both show on the <b>Child’s Homework</b> widget (add it in <b>Screens</b>): the child taps Start, the timer counts towards the target, and they tick tasks off when they’re done.') +
+                (kids.length ? '' : '<div class="card"><p class="mute">No children are in the reward system yet – tick them in <a href="#" data-go="famcfg">Family</a>.</p></div>') +
+                '<div class="card" id="fHwT"><h2>Homework time targets</h2><p class="mute small card-sub">Leave it at 0 for no target. A weekly target runs Monday to Sunday.</p>' +
+                '<div id="hwtRows">' + kids.map(tgRow).join('') + '</div></div>' +
+                '<div class="card" id="fHw"><h2>Homework tasks</h2><p class="mute small card-sub">A ticked task shows as done until the end of that day, then goes. Save keeps the time targets above too.</p>' +
+                '<div class="tk-row hw-row tk-head"><span></span><span>Homework <small>max ' + (L().hwTask || 40) + '</small></span><span>For who</span><span>Due <small>optional</small></span><span></span></div>' +
+                '<div id="hwRows">' + hwk.map(hrow).join('') + '</div>' +
+                '<div class="ladd-row"><button class="btn fp-add" id="hwAdd">+ Add homework</button></div>' +
+                '<div class="sheet-actions"><button class="btn good" id="hwSave">Save homework</button><button class="btn ghost" id="hwUndo">Undo changes</button></div></div>';
+            setTimeout(function () {
+                var rowsEl = $('hwRows'); if (!rowsEl) return;
+                $('hwAdd').onclick = function () { rowsEl.insertAdjacentHTML('beforeend', hrow({})); var ins = rowsEl.querySelectorAll('[data-hw=Task]'); ins[ins.length - 1].focus(); };
+                $('hwUndo').onclick = function () { render(); };
+                $('hwtRows').onchange = function (e) { if (e.target.getAttribute('data-hwt') === 'Per') { var d = e.target.closest('.tk-row').querySelector('[data-hwt=Days]'); d.disabled = e.target.value === 'week'; } };
+                rowsEl.onclick = function (e) { var t, r = e.target.closest('.tk-row');
+                    if ((t = e.target.closest('[data-tmv]'))) { if (+t.getAttribute('data-tmv') < 0 && r.previousElementSibling) rowsEl.insertBefore(r, r.previousElementSibling); else if (+t.getAttribute('data-tmv') > 0 && r.nextElementSibling) rowsEl.insertBefore(r.nextElementSibling, r); }
+                    else if (e.target.closest('[data-tx]')) { var nm = r.querySelector('[data-hw=Task]').value.trim(); if (!nm || confirm('Delete “' + nm + '”?')) r.remove(); }
+                };
+                $('hwSave').onclick = function () {
+                    var targets = Array.prototype.map.call($('hwtRows').querySelectorAll('.tk-row'), function (r) {
+                        return { Boy: r.getAttribute('data-boy'), Minutes: +r.querySelector('[data-hwt=Minutes]').value || 0, Per: r.querySelector('[data-hwt=Per]').value, Days: r.querySelector('[data-hwt=Days]').value };
+                    });
+                    var tasks = Array.prototype.map.call(rowsEl.querySelectorAll('.tk-row'), function (r) {
+                        var o = { ID: r.getAttribute('data-id') || '' };
+                        r.querySelectorAll('[data-hw]').forEach(function (i) { o[i.getAttribute('data-hw')] = i.value.trim(); });
+                        return o;
+                    }).filter(function (o) { return o.Task; });
+                    act({ action: 'saveHomework', targets: targets, tasks: tasks }, 'Homework saved').catch(function () {});
+                };
+            }, 0);
+        }
         else if (cur === 'timetable') html = flat('timetable');      // its own page: the "How reminders work" box explains it
         else if (cur === 'remdisplay') html = head('Reminder Display', 'Whether each child’s reminders show on their Child’s Rewards widget, on the day and from the evening before.') +
             '<div class="card" id="remDispBox"><h2>On the Child’s Rewards widgets</h2>' + (pp ? fields(pageTypeOf('boys').settings.filter(function (f) { return f.k === 'ShowReminders'; }), pp.settings || {}) : '') +
@@ -2107,6 +2161,7 @@
             extra = '<p class="small"><b>Bin days come from:</b> ' + esc(summary(w)) + '</p><button class="btn ghost wide" id="wBins">Set up bin days</button>';
         }
         if (w.type === 'kidrem') extra += '<p class="ws-note">🎒 The reminders themselves, and the time it switches to tomorrow’s, are set ' + (DESK ? 'on the <a href="#" data-go="reminders">Reminders</a> page.' : 'on the <a href="#" data-go="reminders">Reminders</a> tab (Reminders).') + '</p>';
+        if (w.type === 'homework') extra += '<p class="ws-note">📚 To set the homework time target and add homework tasks, use <a href="#" data-go="rewards">Rewards</a> → Homework.</p>';
         if (w.type === 'child') extra += '<p class="ws-note">⭐ To set up the reward system – Reward Tasks, Daily To-Dos, reminders and the reward rules – use the <a href="#" data-go="rewards">Rewards</a> tab at the top.</p>';
         var own = '<section class="ws-set"><h3 class="ws-h">' + esc(T.name) + ' settings</h3>' + extra +
             (defs.length ? fields(defs, w.settings) : '<p class="mute small">Nothing to set up – it works as it is.</p>') + '</section>';

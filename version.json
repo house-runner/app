@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.307",
-  "script": "2026.11.125",
+  "app": "2026.11.308",
+  "script": "2026.11.126",
   "date": "2026-11-17",
   "notes": [
-    "The licence server has moved to HouseRunner’s own Google account. Every dashboard picks up its new address by itself within a day – nothing to do."
+    "Licence emails: replies now go to hello@houserunner.app (licence server 2026.11.25). The licence portal’s Email settings have a “Replies go to” box to change it."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

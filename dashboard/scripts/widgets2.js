@@ -257,6 +257,12 @@
         var tick = setInterval(function () { if (!el.isConnected) { clearInterval(tick); return; } if (window.FDBoys) window.FDBoys.paint(); }, 60000);     // switches to tomorrow's on time
         return { update: function () { if (window.FDBoys) window.FDBoys.paint(); } };
     };
+    T.homework = function (el, w) {
+        el.innerHTML = '<div class="hw-slot child-slot-like" data-child="' + esc(w.settings.Child || '') + '"></div>';
+        el.addEventListener('click', function (e) { if (window.FDBoys) window.FDBoys.click(e); });
+        if (window.FDBoys) window.FDBoys.paint();
+        return { update: function () { if (window.FDBoys) window.FDBoys.paint(); } };
+    };
     T.child = function (el, w) {
         el.innerHTML = '<div class="child-slot" data-child="' + esc(w.settings.Child || '') + '"></div>';
         el.addEventListener('click', function (e) { if (window.FDBoys) window.FDBoys.click(e); });

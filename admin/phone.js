@@ -9,7 +9,7 @@
  *   🧩 Other      each other widget's own settings, one at a time (the simple ones – the rest are on a computer)
  *   ☰ More       connect a display, add a phone, help, feedback – and everything else is on the computer website
  *
- * Routes: #/calendar #/notes #/lists #/reminders #/points[/tasks|todos|remdisplay|rules|adjust] #/other #/w/<widget id> #/more #/connect #/phones #/feedback
+ * Routes: #/calendar #/notes #/lists #/reminders #/points[/tasks|todos|homework|remdisplay|rules|adjust] #/other #/w/<widget id> #/more #/connect #/phones #/feedback
  */
 (function () {
     'use strict';
@@ -323,6 +323,7 @@
     /* ------------------------------------------------------------------ ⭐ Rewards → Configure (the same as the computer website) */
 
     var CFG = [['tasks', '✅', 'Reward Tasks', 'Jobs that earn points'], ['todos', '☀️', 'Daily To-Dos', 'Daily or weekly checklists'],
+        ['homework', '📚', 'Homework', 'Time targets and homework tasks'],
         ['remdisplay', IC('reminders', '🎒'), 'Reminder Display', 'On Child’s Rewards or not'], ['rules', '⚖️', 'Reward rules', 'Cash-in and penalty buttons'],
         ['adjust', '✏️', 'Manual adjustments', 'Points by hand, statements']];
     function bpage() { return (DATA.pages || []).filter(function (p) { return p.type === 'boys'; })[0]; }
@@ -336,7 +337,7 @@
             wireRwSeg(); return;
         }
         var top = rwSeg(sub) + '<a class="fa-back" href="#/points">‹ Configure</a>' + h(item[2]);
-        ({ tasks: tasksEd, todos: todosEd, remdisplay: remDisplayEd, rules: rulesEd, adjust: adjustEd })[sub](top);
+        ({ tasks: tasksEd, todos: todosEd, homework: homeworkEd, remdisplay: remDisplayEd, rules: rulesEd, adjust: adjustEd })[sub](top);
         wireRwSeg();
     }
 
@@ -440,6 +441,41 @@
                 return o;
             }).filter(function (o) { return o.Task; });
             saving(this, act({ action: 'saveTasks', tasks: list }, 'Reward Tasks saved'));
+        };
+    }
+    /** Homework: each child's time target (minutes a day on some days, or a week), then the homework tasks. */
+    function homeworkEd(top) {
+        var kids = (DATA.boys || []).map(function (b) { return b.Name; }).filter(Boolean), tg = {};
+        (DATA.hwTargets || []).forEach(function (t) { tg[t.Boy] = t; });
+        var DAYOPT = [['Mon-Fri', 'Mon to Fri'], ['Daily', 'Every day'], ['Sun-Thu', 'Sun to Thu'], ['Sat,Sun', 'Weekends']];
+        var tgBox = function (n) {
+            var t = tg[n] || { Minutes: 0, Per: 'day', Days: 'Mon-Fri' }, days = DAYOPT.some(function (o) { return o[0] === t.Days; }) ? DAYOPT : DAYOPT.concat([[t.Days, t.Days]]);
+            return '<div class="fa-hwt" data-boy="' + esc(n) + '"><label><b>' + esc(n) + '</b></label><div class="fa-two">' +
+                '<div><label>Minutes</label><input data-hwt="Minutes" type="number" inputmode="numeric" min="0" max="600" step="5" value="' + esc(t.Minutes || '') + '" placeholder="0"></div>' +
+                '<div><label>Per</label><select data-hwt="Per"><option value="day"' + (t.Per !== 'week' ? ' selected' : '') + '>a day</option><option value="week"' + (t.Per === 'week' ? ' selected' : '') + '>a week</option></select></div></div>' +
+                '<label>On these days</label><select data-hwt="Days"' + (t.Per === 'week' ? ' disabled' : '') + '>' + days.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === t.Days ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></div>';
+        };
+        var row = function (t) {
+            return rowBox('<label>Homework <span class="cnt">max ' + (L().hwTask || 40) + '</span></label><input data-k="Task" maxlength="' + (L().hwTask || 40) + '" value="' + esc(t.Task || '') + '" placeholder="e.g. Maths – fractions sheet" autocomplete="off">' +
+                '<div class="fa-two"><div><label>For who</label>' + whoSel('Boy', t.Boy, false) + '</div>' +
+                '<div><label>Due <small>optional</small></label><input data-k="Due" type="date" value="' + esc(t.Due || '') + '"></div></div>', { id: t.ID || '', order: true });
+        };
+        $('faMain').innerHTML = top + '<p class="fa-lead">A homework time target for each child and the homework tasks to do. Both show on the <b>Child’s Homework</b> widget, where the child starts a timer and ticks tasks off.</p>' +
+            '<h3 class="fa-h">Time targets</h3>' + box((kids.length ? kids.map(tgBox).join('<hr>') : '<p class="fa-how">No children are in the reward system yet.</p>') + '<p class="fa-how">0 = no target. A weekly target runs Monday to Sunday.</p>', 'fa-hwts') +
+            '<h3 class="fa-h">Homework tasks</h3>' +
+            '<div id="edRows">' + (DATA.homework || []).filter(function (t) { return !t.Done; }).map(row).join('') + '</div><button class="btn fa-add" id="edAdd">+ Add homework</button>' + editorFoot('Save homework');
+        wireRows('edRows', function () { return row({}); });
+        document.querySelector('.fa-hwts').onchange = function (e) { if (e.target.getAttribute('data-hwt') === 'Per') e.target.closest('.fa-hwt').querySelector('[data-hwt=Days]').disabled = e.target.value === 'week'; };
+        $('edSave').onclick = function () {
+            var targets = Array.prototype.map.call(document.querySelectorAll('.fa-hwt'), function (r) {
+                return { Boy: r.getAttribute('data-boy'), Minutes: +r.querySelector('[data-hwt=Minutes]').value || 0, Per: r.querySelector('[data-hwt=Per]').value, Days: r.querySelector('[data-hwt=Days]').value };
+            });
+            var tasks = Array.prototype.map.call(document.querySelectorAll('#edRows .fa-lrow'), function (r) {
+                var o = { ID: r.getAttribute('data-id') || '' };
+                r.querySelectorAll('[data-k]').forEach(function (i) { o[i.getAttribute('data-k')] = i.value.trim(); });
+                return o;
+            }).filter(function (o) { return o.Task; });
+            saving(this, act({ action: 'saveHomework', targets: targets, tasks: tasks }, 'Homework saved'));
         };
     }
     /** Daily To-Dos: daily on some days, or weekly (resets on one day). */
@@ -602,7 +638,7 @@
     /* ------------------------------------------------------------------ 🧩 Widgets */
 
     // These have their own button at the top, or are set up on a computer.
-    var OWN = { memo: 'notes', list: 'lists', todo: 'lists', child: 'points' };
+    var OWN = { memo: 'notes', list: 'lists', todo: 'lists', child: 'points', homework: 'points' };
     /** The widgets listed under Other – the same as on the computer: every one on a screen (hidden ones too), numbered
      *  "copy 1 of 2" when there's more than one, with Always shows / Timed (Primary) / Timed (Secondary) / Hidden. */
     function otherList() {

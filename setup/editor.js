@@ -64,6 +64,8 @@
         }
         if (w.type === 'child') return '<div class="' + cls + ' kid" draggable="true" data-id="' + esc(w.id) + '" title="Click for its settings · drag to move">' + bin + '<span class="ico">' + FDIco(T) + '</span><b>' + esc(w.settings && w.settings.Child || 'Child') + '</b>' +
             '<small>Points, tasks, morning to-dos and reminders</small></div>';
+        if (w.type === 'homework') return '<div class="' + cls + ' kid" draggable="true" data-id="' + esc(w.id) + '" title="Click for its settings · drag to move">' + bin + '<span class="ico">' + FDIco(T) + '</span><b>' + esc((w.settings && w.settings.Child || 'Child') + '’s homework') + '</b>' +
+            '<small>Homework time, timer and homework tasks</small></div>';
         return '<div class="' + cls + '" draggable="true" data-id="' + esc(w.id) + '" title="Click for its settings · drag to move">' + bin + '<span class="ico">' + FDIco(T) + '</span><b>' + esc(T.name) + '</b>' +
             '<small>' + esc(w.pending ? 'Adding…' : H.summary(w) || '') + '</small></div>';
     }
@@ -242,7 +244,7 @@
     }
 
     /* The widgets to drag on, in the same groups as Widgets → Other (plus the rewards and lists ones first). */
-    var TYPE_GROUPS = [['Rewards', ['child']], ['Lists, notes and reminders', ['list', 'todo', 'memo', 'kidrem']],
+    var TYPE_GROUPS = [['Rewards and homework', ['child', 'homework']], ['Lists, notes and reminders', ['list', 'todo', 'memo', 'kidrem']],
         ['Information', ['weather', 'clock', 'bins', 'news']], ['Travel', ['traffic', 'trains', 'bus']],
         ['Family', ['agenda', 'birthdays', 'countdown', 'photos', 'whereabouts']], ['Tools', ['timer', 'spotify']],
         ['Interest', ['apod', 'flights', 'quote', 'words']]];

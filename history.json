@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.307",
+    "date": "2026-11-17",
+    "notes": [
+      "Licence emails: replies now go to hello@houserunner.app (licence server 2026.11.25). The licence portal’s Email settings have a “Replies go to” box to change it."
+    ]
+  },
+  {
     "version": "2026.11.306",
     "date": "2026-11-17",
     "notes": [

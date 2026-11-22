@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.125';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.126';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -39,12 +39,16 @@ const SHEETS = {
   lists: ['List', 'Item', 'Done', 'Added', 'ID'],
   where: ['Person', 'Place', 'Since', 'How'],
   memos: ['ID', 'Text', 'From', 'Added'],
+  homework: ['ID', 'Boy', 'Task', 'Due', 'Done', 'Added', 'Order'],     // homework tasks a grown-up adds; Done = the day it was ticked
+  hwTargets: ['Boy', 'Minutes', 'Per', 'Days'],                          // each child's homework time: Minutes a "day" (on Days) or a "week"
+  hwLog: ['ID', 'Boy', 'Start', 'End', 'Minutes'],                       // homework timer sessions; a session with no End is running
 };
 const TAB = {
   boys: 'Children', tasks: 'Tasks', ledger: 'Ledger', todos: 'Todos',
   todoLog: 'TodoLog', timetable: 'Timetable', categories: 'Categories',
   install: 'Installation', pages: 'Pages', widgets: 'Widgets', wset: 'Widget settings', lists: 'Lists',
   where: 'Whereabouts', memos: 'Notes',
+  homework: 'Homework', hwTargets: 'Homework targets', hwLog: 'Homework log',
 };
 // Calendar categories. An event's category is the word(s) before the dash in its title, e.g. "Oliver – Drums".
 // Match = extra words that put an un-prefixed event into the category (e.g. "Football practice" → Amelia).
@@ -82,6 +86,8 @@ const LIMITS = {
   boyName: 10,
   task: 22,           // "Empty the dishwasher"
   todo: 22,
+  hwTask: 40,         // "Maths – fractions sheet p.12"
+  hwTasks: 30,        // homework tasks per child
   destination: 16,    // e.g. "Grandma's house"
   reason: 30,         // reason on a bonus or penalty
   eventTitle: 40,
@@ -247,7 +253,7 @@ const WIDGET_TYPES = {
       { k: 'MaxAltitude', label: 'Highest altitude (feet)', type: 'number', def: 45000, min: 1000, max: 60000, help: 'Lower it (e.g. 10000) to see only planes taking off and landing.' },
       { k: 'Routes', label: 'Look up where each flight is going', type: 'bool', def: true },
       { k: 'ListRows', label: 'Flights listed under the map', type: 'number', def: 3, min: 0, max: 5 },
-      { k: 'Source', label: 'Data source', type: 'select', def: 'adsb.lol', options: ['adsb.lol', 'airplanes.live'], advanced: true, help: 'Both are free community networks. Try the other if planes stop showing.' },
+      { k: 'Source', label: 'Data source', type: 'select', def: 'adsb.lol', options: ['adsb.lol', 'adsb.fi', 'airplanes.live'], advanced: true, help: 'Free community networks. Whichever you choose is tried first; if it’s busy the others are tried, and if all are busy for a moment the last planes seen are shown.' },
       { k: 'Centre', label: 'Centre of the map', type: 'text', def: '', max: 150, advanced: true, help: 'Leave blank for home.' },
     ],
     data: (s) => flights_(s) },
@@ -350,6 +356,10 @@ Object.assign(WIDGET_TYPES, {
   child: { name: 'Child’s Rewards', icon: '\u2B50', sizes: ['full'], about: 'One child’s rewards – their points, Reward Tasks, Daily To-Dos and reminders. There’s one for each child – put them on any screen. The reward system itself (tasks, to-dos, rules) is set up on the Rewards tab.',
     settings: [
       { k: 'Child', label: 'Which child', type: 'child', def: '', help: 'The children come from the family (Family tab).' },
+    ] },
+  homework: { name: 'Child’s Homework', icon: '📚', sizes: ['full'], about: 'One child’s homework: a time target for the day or week with a timer to start and stop, and the homework tasks a grown-up has added to tick off. One for each child in the reward system.',
+    settings: [
+      { k: 'Child', label: 'Which child', type: 'child', def: '', help: 'The children in the reward system (Family tab). Their time target and homework tasks are set in Rewards → Homework.' },
     ] },
   memo: { name: 'Notes', icon: '📌', sizes: ['half', 'full'], about: 'Sticky notes for the family. Add from the phone or the screen; tap one to remove it.',
     settings: [
@@ -764,7 +774,10 @@ function ensureMigrated_() {
   freshCopy_();
   const ss = SpreadsheetApp.getActive();
   const ver = PropertiesService.getScriptProperties().getProperty('layoutVer');
-  if (ss.getSheetByName(TAB.widgets) && ss.getSheetByName(TAB.install) && ss.getSheetByName(tabName_('memos')) && ver === LAYOUT_VER) { dropParcels_(); return; }
+  if (ss.getSheetByName(TAB.widgets) && ss.getSheetByName(TAB.install) && ss.getSheetByName(tabName_('memos')) && ver === LAYOUT_VER) {
+    if (!ss.getSheetByName(TAB.hwLog)) withLock_(() => ensureTabs_());      // homework (Nov 2026): its three tabs
+    dropParcels_(); return;
+  }
   withLock_(() => migrate_());
   dropParcels_();
 }
@@ -926,6 +939,10 @@ function dispatch_(b) {
     case 'adjust': return addEntry_(b.boy, 'adjust', '', b.reason || 'Adjustment', Number(b.points));
     case 'cashin': return cashIn_(b.boy);
     case 'todo': return setTodo_(b.boy, b.item, !!b.done);
+    case 'hwStart': return hwTimer_(b.boy, true);
+    case 'hwStop': return hwTimer_(b.boy, false);
+    case 'hwTask': return hwTask_(b.boy, b.id, !!b.done);
+    case 'saveHomework': return saveHomework_(b);
     case 'undo': return deleteEntry_(b.id);
     case 'state': return getState_();
     case 'admin': myIdTab_(); return getAdmin_();
@@ -1005,6 +1022,7 @@ function getState_() {
   const todos = rows_('todos');
   const logAll = rows_('todoLog'), todoLog = logAll.filter(r => dateStr_(r.Date) === today);
   const timetable = rows_('timetable');
+  const hw = hwRows_();
   const ps = pageSettings_('boys');
   const threshold = Number(ps.CashInPoints) || 500;
   const value = Number(ps.CashInValue) || 5;
@@ -1051,6 +1069,7 @@ function getState_() {
       tasks: open.slice(0, 3).map(t => ({ id: t.ID, text: t.Task, points: Number(t.Points) })),
       allTasks: open.slice(0, 40).map(t => ({ id: t.ID, text: t.Task, points: Number(t.Points) })),
       openTaskCount: open.length, todos: myTodos, reminders, remindersTomorrow, reminderWeek: week, statement,
+      homework: hwFor_(b.Name, hw, today, dow),
     };
   });
   // Reminders for "Everyone", and for anyone in the family who isn't in Rewards (adults, and children not on the points page).
@@ -1134,6 +1153,91 @@ function sinceReset_(day) {
   const now = new Date(), dow = (Number(fmt_(now, 'u')) + 6) % 7;      // 0 = Monday
   return fmt_(new Date(now.getTime() - ((dow - day + 7) % 7) * 86400000), 'yyyy-MM-dd');
 }
+/* ---------------------------------------------------------------- homework
+ * Each child in the reward system can have a homework time target (minutes a day on chosen days, or minutes a week, Monday
+ * to Sunday) and a list of homework tasks a grown-up adds. On the Child's Homework widget they start and stop a timer – the
+ * time counts towards the target – and tick the tasks off. A ticked task shows as done for the rest of that day, then goes. */
+function hwRows_() {
+  const ss = SpreadsheetApp.getActive();
+  if (!ss.getSheetByName(TAB.hwLog)) return { targets: [], tasks: [], log: [] };      // tabs not made yet: nothing set
+  const tasks = rows_('homework').filter(t => t.ID && t.Task).sort((a, b) => (Number(a.Order) || 999) - (Number(b.Order) || 999));
+  return { targets: rows_('hwTargets').filter(t => t.Boy), tasks: tasks, log: rows_('hwLog').filter(r => r.Boy && r.Start) };
+}
+function hwMs_(v) { const n = Number(String(v || '').replace(/^'/, '')); return isFinite(n) && n > 0 ? n : 0; }
+function hwFor_(name, hw, today, dow) {
+  const t = hw.targets.find(x => String(x.Boy) === name && Number(x.Minutes) > 0);
+  const per = t && String(t.Per).toLowerCase() === 'week' ? 'week' : 'day', days = t ? String(t.Days || 'Mon-Fri') : '';
+  const dayStart = Utilities.parseDate(today, TZ, 'yyyy-MM-dd').getTime();
+  const from = per === 'week' ? dayStart - ((DAYS.indexOf(dow) + 6) % 7) * 864e5 : dayStart;     // the week runs Monday to Sunday
+  let mins = 0, running = 0;
+  hw.log.filter(r => String(r.Boy) === name).forEach(r => {
+    const st = hwMs_(r.Start), en = hwMs_(r.End);
+    if (!en) { running = st; return; }      // the screen counts a running timer itself, second by second
+    if (st >= from) mins += Number(r.Minutes) || (en - st) / 6e4;
+  });
+  const tasks = hw.tasks.filter(x => forBoy_(x.Boy, name) && (!x.Done || dateStr_(x.Done) === today)).map(x => ({
+    id: String(x.ID), text: String(x.Task), due: x.Due ? dateStr_(x.Due) : '', done: !!x.Done }));
+  return {
+    target: t ? { minutes: Number(t.Minutes), per: per, days: days, today: per === 'week' || dayMatches_(days, dow) } : null,
+    minutes: Math.floor(mins), running: running, tasks: tasks,
+  };
+}
+function hwTimer_(boy, start) {
+  requireBoy_(boy);
+  ensureTabsOnce_();
+  const sh = sheet_('hwLog'), data = sh.getDataRange().getValues();
+  let row = -1;
+  for (let i = data.length - 1; i >= 1; i--) if (String(data[i][1]) === boy && data[i][2] && !data[i][3]) { row = i; break; }
+  if (start && row < 0) sh.appendRow([newId_(), boy, "'" + Date.now(), '', '']);
+  if (!start && row >= 0) {
+    const st = hwMs_(data[row][2]), en = Date.now();
+    sh.getRange(row + 1, 4, 1, 2).setValues([["'" + en, Math.round(Math.min(240, Math.max(0, (en - st) / 6e4)) * 10) / 10]]);      // 4 hours at most – a timer left running overnight doesn't count
+  }
+  if (sh.getLastRow() > 800) sh.deleteRows(2, 200);      // keep the log small: the oldest sessions go
+  return { ok: true, state: getState_() };
+}
+function hwTask_(boy, id, done) {
+  requireBoy_(boy);
+  const sh = sheet_('homework'), data = sh.getDataRange().getValues(), today = fmt_(new Date(), 'yyyy-MM-dd');
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(id) && forBoy_(data[i][1], boy)) { sh.getRange(i + 1, 5).setValue(done ? "'" + today : ''); break; }
+  }
+  return { ok: true, state: getState_() };
+}
+function ensureTabsOnce_() { if (!SpreadsheetApp.getActive().getSheetByName(TAB.hwLog)) ensureTabs_(); }
+/** Rewards → Homework: every child's time target, and the homework tasks (replacing both lists – what isn't sent is removed). */
+function saveHomework_(b) {
+  ensureTabsOnce_();
+  const kids = rows_('boys').map(x => String(x.Name)).filter(Boolean);
+  const targets = (b.targets || []).filter(t => kids.indexOf(String(t.Boy)) >= 0).map(t => {
+    const m = Math.round(Number(t.Minutes) || 0);
+    if (m < 0 || m > 600) throw new Error('A homework target must be between 0 and 600 minutes');
+    const per = String(t.Per) === 'week' ? 'week' : 'day';
+    const days = String(t.Days || 'Mon-Fri').replace(/[^A-Za-z,\-]/g, '').slice(0, 40) || 'Mon-Fri';
+    return [String(t.Boy), m, per, days];
+  });
+  const old = {}; rows_('homework').forEach(r => { old[String(r.ID)] = r; });
+  const count = {};
+  const tasks = (b.tasks || []).filter(t => String(t.Task || '').trim()).map((t, i) => {
+    const who = String(t.Boy || 'All').trim();
+    if (who !== 'All' && kids.indexOf(who) < 0) throw new Error('Unknown child: ' + who);
+    count[who] = (count[who] || 0) + 1;
+    if (count[who] > LIMITS.hwTasks) throw new Error('Up to ' + LIMITS.hwTasks + ' homework tasks for each child');
+    const task = checkLen_('Homework', String(t.Task).trim(), LIMITS.hwTask);
+    const due = /^\d{4}-\d{2}-\d{2}$/.test(String(t.Due || '')) ? "'" + t.Due : '';
+    const id = String(t.ID || '') && old[String(t.ID)] ? String(t.ID) : newId_(), was = old[id] || {};
+    return [id, who, task, due, was.Done ? "'" + dateStr_(was.Done) : '', was.Added ? "'" + dateStr_(was.Added) : "'" + fmt_(new Date(), 'yyyy-MM-dd'), i + 1];
+  });
+  const write = (key, rows) => {
+    const sh = sheet_(key), n = SHEETS[key].length;
+    if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, n).clearContent();
+    if (rows.length) sh.getRange(2, 1, rows.length, n).setNumberFormat('@').setValues(rows.map(r => r.map(c => typeof c === 'number' ? String(c) : c)));
+  };
+  write('hwTargets', targets); write('homework', tasks);
+  bumpVersions_();
+  return getAdmin_();
+}
+
 function setTodo_(boy, item, done) {
   requireBoy_(boy);
   const today = fmt_(new Date(), 'yyyy-MM-dd');
@@ -1168,6 +1272,8 @@ function getAdmin_() {
     boys: rows_('boys'),
     tasks: rows_('tasks').map(t => Object.assign(t, { Active: !(t.Active === false || String(t.Active).toUpperCase() === 'FALSE') })),
     todos: rows_('todos'),
+    homework: hwRows_().tasks.map(t => ({ ID: String(t.ID), Boy: String(t.Boy || ''), Task: String(t.Task || ''), Due: t.Due ? dateStr_(t.Due) : '', Done: t.Done ? dateStr_(t.Done) : '' })),
+    hwTargets: hwRows_().targets.map(t => ({ Boy: String(t.Boy || ''), Minutes: Number(t.Minutes) || 0, Per: String(t.Per || 'day'), Days: String(t.Days || 'Mon-Fri') })),
     timetable: rows_('timetable').map(r => Object.assign(r, { Day: r.Day instanceof Date ? fmt_(r.Day, 'yyyy-MM-dd') : r.Day })),
     ledger: rows_('ledger').slice(-300).reverse().map(l => Object.assign(l, {
       Timestamp: fmt_(new Date(l.Timestamp), 'EEE d MMM yyyy HH:mm'),
@@ -1557,7 +1663,7 @@ function whenSettings_() {
     { k: 'ShowDays', label: 'Show on', type: 'select', def: 'Every day', options: Object.keys(WHEN_DAYS) },
     { k: 'ShowFrom', label: 'From', type: 'time', def: '00:00' },
     { k: 'ShowUntil', label: 'Until', type: 'time', def: '24:00' },
-    { k: 'OtherTimes', label: 'At other times show', type: 'select', def: '', options: [''].concat(Object.keys(WIDGET_TYPES).filter(k => k !== 'child')) },
+    { k: 'OtherTimes', label: 'At other times show', type: 'select', def: '', options: [''].concat(Object.keys(WIDGET_TYPES).filter(k => k !== 'child' && k !== 'homework')) },
   ];
 }
 function whenLimited_(W) {
@@ -1814,7 +1920,7 @@ function saveWidget_(w) {
 /** Every kind of widget that isn't on any screen: its settings (kept from before, or the defaults) can still be changed. */
 function unusedWidgets_(widgets) {
   const all = wsetAll_(), have = {}; widgets.forEach(w => { have[w.type] = 1; });
-  return Object.keys(WIDGET_TYPES).filter(t => !have[t] && t !== 'child').map(t => {
+  return Object.keys(WIDGET_TYPES).filter(t => !have[t] && t !== 'child' && t !== 'homework').map(t => {
     const id = Object.keys(all).filter(k => new RegExp('^' + t + '\\d+$').test(k)).sort()[0] || t + '1';
     return { id: id, type: t, unused: true, settings: settingsFor_(id, WIDGET_TYPES[t].settings, all) };
   });
@@ -1835,7 +1941,7 @@ function addWidget_(pageId, type, at) {
   if (!T) throw new Error('Unknown widget');
   const p = rows_('pages').find(x => String(x.Page).trim() === pageId);
   if (!p || String(p.Type).toLowerCase() !== 'widgets') throw new Error('Pick a widget page');
-  if (type === 'child' && !childNames_().length) throw new Error('Add the children first (Family tab)');
+  if ((type === 'child' || type === 'homework') && !childNames_().length) throw new Error('Add the children first (Family tab)');
   if (type === 'list' && rows_('widgets').filter(w => String(w.Type).trim() === 'list').length >= 5) throw new Error('You can have up to 5 General Lists (plus the To-Do List (Google)) – remove one to add another');
   if (type === 'todo' && rows_('widgets').some(w => String(w.Type).trim() === 'todo')) throw new Error('There’s already a To-Do List (Google) – you can have one');
   // Settings: another copy of a widget you already have starts with that one's settings; the first of its kind gets back
@@ -1853,9 +1959,9 @@ function addWidget_(pageId, type, at) {
     if (kept) n = kept.slice(type.length);
   }
   sheet_('widgets').appendRow([type + n, pageId, 999, type, T.sizes[0], 'Yes']);
-  if (type === 'child') {     // the first child who hasn't got a widget yet (or the first child)
+  if (type === 'child' || type === 'homework') {     // the first child who hasn't got one of these yet (or the first child)
     const all = wsetAll_(), names = childNames_(), mine = String((all[type + n] || {}).Child || '');
-    const taken = rows_('widgets').filter(w => String(w.Type).trim() === 'child' && String(w.Widget).trim() !== type + n).map(w => String((all[String(w.Widget).trim()] || {}).Child || ''));
+    const taken = rows_('widgets').filter(w => String(w.Type).trim() === type && String(w.Widget).trim() !== type + n).map(w => String((all[String(w.Widget).trim()] || {}).Child || ''));
     if (names.indexOf(mine) < 0 || taken.indexOf(mine) >= 0) setWset_(type + n, 'Child', names.find(x => taken.indexOf(x) < 0) || names[0]);
   }
   if (type === 'list') {       // a new General List: "New List 1", or the next number not used by another list on the screens
@@ -2636,25 +2742,34 @@ function flights_(s) {
   const c = geocode_(s.Centre || inst_('HomeAddress'));
   const miles = Math.max(3, Math.min(60, Number(s.RadiusMiles) || 20));
   const nm = Math.ceil(miles * 0.869);
-  // The chosen network first; if it's busy (429 = too many requests – Google's servers are shared, so this happens) or down,
-  // the other one. A network that said "too many" is left alone for a few minutes.
-  const SRC = { 'adsb.lol': 'https://api.adsb.lol/v2/point/', 'airplanes.live': 'https://api.airplanes.live/v2/point/' };
+  // Three free community networks, the chosen one first. Google's servers are shared by everyone's scripts, so a network
+  // sometimes says "too many requests" (429) or turns the shared address away (403): that one is left alone for a few
+  // minutes and the next is tried. If all three are busy, the last planes seen (up to 20 minutes old) are shown instead of an error.
+  const la = c.lat.toFixed(4), lo = c.lng.toFixed(4);
+  const SRC = {
+    'adsb.lol': 'https://api.adsb.lol/v2/point/' + la + '/' + lo + '/' + nm,
+    'adsb.fi': 'https://opendata.adsb.fi/api/v2/lat/' + la + '/lon/' + lo + '/dist/' + nm,
+    'airplanes.live': 'https://api.airplanes.live/v2/point/' + la + '/' + lo + '/' + nm,
+  };
   const first = SRC[s.Source] ? s.Source : 'adsb.lol', order = [first].concat(Object.keys(SRC).filter(k => k !== first));
-  const sc = CacheService.getScriptCache(), said = [];
-  let ac = null;
+  const sc = CacheService.getScriptCache(), said = [], lastKey = 'fl:last:' + la + ',' + lo + ',' + nm;
+  let ac = null, got = '';
   for (let i = 0; i < order.length && !ac; i++) {
     const k = order[i];
     if (sc.get('fl:busy:' + k)) { said.push(k + ' busy'); continue; }
     try {
-      const res = uf_(SRC[k] + c.lat.toFixed(4) + '/' + c.lng.toFixed(4) + '/' + nm,
-        { muteHttpExceptions: true, headers: { 'User-Agent': 'FamilyDashboard/1.0 (Google Apps Script)' } });
+      const res = uf_(SRC[k], { muteHttpExceptions: true, headers: { 'User-Agent': 'HouseRunner/1.0 (family dashboard; Google Apps Script)' } });
       const code = res.getResponseCode();
-      if (code === 200) { ac = JSON.parse(res.getContentText()).ac || []; break; }
-      if (code === 429) sc.put('fl:busy:' + k, '1', 180);
+      if (code === 200) { const j = JSON.parse(res.getContentText()); ac = j.ac || j.aircraft || []; got = k; break; }
+      if (code === 429 || code === 403 || code >= 500) sc.put('fl:busy:' + k, '1', code === 429 ? 180 : 300);
       said.push(k + ' said ' + code);
     } catch (err) { said.push(k + ': ' + String(err && err.message || err).slice(0, 60)); }
   }
-  if (!ac) throw new Error('Both flight networks are busy just now (' + said.join(', ') + ') \u2013 it tries again by itself in a few minutes');
+  if (!ac) {
+    const last = sc.get(lastKey);
+    if (last) { const o = JSON.parse(last); o.stale = true; o.busy = said.join(', '); return o; }
+    throw new Error('The flight networks are all busy just now (' + said.join(', ') + ') \u2013 it tries again by itself in a few minutes');
+  }
   const maxAlt = Number(s.MaxAltitude) || 45000;
   const planes = ac.filter(a => isFinite(a.lat) && isFinite(a.lon) && isFinite(Number(a.alt_baro)) && Number(a.alt_baro) <= maxAlt)
     .map(a => {
@@ -2691,7 +2806,9 @@ function flights_(s) {
       Object.assign(p, JSON.parse(r));
     });
   }
-  return { centre: [c.lat, c.lng], radiusMiles: miles, at: Date.now(), planes: planes, source: s.Source };
+  const out = { centre: [c.lat, c.lng], radiusMiles: miles, at: Date.now(), planes: planes, source: got };
+  try { sc.put(lastKey, JSON.stringify(out), 20 * 60); } catch (e) { /* too big to keep – fine */ }
+  return out;
 }
 function miles_(lat1, lon1, lat2, lon2) {
   const R = 3958.8, r = Math.PI / 180;

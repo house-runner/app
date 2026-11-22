@@ -234,6 +234,7 @@
     }
     function paintChildren() {
         paintReminders();
+        paintHomework();
         Array.prototype.forEach.call(document.querySelectorAll('.child-slot'), function (el) {
             var name = el.getAttribute('data-child') || '', s = state;
             if (!cfg.url || !cfg.code) { el.innerHTML = '<div class="child-msg">Not connected yet.</div>'; return; }
@@ -246,6 +247,69 @@
             var nb = el.querySelector('.boy-body'); if (nb && top) nb.scrollTop = top;
         });
     }
+    /* ---------------------------------------------- Child's Homework: time target, timer, homework tasks */
+    var HW_DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    function paintHomework() {
+        Array.prototype.forEach.call(document.querySelectorAll('.hw-slot'), function (el) {
+            var name = el.getAttribute('data-child') || '', s = state;
+            if (!cfg.url || !cfg.code) { el.innerHTML = '<div class="child-msg">Not connected yet.</div>'; return; }
+            if (!s) { el.innerHTML = '<div class="child-msg">' + (lastSyncError ? 'Can’t reach the Google Sheet.<br>' + esc(lastSyncError) : 'Loading…') + '</div>'; return; }
+            var bi = -1;
+            s.boys.forEach(function (b, i) { if (bi < 0 && String(b.name).toLowerCase() === name.toLowerCase()) bi = i; });
+            if (bi < 0 && !name && s.boys.length) bi = 0;
+            var old = el.querySelector('.boy-body'), top = old ? old.scrollTop : 0;
+            el.innerHTML = bi < 0 ? '<div class="child-msg"><b>' + esc(name || 'No child picked') + '</b><br>isn’t in the reward system – pick a child in this widget’s settings.</div>' : hwCard(s.boys[bi], bi);
+            var nb = el.querySelector('.boy-body'); if (nb && top) nb.scrollTop = top;
+            hwTick();
+        });
+    }
+    /** "due Thu", "due today", "overdue" – from a yyyy-mm-dd date. */
+    function hwDue(ds) {
+        if (!ds) return '';
+        var d = new Date(ds + 'T12:00:00'), t = new Date(); t.setHours(12, 0, 0, 0);
+        var n = Math.round((d - t) / 864e5);
+        var txt = n < 0 ? 'overdue' : n === 0 ? 'due today' : n === 1 ? 'due tomorrow' : n < 7 ? 'due ' + HW_DAY[d.getDay()] : 'due ' + d.getDate() + '/' + (d.getMonth() + 1);
+        return '<span class="hw-due' + (n <= 0 ? ' soon' : '') + '">' + txt + '</span>';
+    }
+    function hwCard(b, bi) {
+        var h = b.homework || {}, t = h.target, run = h.running > 0, tasks = h.tasks || [];
+        var when = t ? (t.per === 'week' ? 'this week' : 'today') : '';
+        var top = t && (t.per === 'week' || t.today)
+            ? '<div class="hw-big"><span class="num hw-mins" data-base="' + (h.minutes || 0) + '" data-start="' + (run ? h.running : 0) + '">' + (h.minutes || 0) + '</span>' +
+                '<span class="lbl">of ' + t.minutes + ' min ' + when + '</span></div>' +
+              '<div class="bar"><span class="hw-bar" data-goal="' + t.minutes + '" style="width:' + Math.min(100, (h.minutes || 0) / t.minutes * 100) + '%"></span></div>' +
+              '<div class="bar-lbl hw-left" data-goal="' + t.minutes + '"></div>'
+            : '<div class="hw-none">' + (t ? 'No homework time set for today.' : 'No homework time target set.') + '</div>';
+        var btn = run
+            ? '<button class="hw-go stop" data-act="hwstop" data-boy="' + bi + '">⏹ Stop <span class="hw-run" data-start="' + h.running + '">0:00</span></button>'
+            : '<button class="hw-go" data-act="hwstart" data-boy="' + bi + '">▶ Start homework</button>';
+        var list = tasks.length ? tasks.map(function (x) {
+            return '<button class="todo' + (x.done ? ' done' : '') + '" data-act="hwtask" data-boy="' + bi + '" data-id="' + esc(x.id) + '"><span class="box"></span><span>' + esc(x.text) + '</span>' + (x.done ? '' : hwDue(x.due)) + '</button>';
+        }).join('') : '<div class="empty">No homework tasks 🎉</div>';
+        return '<article class="boy compact hw" style="--c:' + esc(b.colour) + '">' +
+            '<header class="boy-head"><span class="dot"></span><h2>' + esc(b.name) + '</h2><span class="hw-tag">📚 Homework</span></header>' +
+            '<div class="boy-body">' +
+                '<div class="hw-top">' + top + btn + '</div>' +
+                '<h3>Homework tasks</h3><div class="todos">' + list + '</div>' +
+            '</div></article>';
+    }
+    /** The running timer and the minutes count up live, between the Sheet's updates. */
+    function hwTick() {
+        var now = Date.now();
+        Array.prototype.forEach.call(document.querySelectorAll('.hw-run'), function (e) {
+            var sec = Math.max(0, Math.floor((now - Number(e.getAttribute('data-start'))) / 1000));
+            e.textContent = (sec >= 3600 ? Math.floor(sec / 3600) + ':' + ('0' + Math.floor(sec % 3600 / 60)).slice(-2) : Math.floor(sec / 60)) + ':' + ('0' + sec % 60).slice(-2);
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('.hw-mins'), function (e) {
+            var st = Number(e.getAttribute('data-start')), m = Number(e.getAttribute('data-base')) + (st ? Math.min(240, (now - st) / 6e4) : 0);
+            e.textContent = Math.floor(m);
+            var card = e.closest('.hw'), bar = card && card.querySelector('.hw-bar'), left = card && card.querySelector('.hw-left');
+            var goal = bar ? Number(bar.getAttribute('data-goal')) : 0;
+            if (bar) bar.style.width = Math.min(100, m / goal * 100) + '%';
+            if (left) { left.textContent = m >= goal ? '✅ Target done – well done!' : Math.ceil(goal - m) + ' min to go'; card.classList.toggle('hw-met', m >= goal); }
+        });
+    }
+    setInterval(function () { if (document.querySelector('.hw-run, .hw-mins')) hwTick(); }, 1000);
     function boyCard(b, bi, s, compact) {     // compact: the child widget (a quarter of the screen) – two tasks, not three
         var target = s.cashIn.points;
         {
@@ -388,6 +452,21 @@
         var act = btn.getAttribute('data-act');
         if (act === 'panel') { openPanel(bi, btn.getAttribute('data-sec')); return; }
 
+        if (act === 'hwstart' || act === 'hwstop') {
+            var hw = boy.homework || (boy.homework = {});
+            if (act === 'hwstart') hw.running = Date.now();
+            else { hw.minutes = (hw.minutes || 0) + Math.min(240, (Date.now() - (hw.running || Date.now())) / 6e4); hw.running = 0; }
+            paintHomework();                                      // optimistic
+            send({ action: act === 'hwstart' ? 'hwStart' : 'hwStop', boy: boy.name }, act === 'hwstart' ? 'Homework timer started' : 'Homework time saved');
+            return;
+        }
+        if (act === 'hwtask') {
+            var hid = btn.getAttribute('data-id'), ht = ((boy.homework || {}).tasks || []).filter(function (x) { return x.id === hid; })[0];
+            if (!ht) return;
+            ht.done = !ht.done; paintHomework();                  // optimistic
+            send({ action: 'hwTask', boy: boy.name, id: hid, done: ht.done }, null);
+            return;
+        }
         if (act === 'todo') {
             var t = boy.todos[Number(btn.getAttribute('data-i'))];
             t.done = !t.done; renderBoys();                       // optimistic
