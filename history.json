@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.306",
+    "date": "2026-11-17",
+    "notes": [
+      "The licence server has moved to HouseRunner’s own Google account. Every dashboard picks up its new address by itself within a day – nothing to do."
+    ]
+  },
+  {
     "version": "2026.11.305",
     "date": "2026-11-17",
     "notes": [

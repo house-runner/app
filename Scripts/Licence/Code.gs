@@ -20,7 +20,7 @@
  * menu), or being signed in as the owner when opened from the Sheet's menu.
  */
 
-const LS_VERSION = '2026.11.24';
+const LS_VERSION = '2026.11.25';
 // Run by the loader (the small "Code" file that fetches this program from GitHub)? Then updating needs nothing else.
 const LOADED = typeof FD_LOADER !== 'undefined' && FD_LOADER ? FD_LOADER : null;
 function adminTemplate_() { return LOADED ? HtmlService.createTemplate(LOADED.html()) : HtmlService.createTemplateFromFile('Admin'); }
@@ -37,6 +37,7 @@ const LOGCOLS = ['When', 'Key', 'Event', 'Install', 'Detail'];
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';     // no 0/O, 1/I – easy to read out and type
 const DEFAULTS = {
   sellerName: 'HouseRunner',
+  replyTo: 'hello@houserunner.app',     // where buyers' replies go (the emails themselves come from this Google account)
   subject: 'Your HouseRunner licence key – and how to get started',
   body: 'Hello {name},\n\nThank you for buying HouseRunner.\n\nYour licence key is:\n\n    {key}\n\n' +
     'To set up your dashboard, open {setup} on a computer and follow the steps. You will be asked for this key.\n\n' +
@@ -335,7 +336,7 @@ function admin(password, op, args) {
     case 'testEmail': {      // a sample of the buyers' email, to you (the owner of this licence server)
       const me = Session.getEffectiveUser().getEmail(), m = emailFor_(settings_(), 'there', ['FD-SAMPL-EKEYS-AMPLE-KEYXX'], [1]);
       if (!me) throw new Error('Couldn’t tell which account to send it to');
-      MailApp.sendEmail({ to: me, subject: '[Sample] ' + m.subject, body: m.body, htmlBody: m.html, name: settings_().sellerName, attachments: agreementPdf_(settings_()) });
+      MailApp.sendEmail({ to: me, subject: '[Sample] ' + m.subject, body: m.body, htmlBody: m.html, name: settings_().sellerName, replyTo: settings_().replyTo || undefined, attachments: agreementPdf_(settings_()) });
       return { ok: true, to: me };
     }
     case 'log': return { ok: true, rows: logRows_(args.key, 300) };
@@ -502,7 +503,7 @@ function emailKeys_(toEmail, keys, unsentOnly) {
   emails.forEach(email => {
     const list = byEmail[email], name = (list[0].name || '').split(' ')[0] || 'there';
     const m = emailFor_(S, name, list.map(x => x.key), list.map(x => x.screens));
-    MailApp.sendEmail({ to: email, subject: m.subject, body: m.body, htmlBody: m.html, name: S.sellerName, attachments: pdf });
+    MailApp.sendEmail({ to: email, subject: m.subject, body: m.body, htmlBody: m.html, name: S.sellerName, replyTo: S.replyTo || undefined, attachments: pdf });
     const now = new Date();
     list.forEach(x => { sh.getRange(x.i + 2, C.Emailed + 1).setValue(now); log_(String(x.key), 'Emailed', '', email); });
     sent += list.length;

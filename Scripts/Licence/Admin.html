@@ -471,6 +471,7 @@ function settingsPage() {
     var s = d.settings;
     $('main').innerHTML = '<h2 class="ph">⚙ Settings</h2><div class="card"><h2>Email to buyers</h2><p class="mute small">{name} = first name, {key} = their key(s), {setup} = the setup link (on a line of its own it becomes a big “Start setting up” button), {help} = the setup help page, {seller} = your name. Google lets you send ' + d.quota + ' more today.</p>' +
       '<div class="grid2"><div><label>From (name)</label><input id="sSeller" value="' + esc(s.sellerName) + '"></div><div><label>Setup link</label><input id="sSetup" value="' + esc(s.setupLink) + '"></div></div>' +
+      '<label>Replies go to</label><input id="sReply" type="email" value="' + esc(s.replyTo || '') + '" placeholder="hello@houserunner.app">' +
       '<label>Subject</label><input id="sSubj" value="' + esc(s.subject) + '"><label>Message</label><textarea id="sBody" style="min-height:240px">' + esc(s.body) + '</textarea>' +
       '<div class="row" style="margin-top:12px"><button class="btn good" id="sSave">Save</button><button class="btn ghost" id="sTest">Send me a sample</button><button class="btn ghost" id="sReset">Back to the standard wording</button></div><div id="sOut" class="status"></div></div>' +
       supportKeyCard() +
@@ -479,7 +480,7 @@ function settingsPage() {
     if ($('cpUrl')) $('cpUrl').onclick = function () { copy(d.url); };
     wireSupportKey();
     $('sSave').onclick = function () {
-      call('saveSettings', { sellerName: $('sSeller').value, setupLink: $('sSetup').value, subject: $('sSubj').value, body: $('sBody').value })
+      call('saveSettings', { sellerName: $('sSeller').value, replyTo: $('sReply').value, setupLink: $('sSetup').value, subject: $('sSubj').value, body: $('sBody').value })
         .then(function () { $('sOut').innerHTML = '<span class="ok">✔ Saved</span>'; }, function (e) { $('sOut').innerHTML = '<span class="err">' + esc(e.message) + '</span>'; });
     };
     $('sTest').onclick = function () {
