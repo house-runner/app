@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026.11.308",
+    "date": "2026-11-17",
+    "notes": [
+      "New Child’s Homework widget: a homework time target for each child (minutes a day on chosen days, or a week), a Start/Stop timer that counts towards it, and homework tasks to tick off.",
+      "Rewards → Homework (Configurator and Family Admin on the phone): set each child’s time target and add homework tasks, with optional due dates – laid out like Reward Tasks.",
+      "Screens: the Rewards group is now “Rewards and homework”, with Child’s Homework next to Child’s Rewards.",
+      "Flights overhead: now tries adsb.fi as well as adsb.lol and airplanes.live, waits a few minutes before retrying a busy one, and shows the last planes seen (up to 20 minutes old) instead of an error when all three are busy.",
+      "Privacy notice updated to list adsb.fi."
+    ]
+  },
+  {
     "version": "2026.11.307",
     "date": "2026-11-17",
     "notes": [

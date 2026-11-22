@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.126';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.127';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -513,7 +513,13 @@ function ensureTabs_() {
   const ss = SpreadsheetApp.getActive();
   Object.keys(TAB).forEach(k => {
     let sh = ss.getSheetByName(tabName_(k));
-    if (!sh) sh = ss.insertSheet(tabName_(k));
+    if (!sh) {
+      // Two requests at once (the screen and the Configurator, just after an update) can both find a tab missing: the second
+      // one's insertSheet then fails with "already exists". Use the tab the other request has just made.
+      try { sh = ss.insertSheet(tabName_(k)); }
+      catch (e) { sh = ss.getSheetByName(tabName_(k)) || ss.getSheets().filter(x => x.getName().toLowerCase() === tabName_(k).toLowerCase())[0]; }
+      if (!sh) return;      // it's there, but this request can't see it yet – the next one will
+    }
     if (sh.getLastRow() === 0) {
       sh.appendRow(SHEETS[k]);
       sh.getRange(1, 1, 1, SHEETS[k].length).setFontWeight('bold');
@@ -1204,7 +1210,7 @@ function hwTask_(boy, id, done) {
   }
   return { ok: true, state: getState_() };
 }
-function ensureTabsOnce_() { if (!SpreadsheetApp.getActive().getSheetByName(TAB.hwLog)) ensureTabs_(); }
+function ensureTabsOnce_() { if (!SpreadsheetApp.getActive().getSheetByName(tabName_('hwLog'))) ensureTabs_(); }      // already inside the lock (every change is)
 /** Rewards → Homework: every child's time target, and the homework tasks (replacing both lists – what isn't sent is removed). */
 function saveHomework_(b) {
   ensureTabsOnce_();
