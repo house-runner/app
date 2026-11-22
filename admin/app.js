@@ -505,7 +505,7 @@
                 '<ul class="small"><li><b>Reward Tasks</b> – jobs that earn points, e.g. “Empty the dishwasher +20”. Each child sees their next three on their card and taps one when it’s done.</li>' +
                 '<li><b>Daily To-Dos</b> – checklists with no points: daily ones for getting ready (teeth, dressed, bag), which start afresh each morning, and weekly ones (TTRS, drums practice) that reset on a day you choose.</li>' +
                 '<li><b>Reminder Display</b> – whether each child’s reminders (set up on the <a href="#" data-go="reminders">Reminders</a> page) also show on their Child’s Rewards widget. The <b>Reminders</b> widget shows every child’s together.</li>' +
-                '<li><b>Homework</b> – a homework time target for each child (minutes a day, or a week) and the homework tasks they need to do. They show on the <b>Child’s Homework</b> widget, where the child starts and stops a timer and ticks tasks off.</li>' +
+                '<li><b>Homework</b> – a homework time target for each child (minutes every day, or every week) and the homework tasks they need to do. They show on the <b>Child’s Homework</b> widget, where the child starts and stops a timer and ticks tasks off.</li>' +
                 '<li><b>Reward rules</b> – how many points make a cash-in, what that’s worth, and the penalty buttons.</li>' +
                 '<li><b>Manual adjustments</b> – add or take away points, override a balance, see a statement.</li></ul>');
         else if (cur === 'tasks') {
@@ -550,14 +550,13 @@
             var kids = (DATA.boys || []).map(function (b) { return b.Name; }).filter(Boolean);
             var tg = {}; (DATA.hwTargets || []).forEach(function (t) { tg[t.Boy] = t; });
             var hwk = (DATA.homework || []).filter(function (t) { return !t.Done; });
-            var DAYOPT = [['Mon-Fri', 'Mon to Fri'], ['Daily', 'Every day'], ['Sun-Thu', 'Sun to Thu'], ['Sat,Sun', 'Weekends']];
+            var PEROPT = [['day', 'every day'], ['week', 'every week (Mon–Sun)'], ['week-fri', 'every week (Fri–Thu)']];
             var tgRow = function (n) {
-                var t = tg[n] || { Minutes: 0, Per: 'day', Days: 'Mon-Fri' }, days = DAYOPT.some(function (o) { return o[0] === t.Days; }) ? DAYOPT : DAYOPT.concat([[t.Days, t.Days]]);
+                var t = tg[n] || { Minutes: 0, Per: 'day' };
                 return '<div class="tk-row hwt-row" data-boy="' + esc(n) + '"><b class="hwt-name">' + esc(n) + '</b>' +
                     '<input data-hwt="Minutes" type="number" min="0" max="600" step="5" value="' + esc(t.Minutes || '') + '" placeholder="0">' +
                     '<span class="mute small">minutes</span>' +
-                    '<select data-hwt="Per"><option value="day"' + (t.Per !== 'week' ? ' selected' : '') + '>a day</option><option value="week"' + (t.Per === 'week' ? ' selected' : '') + '>a week</option></select>' +
-                    '<select data-hwt="Days"' + (t.Per === 'week' ? ' disabled' : '') + ' title="Which days the daily target applies">' + days.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === t.Days ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></div>';
+                    '<select data-hwt="Per">' + PEROPT.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === (t.Per || 'day') ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
             };
             var who = ['All'].concat(kids);
             var hrow = function (t) {
@@ -569,7 +568,7 @@
             };
             html = head('Homework', 'A homework time target for each child, and the homework tasks they need to do. Both show on the <b>Child’s Homework</b> widget (add it in <b>Screens</b>): the child taps Start, the timer counts towards the target, and they tick tasks off when they’re done.') +
                 (kids.length ? '' : '<div class="card"><p class="mute">No children are in the reward system yet – tick them in <a href="#" data-go="famcfg">Family</a>.</p></div>') +
-                '<div class="card" id="fHwT"><h2>Homework time targets</h2><p class="mute small card-sub">Leave it at 0 for no target. A weekly target runs Monday to Sunday.</p>' +
+                '<div class="card" id="fHwT"><h2>Homework time targets</h2><p class="mute small card-sub">Leave it at 0 for no target. A weekly target starts afresh on its first day – Monday, or Friday.</p>' +
                 '<div id="hwtRows">' + kids.map(tgRow).join('') + '</div></div>' +
                 '<div class="card" id="fHw"><h2>Homework tasks</h2><p class="mute small card-sub">A ticked task shows as done until the end of that day, then goes. Save keeps the time targets above too.</p>' +
                 '<div class="tk-row hw-row tk-head"><span></span><span>Homework <small>max ' + (L().hwTask || 40) + '</small></span><span>For who</span><span>Due <small>optional</small></span><span></span></div>' +
@@ -580,14 +579,13 @@
                 var rowsEl = $('hwRows'); if (!rowsEl) return;
                 $('hwAdd').onclick = function () { rowsEl.insertAdjacentHTML('beforeend', hrow({})); var ins = rowsEl.querySelectorAll('[data-hw=Task]'); ins[ins.length - 1].focus(); };
                 $('hwUndo').onclick = function () { render(); };
-                $('hwtRows').onchange = function (e) { if (e.target.getAttribute('data-hwt') === 'Per') { var d = e.target.closest('.tk-row').querySelector('[data-hwt=Days]'); d.disabled = e.target.value === 'week'; } };
                 rowsEl.onclick = function (e) { var t, r = e.target.closest('.tk-row');
                     if ((t = e.target.closest('[data-tmv]'))) { if (+t.getAttribute('data-tmv') < 0 && r.previousElementSibling) rowsEl.insertBefore(r, r.previousElementSibling); else if (+t.getAttribute('data-tmv') > 0 && r.nextElementSibling) rowsEl.insertBefore(r.nextElementSibling, r); }
                     else if (e.target.closest('[data-tx]')) { var nm = r.querySelector('[data-hw=Task]').value.trim(); if (!nm || confirm('Delete “' + nm + '”?')) r.remove(); }
                 };
                 $('hwSave').onclick = function () {
                     var targets = Array.prototype.map.call($('hwtRows').querySelectorAll('.tk-row'), function (r) {
-                        return { Boy: r.getAttribute('data-boy'), Minutes: +r.querySelector('[data-hwt=Minutes]').value || 0, Per: r.querySelector('[data-hwt=Per]').value, Days: r.querySelector('[data-hwt=Days]').value };
+                        return { Boy: r.getAttribute('data-boy'), Minutes: +r.querySelector('[data-hwt=Minutes]').value || 0, Per: r.querySelector('[data-hwt=Per]').value };
                     });
                     var tasks = Array.prototype.map.call(rowsEl.querySelectorAll('.tk-row'), function (r) {
                         var o = { ID: r.getAttribute('data-id') || '' };

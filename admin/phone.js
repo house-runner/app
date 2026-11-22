@@ -447,13 +447,12 @@
     function homeworkEd(top) {
         var kids = (DATA.boys || []).map(function (b) { return b.Name; }).filter(Boolean), tg = {};
         (DATA.hwTargets || []).forEach(function (t) { tg[t.Boy] = t; });
-        var DAYOPT = [['Mon-Fri', 'Mon to Fri'], ['Daily', 'Every day'], ['Sun-Thu', 'Sun to Thu'], ['Sat,Sun', 'Weekends']];
+        var PEROPT = [['day', 'every day'], ['week', 'every week (Mon–Sun)'], ['week-fri', 'every week (Fri–Thu)']];
         var tgBox = function (n) {
-            var t = tg[n] || { Minutes: 0, Per: 'day', Days: 'Mon-Fri' }, days = DAYOPT.some(function (o) { return o[0] === t.Days; }) ? DAYOPT : DAYOPT.concat([[t.Days, t.Days]]);
+            var t = tg[n] || { Minutes: 0, Per: 'day' };
             return '<div class="fa-hwt" data-boy="' + esc(n) + '"><label><b>' + esc(n) + '</b></label><div class="fa-two">' +
                 '<div><label>Minutes</label><input data-hwt="Minutes" type="number" inputmode="numeric" min="0" max="600" step="5" value="' + esc(t.Minutes || '') + '" placeholder="0"></div>' +
-                '<div><label>Per</label><select data-hwt="Per"><option value="day"' + (t.Per !== 'week' ? ' selected' : '') + '>a day</option><option value="week"' + (t.Per === 'week' ? ' selected' : '') + '>a week</option></select></div></div>' +
-                '<label>On these days</label><select data-hwt="Days"' + (t.Per === 'week' ? ' disabled' : '') + '>' + days.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === t.Days ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select></div>';
+                '<div><label>How often</label><select data-hwt="Per">' + PEROPT.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === (t.Per || 'day') ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div></div>';
         };
         var row = function (t) {
             return rowBox('<label>Homework <span class="cnt">max ' + (L().hwTask || 40) + '</span></label><input data-k="Task" maxlength="' + (L().hwTask || 40) + '" value="' + esc(t.Task || '') + '" placeholder="e.g. Maths – fractions sheet" autocomplete="off">' +
@@ -461,14 +460,13 @@
                 '<div><label>Due <small>optional</small></label><input data-k="Due" type="date" value="' + esc(t.Due || '') + '"></div></div>', { id: t.ID || '', order: true });
         };
         $('faMain').innerHTML = top + '<p class="fa-lead">A homework time target for each child and the homework tasks to do. Both show on the <b>Child’s Homework</b> widget, where the child starts a timer and ticks tasks off.</p>' +
-            '<h3 class="fa-h">Time targets</h3>' + box((kids.length ? kids.map(tgBox).join('<hr>') : '<p class="fa-how">No children are in the reward system yet.</p>') + '<p class="fa-how">0 = no target. A weekly target runs Monday to Sunday.</p>', 'fa-hwts') +
+            '<h3 class="fa-h">Time targets</h3>' + box((kids.length ? kids.map(tgBox).join('<hr>') : '<p class="fa-how">No children are in the reward system yet.</p>') + '<p class="fa-how">0 = no target. A weekly target starts afresh on its first day – Monday, or Friday.</p>', 'fa-hwts') +
             '<h3 class="fa-h">Homework tasks</h3>' +
             '<div id="edRows">' + (DATA.homework || []).filter(function (t) { return !t.Done; }).map(row).join('') + '</div><button class="btn fa-add" id="edAdd">+ Add homework</button>' + editorFoot('Save homework');
         wireRows('edRows', function () { return row({}); });
-        document.querySelector('.fa-hwts').onchange = function (e) { if (e.target.getAttribute('data-hwt') === 'Per') e.target.closest('.fa-hwt').querySelector('[data-hwt=Days]').disabled = e.target.value === 'week'; };
         $('edSave').onclick = function () {
             var targets = Array.prototype.map.call(document.querySelectorAll('.fa-hwt'), function (r) {
-                return { Boy: r.getAttribute('data-boy'), Minutes: +r.querySelector('[data-hwt=Minutes]').value || 0, Per: r.querySelector('[data-hwt=Per]').value, Days: r.querySelector('[data-hwt=Days]').value };
+                return { Boy: r.getAttribute('data-boy'), Minutes: +r.querySelector('[data-hwt=Minutes]').value || 0, Per: r.querySelector('[data-hwt=Per]').value };
             });
             var tasks = Array.prototype.map.call(document.querySelectorAll('#edRows .fa-lrow'), function (r) {
                 var o = { ID: r.getAttribute('data-id') || '' };

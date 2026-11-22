@@ -176,4 +176,3 @@ body.fa #lsPick button.on { background: #3fa9f5; border-color: #3fa9f5; color: #
 body.fa .fa-morelink { display: block; margin: 6px 0 0 auto; background: none; border: 0; color: #3fa9f5; font-weight: 700; font-size: 14px; padding: 6px 2px; font-family: inherit; }
 /* Rewards → Homework */
 body.fa .fa-hwts hr { border: 0; border-top: 1px solid var(--line); margin: 12px 0; }
-body.fa .fa-hwt select:disabled { opacity: .4; }

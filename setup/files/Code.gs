@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.127';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.128';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -1160,8 +1160,8 @@ function sinceReset_(day) {
   return fmt_(new Date(now.getTime() - ((dow - day + 7) % 7) * 86400000), 'yyyy-MM-dd');
 }
 /* ---------------------------------------------------------------- homework
- * Each child in the reward system can have a homework time target (minutes a day on chosen days, or minutes a week, Monday
- * to Sunday) and a list of homework tasks a grown-up adds. On the Child's Homework widget they start and stop a timer – the
+ * Each child in the reward system can have a homework time target (minutes every day, or every week – Monday to Sunday, or
+ * Friday to Thursday) and a list of homework tasks a grown-up adds. On the Child's Homework widget they start and stop a timer – the
  * time counts towards the target – and tick the tasks off. A ticked task shows as done for the rest of that day, then goes. */
 function hwRows_() {
   const ss = SpreadsheetApp.getActive();
@@ -1172,9 +1172,10 @@ function hwRows_() {
 function hwMs_(v) { const n = Number(String(v || '').replace(/^'/, '')); return isFinite(n) && n > 0 ? n : 0; }
 function hwFor_(name, hw, today, dow) {
   const t = hw.targets.find(x => String(x.Boy) === name && Number(x.Minutes) > 0);
-  const per = t && String(t.Per).toLowerCase() === 'week' ? 'week' : 'day', days = t ? String(t.Days || 'Mon-Fri') : '';
+  const p = t ? String(t.Per).toLowerCase() : '', per = p.indexOf('week') === 0 ? 'week' : 'day';
+  const startDay = p === 'week-fri' ? 5 : 1;      // a weekly target starts afresh on Monday, or on Friday (Fri–Thu)
   const dayStart = Utilities.parseDate(today, TZ, 'yyyy-MM-dd').getTime();
-  const from = per === 'week' ? dayStart - ((DAYS.indexOf(dow) + 6) % 7) * 864e5 : dayStart;     // the week runs Monday to Sunday
+  const from = per === 'week' ? dayStart - ((DAYS.indexOf(dow) - startDay + 7) % 7) * 864e5 : dayStart;
   let mins = 0, running = 0;
   hw.log.filter(r => String(r.Boy) === name).forEach(r => {
     const st = hwMs_(r.Start), en = hwMs_(r.End);
@@ -1184,7 +1185,7 @@ function hwFor_(name, hw, today, dow) {
   const tasks = hw.tasks.filter(x => forBoy_(x.Boy, name) && (!x.Done || dateStr_(x.Done) === today)).map(x => ({
     id: String(x.ID), text: String(x.Task), due: x.Due ? dateStr_(x.Due) : '', done: !!x.Done }));
   return {
-    target: t ? { minutes: Number(t.Minutes), per: per, days: days, today: per === 'week' || dayMatches_(days, dow) } : null,
+    target: t ? { minutes: Number(t.Minutes), per: per, today: true } : null,
     minutes: Math.floor(mins), running: running, tasks: tasks,
   };
 }
@@ -1218,9 +1219,8 @@ function saveHomework_(b) {
   const targets = (b.targets || []).filter(t => kids.indexOf(String(t.Boy)) >= 0).map(t => {
     const m = Math.round(Number(t.Minutes) || 0);
     if (m < 0 || m > 600) throw new Error('A homework target must be between 0 and 600 minutes');
-    const per = String(t.Per) === 'week' ? 'week' : 'day';
-    const days = String(t.Days || 'Mon-Fri').replace(/[^A-Za-z,\-]/g, '').slice(0, 40) || 'Mon-Fri';
-    return [String(t.Boy), m, per, days];
+    const per = ['day', 'week', 'week-fri'].indexOf(String(t.Per)) >= 0 ? String(t.Per) : 'day';      // every day; every week Mon–Sun; every week Fri–Thu
+    return [String(t.Boy), m, per, 'Daily'];
   });
   const old = {}; rows_('homework').forEach(r => { old[String(r.ID)] = r; });
   const count = {};
@@ -1279,7 +1279,7 @@ function getAdmin_() {
     tasks: rows_('tasks').map(t => Object.assign(t, { Active: !(t.Active === false || String(t.Active).toUpperCase() === 'FALSE') })),
     todos: rows_('todos'),
     homework: hwRows_().tasks.map(t => ({ ID: String(t.ID), Boy: String(t.Boy || ''), Task: String(t.Task || ''), Due: t.Due ? dateStr_(t.Due) : '', Done: t.Done ? dateStr_(t.Done) : '' })),
-    hwTargets: hwRows_().targets.map(t => ({ Boy: String(t.Boy || ''), Minutes: Number(t.Minutes) || 0, Per: String(t.Per || 'day'), Days: String(t.Days || 'Mon-Fri') })),
+    hwTargets: hwRows_().targets.map(t => ({ Boy: String(t.Boy || ''), Minutes: Number(t.Minutes) || 0, Per: String(t.Per || 'day') })),
     timetable: rows_('timetable').map(r => Object.assign(r, { Day: r.Day instanceof Date ? fmt_(r.Day, 'yyyy-MM-dd') : r.Day })),
     ledger: rows_('ledger').slice(-300).reverse().map(l => Object.assign(l, {
       Timestamp: fmt_(new Date(l.Timestamp), 'EEE d MMM yyyy HH:mm'),

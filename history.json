@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.309",
+    "date": "2026-11-17",
+    "notes": [
+      "Fixed: saving Rewards → Homework the first time could fail with “A sheet with the name Homework targets already exists” – when the screen and the Configurator both made the new homework tabs at the same moment."
+    ]
+  },
+  {
     "version": "2026.11.308",
     "date": "2026-11-17",
     "notes": [
