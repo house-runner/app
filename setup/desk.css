@@ -1,0 +1,452 @@
+/* The settings website on a computer: the phone app's pages, wider. */
+/* One width for the whole website: the title bar and every page line up, and use the screen up to --deskw (narrower screens: all of it) */
+body.desk { --deskw: 1600px; }
+body.desk .main { max-width: var(--deskw); margin: 0 auto; width: 100%; box-sizing: border-box; padding-left: clamp(14px, 2vw, 28px); padding-right: clamp(14px, 2vw, 28px); }
+body.desk .top-row { max-width: var(--deskw); margin: 0 auto; padding-left: clamp(14px, 2vw, 28px); padding-right: clamp(14px, 2vw, 28px); box-sizing: border-box; }
+body.desk #app { display: flex; flex-direction: column; }
+body.desk .top { order: 0; } body.desk .tabbar { order: 1; } body.desk .main { order: 2; padding-bottom: 40px; }
+body.desk .tabbar { position: sticky; top: 61px; left: auto; right: auto; bottom: auto; transform: none; width: 100%; border-radius: 0; border-top: 0; border-bottom: 1px solid var(--line); justify-content: center; padding-bottom: 0; }
+body.desk .tabbar button { flex: 0 1 140px; }
+body.desk .tabbar button { flex-direction: row; justify-content: center; gap: 8px; font-size: 14px; padding: 12px 0; }
+body.desk .tabbar button i { font-size: 18px; }
+body.desk .sheet-bg { align-items: center; justify-content: center; }
+body.desk .sheet { max-width: 620px; border-radius: 18px; max-height: 88vh; }
+
+.desk-welcome { max-width: 860px; margin: 0 auto; padding: 40px 16px; }
+.desk-welcome h1 { font-size: 28px; margin: 0 0 20px; }
+.dw-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 18px; }
+.dw-card { display: flex; flex-direction: column; gap: 8px; padding: 22px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); color: var(--text); text-decoration: none; }
+.dw-card.first { border-color: var(--acc); }
+.dw-card span { font-size: 34px; } .dw-card b { font-size: 19px; } .dw-card small { color: var(--mute); font-size: 14px; line-height: 1.45; flex: 1; }
+.dw-card i { font-style: normal; align-self: flex-start; margin-top: 6px; }
+.dw-card:hover { border-color: var(--acc); }
+body.desk .tabbar button { font-size: 13px; }
+
+/* The widget box: how it appears on the left, its own settings on the right */
+body.desk .sheet.wide { max-width: 1200px; width: 94vw; }
+.ws-cols { display: grid; gap: 14px; margin-top: 14px; }
+body.desk .ws-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 26px; align-items: start; }
+body.desk .ws-cols.one { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 760px) { body.desk .ws-cols { grid-template-columns: minmax(0, 1fr); } }
+.ws-h { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--mute, #8b95a5); margin: 4px 0 8px; }
+body.desk .ws-place { padding-right: 26px; border-right: 1px solid var(--line, #2a303b); }
+.ws-place #wDel { margin-top: 14px; }
+.ws-note { background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.4); border-radius: 10px; padding: 8px 12px; font-size: .9rem; }
+
+/* Tabs in two groups: setting up, then everyday */
+.tabbar .tab-grp { align-self: center; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--mute, #8b95a5); padding: 0 4px 0 10px; white-space: nowrap; }
+.tabbar .tab-sep { align-self: stretch; width: 1px; margin: 8px 10px; background: var(--line, #2a303b); }
+/* Family tab: the children side by side, everything showing */
+body.desk .boys-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+body.desk .boys-row .card { margin: 0; }
+body.desk .fam-tiles { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+/* Lists of morning to-dos and reminders: one line each on a computer */
+body.desk .lrow, body.desk .lhead { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; padding: 4px 44px 4px 8px; margin-bottom: 4px; border-radius: 10px; }
+body.desk .lhead { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--mute, #8b95a5); padding-top: 0; padding-bottom: 0; background: none; border: 0; }
+body.desk .lhead small { text-transform: none; letter-spacing: 0; opacity: .8; }
+body.desk .lrow .lc label { display: none; }
+body.desk .lrow input { padding: 7px 10px; min-height: 0; height: 36px; font-size: .92rem; margin: 0; }
+body.desk .lrow .x { top: 50%; transform: translateY(-50%); width: 28px; height: 28px; }
+
+/* Explainers at the top of each set-up page */
+.card.explain { background: rgba(63,169,245,.07); border-color: rgba(63,169,245,.35); }
+.card.explain summary { cursor: pointer; list-style: none; }
+.card.explain summary::-webkit-details-marker { display: none; }
+.card.explain p, .card.explain li { font-size: .92rem; line-height: 1.5; }
+.card.explain ul { padding-left: 1.2em; margin: 6px 0 0; }
+/* Rewards: changing points by hand */
+.adj-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line, #2a303b); flex-wrap: wrap; }
+.adj-row:last-child { border-bottom: 0; }
+.adj-row .dot { width: 12px; height: 12px; border-radius: 50%; }
+.adj-row .adj-bal { flex: 1; color: var(--mute, #8b95a5); }
+/* Help and the calendar, inside the website */
+.frame-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+.desk-frame { width: 100%; height: calc(100vh - 190px); min-height: 520px; border: 1px solid var(--line, #2a303b); border-radius: 14px; background: #0b0d12; }
+
+
+/* Family: one line per person */
+.fp-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.fp-row input[type=color] { width: 44px; height: 40px; padding: 3px; flex: none; }
+.fp-row input[data-fn] { flex: 1; max-width: 280px; }
+.fp-row .ptb { flex: none; }
+
+/* Pages with a menu down the left (Rewards, Advanced) */
+
+.pane { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 22px; align-items: start; }
+.pane-nav { position: sticky; top: 120px; display: flex; flex-direction: column; gap: 2px; background: var(--panel, #12161d); border: 1px solid var(--line, #2a303b); border-radius: 14px; padding: 8px; }
+.pn { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; color: inherit; text-decoration: none; }
+.pn:hover { background: rgba(255,255,255,.05); }
+.pn.on { background: rgba(63,169,245,.16); box-shadow: inset 3px 0 0 #3fa9f5; }
+.pn-i { width: 22px; text-align: center; flex: none; }
+.pn-t { display: flex; flex-direction: column; min-width: 0; } .pn-t small { color: var(--mute, #8b95a5); font-size: .74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pn-h { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--mute, #8b95a5); padding: 10px 10px 2px; }
+.pane-body { min-width: 0; }
+.pane-h { margin: 2px 0 4px; font-size: 1.3rem; } .pane-what { margin: 0 0 12px; font-size: .92rem; }
+
+body.desk .lrow.l-todos, body.desk .lhead.l-todos { grid-auto-flow: row; grid-template-columns: 34px minmax(0, 1.3fr) minmax(0, .9fr) minmax(0, 1.6fr); align-items: center; }
+body.desk .lrow.l-timetable, body.desk .lhead.l-timetable { grid-auto-flow: row; grid-template-columns: minmax(0, 1.1fr) minmax(0, .8fr) minmax(0, 2fr); align-items: center; }
+body.desk .lrow select { height: 36px; padding: 4px 8px; margin: 0; font-size: .92rem; }
+body.desk .lrow .rpick { flex-direction: row; align-items: center; flex-wrap: wrap; }
+body.desk .lrow .dp-day { min-width: 32px; height: 30px; }
+
+/* The configurator's title, with the page underneath */
+body.desk #title { display: flex; flex-direction: column; line-height: 1.15; }
+body.desk #title .title-page { font-size: .8rem; font-weight: 600; color: var(--mute, #8b95a5); }
+/* Home */
+.hm-new { background: rgba(74,222,128,.08); border-color: rgba(74,222,128,.4); }
+.hm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 8px; }
+.hm-btn { display: grid; grid-template-columns: 30px 1fr; gap: 2px 8px; padding: 12px; border: 1px solid var(--line, #2a303b); border-radius: 12px; color: inherit; text-decoration: none; background: rgba(255,255,255,.02); }
+.hm-btn:hover { border-color: #3fa9f5; }
+.hm-btn span { grid-row: 1 / 3; font-size: 20px; } .hm-btn small { color: var(--mute, #8b95a5); font-size: .8rem; }
+body.desk .lrow .opick { flex-direction: row; align-items: center; flex-wrap: wrap; }
+body.desk .lrow.l-todos, body.desk .lhead.l-todos { grid-template-columns: 34px minmax(0, 1.2fr) minmax(0, .8fr) minmax(0, 2fr); }
+
+/* ===================== Type and spacing on the website: one clear hierarchy =====================
+ * 1. the page's heading (28px)  2. a card's heading (20px)  3. a section label (13px capitals)  · body text 16px · small print 14px+ */
+body.desk { font-size: 16px; }
+body.desk .page-h, body.desk .pane-h { font-size: 28px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; margin: 4px 0 18px; }
+body.desk .pane-h { margin-bottom: 6px; }
+body.desk .pane-what { font-size: 15.5px; line-height: 1.55; margin: 0 0 18px; max-width: 1100px; }
+body.desk .card { padding: 20px 22px; margin-bottom: 18px; border-radius: 16px; }
+body.desk .card > h2, body.desk .card.explain summary b { font-size: 20px; font-weight: 750; line-height: 1.25; margin: 0 0 12px; display: block; }
+body.desk .card p, body.desk .card li { font-size: 16px; line-height: 1.55; }
+body.desk .small, body.desk .card p.small, body.desk .card li.small, body.desk .card ul.small li { font-size: 15px; line-height: 1.55; }
+body.desk .mute.small, body.desk p.mute.small, body.desk .help { font-size: 14.5px; line-height: 1.5; }
+body.desk .sec { font-size: 13px; margin: 28px 2px 12px; }
+body.desk label { font-size: 15px; }
+body.desk .cnt { font-size: 12.5px; }
+body.desk ul.pvl { font-size: 15.5px; } body.desk ul.pvl li { margin: 8px 0; }
+body.desk .tile b { font-size: 16.5px; } body.desk .tile small { font-size: 14px; }
+body.desk .mrow b { font-size: 16.5px; } body.desk .mrow small { font-size: 14px; }
+body.desk .setup-link b { font-size: 16.5px; } body.desk .setup-link span { font-size: 14px; }
+body.desk .link-card b { font-size: 17px; } body.desk .link-card span { font-size: 14.5px; }
+body.desk .hm-btn b { font-size: 16.5px; } body.desk .hm-btn small { font-size: 14px; }
+body.desk .lhead { font-size: 12.5px; }
+body.desk .pn-t b { font-size: 15.5px; } body.desk .pn-t small { font-size: 12.5px; } body.desk .pn-h { font-size: 11.5px; }
+body.desk .tabbar .tab-grp { font-size: 11px; }
+body.desk .banner { font-size: 15px; }
+body.desk .ws-h { font-size: 13px; }
+body.desk details.adv summary { font-size: 15.5px; }
+/* Software updates: one row per part */
+.up-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line, #2a303b); }
+.up-row:last-of-type { border-bottom: 0; }
+.up-ok { font-size: 20px; font-weight: 800; text-align: center; }
+.up-t b { display: block; font-size: 16px; } .up-t small, .up-v small { display: block; color: var(--mute, #8b95a5); font-size: 13.5px; }
+.up-v { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* Links in text, and paragraphs with room between them */
+body.desk .card a:not(.btn):not(.mrow):not(.tile):not(.hm-btn):not(.setup-link):not(.link-card), body.desk .help a, body.desk .ws-note a, body.desk .cs-card a { color: #3fa9f5; text-decoration: none; font-weight: 650; }
+body.desk .card a:not(.btn):not(.mrow):not(.tile):not(.hm-btn):not(.setup-link):not(.link-card):hover { text-decoration: underline; }
+body.desk .card p { margin: 0 0 10px; } body.desk .card p:last-child { margin-bottom: 0; }
+/* The tab bar fits the width: tabs only as wide as their names */
+body.desk .tabbar { justify-content: center; flex-wrap: nowrap; overflow-x: auto; gap: 2px; padding: 0 10px; }
+body.desk .tabbar button { flex: none; padding: 12px 12px; white-space: nowrap; }
+
+/* Title: room for the descenders (y, g); Help by the title */
+body.desk .top h1 { line-height: 1.35; padding-bottom: 2px; }
+body.desk .hdr-help { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; margin-right: 10px; border: 1px solid var(--line, #2a303b); border-radius: 999px; color: inherit; text-decoration: none; font-weight: 600; font-size: 15px; white-space: nowrap; }
+body.desk .hdr-help:hover, body.desk .hdr-help.on { border-color: #3fa9f5; color: #3fa9f5; }
+/* Home: the second green box is one big link */
+.hm-go { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; color: inherit; text-decoration: none; }
+.hm-go span { grid-column: 1; font-size: 14px; color: var(--mute, #8b95a5); }
+.hm-go i { grid-column: 2; grid-row: 1 / 3; font-style: normal; font-size: 26px; color: #4cd964; }
+.hm-go:hover { border-color: #4cd964; }
+
+/* The tab bar lines up with the title bar too */
+body.desk .tabbar { box-sizing: border-box; }
+/* Family: a small Add button straight under the list, then the notes, then Save */
+.fp-add { width: auto !important; padding-left: 18px; padding-right: 18px; margin-top: 6px; }
+.fp-notes { margin-top: 22px; }
+.fp-notes p { margin: 0 0 6px; }
+
+/* Breathing room in explanations: paragraphs and bullets spaced out */
+body.desk .card p { line-height: 1.6; margin: 0 0 14px; }
+body.desk .card p:last-child { margin-bottom: 0; }
+body.desk .card ul, body.desk .card ol { margin: 6px 0 14px; padding-left: 22px; }
+body.desk .card li { line-height: 1.6; margin-bottom: 12px; }
+body.desk .card li:last-child { margin-bottom: 0; }
+body.desk .card.explain summary { margin-bottom: 14px; }
+
+/* To-do and reminder rows: one line each (no "school days" note), a little taller, with more space between */
+body.desk .lrow .dp-say { display: none; }
+body.desk .lrow .opick, body.desk .lrow .rpick { flex-wrap: nowrap; gap: 10px; }
+body.desk .lrow .opick select, body.desk .lrow .rpick select { flex: none; width: auto; min-width: 150px; }
+body.desk .lrow .dpick { flex-wrap: nowrap; }
+/* (row spacing: see the house style block at the end) */
+body.desk .card li { margin-bottom: 14px; } body.desk .card ul, body.desk .card ol { margin-top: 10px; }
+.hm-h { margin-top: 30px; }
+
+/* House style (the Family page): section headings between boxes are big and clear, not small capitals */
+body.desk .sec { font-size: 20px; font-weight: 750; text-transform: none; letter-spacing: 0; color: var(--text, #f2f4f7); margin: 32px 2px 14px; }
+body.desk .sec:first-child, body.desk .page-h + .sec { margin-top: 8px; }
+body.desk .sec a, body.desk .sec button { font-size: 15px; font-weight: 600; }
+
+/* Widget settings (Screens → click a widget): the Family page house style – big title, each part in its own box with a big heading, roomy spacing */
+body.desk .sheet.wide { padding: 26px 30px 24px; }
+body.desk .sheet.wide > h2 { font-size: 28px; font-weight: 800; letter-spacing: -.01em; margin: 6px 0 8px; }
+body.desk .sheet.wide > p.mute.small { font-size: 16px; margin: 0 0 6px; }
+body.desk .ws-cols { gap: 18px; margin-top: 18px; }
+body.desk .ws-place, body.desk .ws-set { background: var(--panel-2, #1c2028); border: 1px solid var(--line, #2a2f38); border-radius: 16px; padding: 20px 22px; }
+body.desk .ws-cols > .ws-place { border-right: 1px solid var(--line, #2a2f38); padding-right: 22px; }
+body.desk .ws-h { font-size: 20px; font-weight: 750; text-transform: none; letter-spacing: 0; color: var(--text, #f2f4f7); margin: 0 0 14px; }
+body.desk .ws-place label, body.desk .ws-set label { margin-top: 14px; }
+body.desk .ws-place .tog, body.desk .ws-set .tog { margin: 16px 0 4px; }
+body.desk .sheet.wide .sheet-actions { margin-top: 22px; }
+
+/* Lists you add rows to (daily to-dos, reminders, penalties…) – the Family page style: plain rows, roomy inputs, ✕ at the end,
+ * "+ Add a …" under the rows, then Save (green) and Undo side by side */
+body.desk .lrows { margin-top: 4px; }
+body.desk .lrow { background: none; border: 0; border-radius: 0; padding: 0 44px 0 0; margin-bottom: 10px; }
+body.desk .lrow input, body.desk .lrow select { height: 44px; font-size: 16px; padding: 8px 12px; }
+body.desk .lrow .x { right: 4px; width: 32px; height: 32px; font-size: 17px; }
+body.desk .lhead { padding: 0 44px 6px 0; font-size: 13px; }
+body.desk .ladd-row { display: flex; gap: 10px; margin: 8px 0 0; }
+body.desk .ladd-row .btn { flex: none; margin: 0; }
+body.desk .rem-from { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line, #2a2f38); }
+
+/* Screen Sleep: a number with its unit, the two sleep-screen choices, from/to times */
+.ss-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.ss-row input { width: 140px; margin: 0; }
+.ss-opts { display: flex; gap: 12px; flex-wrap: wrap; }
+.ss-opt { flex: 1; min-width: 200px; text-align: left; background: var(--panel-2, #1c2028); border: 2px solid var(--line, #2a2f38); border-radius: 14px; padding: 14px 16px; color: var(--text, #f2f4f7); cursor: pointer; font: inherit; }
+.ss-opt b { display: block; font-size: 16.5px; } .ss-opt small { color: var(--mute, #8b95a5); font-size: 14px; }
+.ss-opt.on { border-color: var(--acc, #3fa9f5); background: rgba(63,169,245,.12); }
+
+/* Shopping and to-do lists in the house style: a big heading (the list's name), a roomy add row, larger rows */
+body.desk .ls-add { margin: 4px 0 16px; } body.desk .ls-add input { height: 46px; font-size: 16px; } body.desk .ls-add .btn { margin: 0; height: 46px; }
+body.desk .ls-row { padding: 6px 0; } body.desk .ls-row .ls-t { font-size: 16.5px; }
+body.desk .ls-row .x { font-size: 17px; width: 32px; height: 32px; }
+
+/* ===================== House style, everywhere on the Configurator (from the Family page) =====================
+ * Page title 28px · box heading 20px · body text 16px · notes 14.5px grey · every box, input and button the same size
+ * Lists you add rows to (tasks, daily to-dos, reminders…) all look alike: plain rows 46px high, 10px apart, ✕ at the end */
+body.desk input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]):not([type=hidden]), body.desk select { height: 46px; font-size: 16px; }
+body.desk .btn { min-height: 46px; font-size: 16px; }
+body.desk .btn.sm { min-height: 38px; font-size: 14px; }
+body.desk .card p.small, body.desk .card li.small, body.desk .card ul.small li { font-size: 16px; }
+body.desk .card h3:not(.sec), body.desk .kc h3 { font-size: 20px; font-weight: 750; }
+body.desk .lrow, body.desk .tk-row { padding: 0 44px 0 0 !important; margin: 0 0 10px !important; min-height: 0; background: none; border: 0; position: relative; align-items: center; }
+body.desk .lrow input, body.desk .lrow select, body.desk .tk-row input, body.desk .tk-row select { height: 46px; font-size: 16px; padding: 8px 12px; margin: 0; }
+body.desk .lrow .x, body.desk .tk-row .x { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; font-size: 17px; color: var(--mute, #8b95a5); background: none; border: 0; }
+body.desk .lhead, body.desk .tk-head { padding: 0 44px 6px 0 !important; margin: 0 0 4px !important; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--mute, #8b95a5); }
+body.desk .tk-row { grid-template-columns: 34px minmax(0, 2.2fr) 90px minmax(0, 1fr) minmax(0, 1fr) 110px; }
+body.desk .tk-row .ptb { height: 46px; }
+body.desk .lrow .dp-day { height: 34px; min-width: 34px; }
+body.desk .ladd-row { margin-top: 14px; }
+body.desk .sheet-actions { margin-top: 22px; }
+
+/* Home → Connect: the two phone apps with their QR codes */
+.hm-apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin: 14px 0 6px; }
+.hm-app { display: flex; gap: 16px; align-items: center; padding: 14px; border: 1px solid var(--line, #2a303b); border-radius: 14px; background: rgba(255,255,255,.02); }
+.hm-qr { width: 132px; height: 132px; flex: none; background: #fff; border-radius: 10px; padding: 6px; }
+.hm-qr svg { width: 100%; height: 100%; display: block; }
+.hm-ico { width: 28px; height: 28px; border-radius: 7px; vertical-align: -8px; margin-right: 8px; }
+.hm-app p { margin: 8px 0 0; }
+
+/* ⚙ Setup / ⚙ Widgets group labels in the menu */
+.tabbar .tab-grp b, .cfg-tabs .tab-grp b { font-size: 14px; margin-right: 5px; letter-spacing: 0; vertical-align: -1px; opacity: .85; filter: grayscale(1); }
+/* ▶ View dashboard – set apart from the other buttons: it leaves the settings for the dashboard itself */
+body.desk .hdr-dash { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; margin-right: 22px; border-radius: 999px; background: #30d158; color: #06200f; font-weight: 800; font-size: 15px; text-decoration: none; white-space: nowrap; box-shadow: 0 0 0 4px rgba(48,209,88,.15); }
+body.desk .hdr-dash:hover { filter: brightness(1.08); }
+
+/* ⚙ Widgets → Calendar: add an event, and the list of what's coming up */
+.ev-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px 16px; }
+.ev-form label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: 14.5px; }
+.ev-form .ev-wide { grid-column: 1 / -1; }
+.ev-day h3 { font-size: 16px; margin: 18px 0 6px; color: var(--mute, #8b95a5); text-transform: none; }
+.ev-row { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--line, #2a303b); }
+.ev-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.ev-time { width: 64px; flex: none; color: var(--mute, #8b95a5); font-size: 14.5px; }
+.ev-t { flex: 1; min-width: 0; }
+.ev-x { border: 0; background: transparent; color: var(--mute, #8b95a5); font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+.ev-x:hover { color: #ff6b6b; background: rgba(255,107,107,.1); }
+
+/* ---- Which menu button you're on: every button grey, the one you're on in full colour with a white outline (website and phone) */
+body.desk .tabbar button i { filter: grayscale(1); opacity: .75; transition: filter .15s, opacity .15s; }
+body.desk .tabbar button { color: #fff; font-weight: 600; border-radius: 12px; }
+body.desk .tabbar button:hover i { opacity: 1; }
+/* A narrow window: the menu scrolls sideways – room for the scroll bar under it, so it doesn't crowd the buttons */
+body.desk .tabbar { overflow-x: auto; scrollbar-width: thin; padding-bottom: 10px; }
+body.desk .tabbar button.on { color: #fff; box-shadow: inset 0 0 0 2px #fff; background: rgba(255,255,255,.06); }
+body.desk .tabbar button.on i { filter: none; opacity: 1; }
+
+/* ---- The phone (Family Admin): the website's pages, narrow.
+   A small HouseRunner ⚙ mark top left, the menu as one row you can scroll sideways, and the left-hand lists (Rewards,
+   Advanced, Other widgets) as a row of buttons across the top. */
+body.desk.phone .top-row { padding: 0 10px; gap: 6px; }
+body.desk.phone .hr-phone { display: inline-flex; align-items: center; gap: 2px; }
+body.desk.phone .hr-phone img { width: 30px; height: 30px; display: block; }
+body.desk.phone .hr-phone b { font-size: 15px; color: var(--mute, #8b95a5); margin-left: -6px; margin-top: 16px; }
+body.desk.phone .hdr-dash { margin-right: 4px; padding: 7px 12px; font-size: 14px; box-shadow: none; }
+body.desk.phone .hdr-help { margin-right: 4px; padding: 7px 9px; font-size: 15px; }
+body.desk.phone .tabbar { top: 57px; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; padding: 6px 8px; gap: 2px; }
+body.desk.phone .tabbar::-webkit-scrollbar { display: none; }
+body.desk.phone .tabbar button { flex: none; padding: 8px 11px; font-size: 14px; }
+body.desk.phone .tabbar .tab-sep { margin: 6px 6px; }
+body.desk.phone .main { padding: 12px 12px 90px; }
+body.desk.phone .page-h { font-size: 24px; }
+body.desk.phone .pane { display: block; }
+body.desk.phone .pane-nav { position: static; flex-direction: row; overflow-x: auto; gap: 6px; padding: 0 0 10px; margin: 0 0 6px; background: none; border: 0; scrollbar-width: none; }
+body.desk.phone .pane-nav::-webkit-scrollbar { display: none; }
+body.desk.phone .pn-h { display: none; }
+body.desk.phone .pn { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line, #2a303b); }
+body.desk.phone .pn.on { box-shadow: inset 0 0 0 2px #fff; background: rgba(255,255,255,.06); border-color: transparent; }
+body.desk.phone .pn-t small { display: none; }
+body.desk.phone .hm-grid { grid-template-columns: 1fr; }
+body.desk.phone .hm-app { flex-direction: column; align-items: flex-start; }
+body.desk.phone .sheet { max-width: none; border-radius: 18px 18px 0 0; max-height: 92vh; }
+body.desk.phone .sheet-bg { align-items: flex-end; }
+/* Phone: the list editors (tasks, to-dos, reminders, routes…) – each row's boxes wrap onto as many lines as they need */
+body.desk.phone .lhead { display: none !important; }
+body.desk.phone .lrow, body.desk.phone .tk-row { display: flex !important; flex-wrap: wrap; gap: 8px; padding: 10px 40px 10px 0 !important; border-bottom: 1px solid var(--line, #2a303b) !important; }
+body.desk.phone .lrow > *, body.desk.phone .tk-row > * { flex: 1 1 130px; min-width: 0; }
+body.desk.phone .lrow .rpick, body.desk.phone .lrow .opick { flex: 1 1 100%; flex-wrap: wrap !important; }
+body.desk.phone .lrow .x, body.desk.phone .tk-row .x { flex: none; }
+body.desk.phone .ladd-row { flex-wrap: wrap; }
+body.desk.phone .ladd-row .btn { white-space: normal; }
+body.desk.phone .dpick { flex-wrap: wrap; } body.desk.phone .op-daily { flex-wrap: wrap; max-width: 100%; }
+/* Each icon close to its own word, and clear space between one menu item and the next */
+body.desk .tabbar button { gap: 5px; padding: 9px 13px; flex: none; }
+body.desk .tabbar { gap: 6px; }
+/* The top bar: the same space after ▶ Dashboard, 💬 Feedback and ❓ Help; the green "up to date" dot sits on the refresh button */
+body.desk .hdr-dash, body.desk .hdr-help { margin-right: 10px; }
+body.desk .hdr-dash { margin-left: auto; }
+#refresh { position: relative; }
+#refresh .sync { position: absolute; top: -3px; right: -3px; margin: 0; border: 2px solid var(--bg, #0c0e12); width: 12px; height: 12px; min-width: 12px; }
+/* The menu bar: the same height, the buttons centred in it (as much space above as below) */
+body.desk .tabbar { padding-top: 5px; padding-bottom: 5px; align-items: center; }
+/* Icons always in Windows' / Apple's / Android's colour emoji font – otherwise Windows can draw some (🖥️, 🛠️) as thin black outlines */
+.tabbar button i, .cfg-tabs a i, .tab-grp b, .hm-btn > span, .pn-i, .t-ico, .ed-tile .ico, .ed-rb span, .hr-phone b, .side .ico { font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; font-style: normal; }
+.mi { width: 1.2em; height: 1.2em; display: inline-block; vertical-align: -0.22em; }
+.hm-btn > span .mi { width: 1em; height: 1em; }
+/* The list down the left (Rewards, System, Other widgets): never taller than the window – it scrolls on its own,
+   and on Other widgets the scroll bar is always there, so it's clear there are more widgets further down */
+body.desk:not(.phone) .pane-nav { max-height: calc(100vh - 140px); overflow-y: auto; scrollbar-width: thin; }
+body.desk:not(.phone) .pane-other .pane-nav { overflow-y: scroll; }
+#refresh .sync { width: 15px !important; height: 15px !important; min-width: 15px !important; top: -4px; right: -4px; }
+/* Home: the green way to the dashboard, then one box for where you are and how it works, and one green box for new families */
+.hm-dash { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; padding: 12px 24px; border-radius: 999px; background: #30d158; color: #06200f; font-weight: 800; font-size: 17px; text-decoration: none; box-shadow: 0 0 0 4px rgba(48,209,88,.15); }
+.hm-dash:hover { filter: brightness(1.08); }
+.hm-conn { margin: 0 0 8px; font-size: 16px; }
+.hm-how { margin: 0; }
+.hm-wiz { display: flex; flex-direction: column; gap: 12px; }
+.hm-go2 { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; color: inherit; text-decoration: none; padding-top: 12px; border-top: 1px solid rgba(74,222,128,.3); }
+.hm-go2 span { grid-column: 1; font-size: 14px; color: var(--mute, #8b95a5); }
+.hm-go2 i { grid-column: 2; grid-row: 1 / 3; font-style: normal; font-size: 26px; color: #4cd964; }
+/* Home: the green box rows, and connecting a new display – one row per kind of device */
+.hm-wiz .hm-go2:first-child { border-top: 0; padding-top: 0; }
+.hm-devs { margin-top: 6px; }
+.hm-dev { display: grid; grid-template-columns: 34px 1fr auto; gap: 4px 12px; align-items: start; padding: 14px 0; border-top: 1px solid var(--line, #2a303b); }
+.hm-dev > span { font-size: 22px; font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; }
+.hm-dev b { font-size: 16.5px; } .hm-dev p { margin: 4px 0 0; overflow-wrap: anywhere; }
+body.desk .card a.hm-more { font-size: 13px; white-space: nowrap; color: #3fa9f5; padding-top: 3px; }
+.hm-code { align-items: center; } .hm-code p { margin-top: 8px; }
+body.desk.phone .hm-dev { grid-template-columns: 28px 1fr; } body.desk.phone .hm-dev .hm-more { grid-column: 2; }
+/* "How … works" at the top of each left-hand menu: dashed, like Screens' */
+.pn.pn-info { border: 1px dashed var(--line2, #3a4252); margin-bottom: 8px; }
+.pn.pn-info.on { border-color: #3fa9f5; }
+.pn-info .pn-i { font-size: 18px; }
+body.desk.phone .pn.pn-info { margin-bottom: 0; }
+/* Lists: the Shopping / To-do selector – big, clear buttons */
+.seg.lseg { display: flex; gap: 8px; padding: 6px; max-width: 640px; border-radius: 14px; }
+.seg.lseg button { flex: 1; padding: 14px 18px; font-size: 18px; font-weight: 750; border-radius: 10px; border: 1px solid var(--line, #2a303b); background: rgba(255,255,255,.03); color: #cbd5e1; font-family: inherit; }
+.seg.lseg button:hover { border-color: #3fa9f5; color: #fff; }
+.seg.lseg button.on { background: #3fa9f5; border-color: #3fa9f5; color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+body.desk.phone .seg.lseg { max-width: none; } body.desk.phone .seg.lseg button { font-size: 16px; padding: 12px 10px; }
+/* Home: the "Type a display's code" button keeps its own width */
+.hm-code a.btn { display: inline-block; width: auto; }
+/* Buttons keep their own width on a computer – full-width buttons are for the phone */
+body.desk:not(.phone) .sheet-actions { justify-content: flex-start; }
+body.desk:not(.phone) .card .sheet-actions .btn { flex: 0 0 auto; min-width: 200px; }
+body.desk:not(.phone) .card .btn.wide { width: auto; min-width: 200px; display: inline-flex; justify-content: center; }
+/* A colour that's only shown (not chosen) is a stripe on the left of its row, everywhere */
+.ev-dot, .adj-row .dot { width: 5px; height: auto; min-height: 22px; align-self: stretch; border-radius: 3px; }
+.card i.dot { display: inline-block; width: 5px; height: 1.1em; border-radius: 3px; vertical-align: -0.2em; margin-right: 8px; }
+/* The ✕ that removes a row: a small box, red when you point at it */
+body.desk .card button.x, body.desk .ev-x, body.desk .cs-x { width: 32px; height: 32px; flex: none; border-radius: 9px; border: 1px solid var(--line, #2a303b); background: rgba(255,255,255,.04); color: #9aa4b2; font-size: 14px; line-height: 1; cursor: pointer; }
+body.desk .card button.x:hover, body.desk .ev-x:hover, body.desk .cs-x:hover { background: #ef4444; border-color: #ef4444; color: #fff; }
+body.desk .sticky button.x { width: 22px; height: 22px; border: 0; border-radius: 50%; background: rgba(255,255,255,.35); color: #5a5130; }
+body.desk .sticky button.x:hover { background: #ef4444; color: #fff; }
+.ev-nice { color: #3fa9f5; font-weight: 700; margin-left: 4px; }
+/* Bulleted lists sit a little further in from the edge of their box, everywhere */
+body.desk .card ul, body.desk .card ol, .card.explain ul { padding-left: 30px; }
+body.desk .card li { padding-left: 4px; }
+/* Buttons side by side always have a gap between them */
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+.btn-row > .btn { margin: 0 !important; }
+body.desk .card .btn + .btn { margin-left: 10px; }
+body.desk .card .btn-row .btn + .btn, body.desk .card .sheet-actions .btn + .btn { margin-left: 0; }
+/* Rewards lists: the same gap under the last row as between the "+ Add" and Save buttons */
+body.desk .card .lrows + .ladd-row { margin: 16px 0 0; }
+body.desk .card .ladd-row ~ .sheet-actions { margin-top: 16px; }
+body.desk .card h2 + .card-sub { margin: -4px 0 12px; }
+#tkRows + .ladd-row { margin-top: 16px; }
+#fTasks .ladd-row + .sheet-actions { margin-top: 16px; }
+body.desk .card h3.sub-h { font-size: 18px; font-weight: 750; color: #fff; margin: 22px 0 4px; }
+/* Coming up: colour, category, what – and the time after it, only when there is one */
+.ev-cat { width: 110px; flex: none; color: var(--mute, #8b95a5); font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-t .ev-time { width: auto; margin-left: 1.6em; font-weight: 400; }
+/* Reminders: the switch-time block between two lines, with the same 16px gap above and below each line */
+body.desk .card .rem-from { margin-top: 16px; padding: 16px 0; border-top: 1px solid var(--line, #2a2f38); border-bottom: 1px solid var(--line, #2a2f38); }
+body.desk .card .rem-from p { margin-bottom: 0; }
+body.desk .card .rem-from + .sheet-actions { margin-top: 16px; }
+body.desk .card .rem-from > label:first-child { margin-top: 0; display: block; }
+/* Journey times: the same look as the traffic widget on the dashboard */
+.tr-routes { display: grid; gap: 8px; }
+.tr-route { --s: #8b95a5; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 4px 14px; background: rgba(255,255,255,.04); border-radius: 12px; padding: 9px 14px; border-left: 5px solid var(--s); }
+.tr-route.green { --s: #4cd964; } .tr-route.amber { --s: #f5a623; } .tr-route.red { --s: #ef4444; }
+.tr-l { display: flex; flex-direction: column; min-width: 0; }
+.tr-l b { font-size: 16.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr-l small { color: var(--mute, #8b95a5); font-size: 13.5px; }
+.tr-pill { font-size: 12.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.tr-pill.green { background: #4cd964; color: #062b10; } .tr-pill.amber { background: #f5a623; color: #2b1d00; } .tr-pill.red { background: #ef4444; color: #fff; }
+.tr-time { font-size: 14px; color: var(--mute, #8b95a5); white-space: nowrap; } .tr-time b { font-size: 24px; color: var(--text, #fff); font-weight: 800; }
+/* Glance rows: a colour mark sits on the same line as its name */
+.r-main { display: block; } .r-main i.dot { margin-right: 8px; }
+/* Holiday countdown: the same look as the widget on the dashboard */
+.cdg-main { display: flex; align-items: center; gap: 22px; padding: 4px 0 12px; }
+.cdg-left { display: flex; flex-direction: column; align-items: center; min-width: 110px; }
+.cdg-num { font-size: 64px; font-weight: 800; line-height: 1; color: var(--cc); font-variant-numeric: tabular-nums; }
+.cdg-num.today { font-size: 38px; }
+.cdg-lbl { color: var(--mute, #8b95a5); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.cdg-what { display: flex; flex-direction: column; min-width: 0; }
+.cdg-what b { font-size: 22px; line-height: 1.2; }
+.cdg-what span { color: var(--mute, #8b95a5); font-size: 15px; }
+.cdg-ico { font-size: 24px; }
+.cdg-next { border-top: 1px solid var(--line, #2a303b); padding-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.cdg-row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto 80px; gap: 10px; align-items: center; font-size: 15px; }
+.cdg-row i { width: 10px; height: 10px; border-radius: 50%; }
+.cdg-row em { font-style: normal; color: var(--mute, #8b95a5); font-size: 13.5px; }
+.cdg-row b { text-align: right; font-variant-numeric: tabular-nums; }
+/* Kitchen timer: tap the quick-button minutes */
+.mins-pick { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 2px; }
+.mins-pick .mp { min-width: 72px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line, #2a303b); background: rgba(255,255,255,.04); color: #cbd5e1; font: inherit; font-weight: 700; cursor: pointer; }
+.mins-pick .mp:hover { border-color: #3fa9f5; color: #fff; }
+.mins-pick .mp.on { background: #3fa9f5; border-color: #3fa9f5; color: #fff; }
+.mins-show { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 14px; }
+.mins-show span { padding: 7px 14px; border-radius: 10px; background: rgba(63,169,245,.15); border: 1px solid rgba(63,169,245,.5); color: #fff; font-weight: 700; font-size: 14.5px; }
+.w-set .w-about { margin: 0 0 14px; font-size: 15.5px; line-height: 1.5; }
+.wh-steps li { margin-bottom: 8px; line-height: 1.5; }
+.wh-make { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 10px; }
+.wh-make select { flex: 1; min-width: 120px; }
+.wc-face { display: flex; justify-content: center; padding: 6px 0 10px; }
+.wc-face svg { width: min(420px, 100%); height: auto; overflow: visible; }
+.wc-ring { fill: #2a2214; stroke: #c9a44c; stroke-width: 3; }
+.wc-dial { fill: #14161c; stroke: rgba(201, 164, 76, .35); stroke-width: .8; }
+.wc-tick { stroke: rgba(201, 164, 76, .5); stroke-width: .8; }
+.wc-place { fill: #e9d9a8; font-family: Georgia, "Times New Roman", serif; font-size: 7.2px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.wc-hand line { stroke: var(--hc); stroke-width: 2.6; stroke-linecap: round; }
+.wc-hand circle { fill: var(--hc); stroke: #0c0e12; stroke-width: 1.2; }
+.wc-hand text { fill: #0c0e12; font-size: 8px; font-weight: 800; }
+.wc-pin { fill: #c9a44c; stroke: #0c0e12; stroke-width: 1.5; }
+.btn-row.wiz-btns { gap: 22px; margin: 16px 0 14px; } .btn-row.wiz-btns > .btn { min-width: 260px; }
+/* Add button, a dividing line, then Save / Undo */
+body.desk .lrows + .ladd-row, body.desk #tkRows + .ladd-row { margin-top: 24px; }
+body.desk .ladd-row + .sheet-actions { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line, #2a303b); }
+body.desk .boy-more > summary { display: none; }
+hr.sep { border: 0; border-top: 1px solid var(--line, #2a303b); margin: 22px 0 18px; }
+/* Widget settings pop-up: a normal-sized icon in the title, and the description set apart from the settings */
+#sheet h2 svg.mi, #sheet h2 img { width: 1.25em; height: 1.25em; vertical-align: -0.22em; }
+#sheet > h2 + p.mute { margin: 6px 0 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line, #2a303b); line-height: 1.5; }
+#sheet .ws-h { margin-top: 0; }
