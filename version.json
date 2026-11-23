@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.310",
-  "script": "2026.11.128",
+  "app": "2026.11.311",
+  "script": "2026.11.129",
   "date": "2026-11-17",
   "notes": [
-    "Fixed: saving Rewards → Homework the first time could fail with “A sheet with the name Homework targets already exists” – when the screen and the Configurator both made the new homework tabs at the same moment."
+    "Rewards → Homework: the time target is now minutes every day, every week (Mon–Sun, starts afresh on Monday) or every week (Fri–Thu, starts afresh on Friday) – one choice instead of “a day/a week” plus days."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

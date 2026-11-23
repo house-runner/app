@@ -1,19 +1,26 @@
-/* HouseRunner – Google script – LOADER (version 1.3)
+/*
+ *  👋  HELLO!  There's nothing to read or change on this page.
+ *
+ *      Just click the blue  Deploy  button at the top right of this page, then  New deployment.
+ *      The HouseRunner step window shows you every click.
+ *
+ *
+ *
+ *
+ *
+ * ------------------------------------------------------------------------------------------------------------------
+ * HouseRunner – Google script – LOADER (version 1.4)
  *
  * This small file is all that lives in this Apps Script project's "Code" file. Each time the script runs it fetches
- * the real program from where the apps are hosted (GitHub Pages), keeps a copy for a few hours so it stays quick,
- * and runs it. So:
- *   - updates arrive by themselves within a few minutes of being published – nothing to redeploy;
- *   - nothing here needs Google's Apps Script API or a Google Cloud project, and Google's limit of 200 saved
- *     versions doesn't matter (this file never changes);
- *   - if GitHub can't be reached it uses the last copy it saved (in a hidden tab of this Sheet).
+ * the real program from where the apps are hosted (houserunner.app), keeps a copy for a few hours so it stays quick,
+ * and runs it. So updates arrive by themselves within a few minutes of being published – nothing to redeploy; and if
+ * the website can't be reached it uses the last copy it saved (in a hidden tab of this Sheet).
  * Only paste a new copy of this file if the apps ask you to (a new loader version, or a new kind of permission).
- *
  * The functions at the bottom are the names Google calls (the web app, the menu, timers); each hands over to the
  * same-named function in the program.
  */
 const FD_LOADER = (function () {
-  const VERSION = '1.3';   // compared with version.json "loader": a higher number there asks families to paste this file again
+  const VERSION = '1.4';   // compared with version.json "loader": a higher number there asks families to paste this file again
   const DEFAULT_BASE = 'https://houserunner.app/';
   const CODE = 'setup/files/Code.gs', HTML = 'setup/files/Admin.html';           // relative to the apps address
   const VKEY = 'script', VDECL = /const SCRIPT_VERSION = '([^']+)'/;  // version.json key, and how the program states its version
@@ -147,7 +154,7 @@ function onOpen(e) {
     // A brand-new copy can't download the program while the Sheet is opening (Google doesn't allow it yet), so this
     // menu has the same first steps: each one loads the program when it's clicked.
     try {
-      SpreadsheetApp.getUi().createMenu('🏠 HouseRunner').addItem('▶ HouseRunner – SETUP', 'menuConnect').addToUi();
+      SpreadsheetApp.getUi().createMenu('🏠 HouseRunner').addItem('▶ Click here to start step 16', 'menuConnect').addToUi();
     } catch (x) { /* no UI */ }
   }
 }

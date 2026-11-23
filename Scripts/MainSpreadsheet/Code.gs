@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.128';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.129';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -832,14 +832,60 @@ function doGet(e) {
     });
   }
   // A plain visit – usually the Web app URL clicked straight after Deploy. That visit is what lets the Sheet learn its own
-  // address (rememberUrl_ above: Google only tells a script its /exec address while it's being visited), so say what happens next.
-  if (!p.admin) return HtmlService.createHtmlOutput('<div style="font:17px/1.5 Arial,sans-serif;max-width:560px;margin:60px auto;padding:0 20px;color:#222">' +
-    '<h1 style="font-size:28px">✅ HouseRunner is published</h1><p>Close this tab and go back to your Sheet. The <b>HouseRunner – SETUP</b> window carries on by itself – ' +
-    'or, if you closed it, choose <b>🏠 HouseRunner → ▶ HouseRunner – SETUP</b>.</p></div>').setTitle('HouseRunner – published')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  // address (rememberUrl_ above: Google only tells a script its /exec address while it's being visited).
+  if (!p.admin) return publishedPage_();
   return (LOADED ? HtmlService.createHtmlOutput(LOADED.html()) : HtmlService.createHtmlOutputFromFile('Admin'))
     .setTitle('HouseRunner – Admin')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/**
+ * The page the Web app URL opens, straight after Deploy. On a brand-new Sheet it finishes setting the Sheet up (tabs, access
+ * code, the My ID tab, the other tabs tucked away) and offers one button back to the HouseRunner setup tab. The button carries
+ * only this Sheet's address: the setup page then collects the access code with the one-time "claim" (open for the first
+ * couple of hours, and only until it's used), so the private link is never shown on this page.
+ */
+function publishedPage_() {
+  const page = (body, title) => HtmlService.createHtmlOutput('<div style="font:17px/1.5 Arial,sans-serif;max-width:600px;margin:50px auto;padding:0 20px;color:#222">' + body + '</div>')
+    .setTitle(title || 'HouseRunner – published').addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  const P = PropertiesService.getScriptProperties();
+  let err = '';
+  try {
+    let brandNew = true;
+    try { freshCopy_(); brandNew = !String(inst_('AccessCode') || ''); } catch (e) { brandNew = true; }
+    if (brandNew) withLock_(() => setup());
+  } catch (e) { err = e.message; }
+  const u = myUrl_();
+  const open = !P.getProperty('claimed') && (Date.now() < Number(P.getProperty('claimUntil') || 0) || Date.now() - Number(P.getProperty('installedAt') || 0) < 24 * 3600000);
+  if (err || !u || !open) {
+    return page('<h1 style="font-size:28px">✅ HouseRunner is published</h1>' + (err ? '<p style="color:#b91c1c">Something went wrong finishing the Sheet: ' + String(err).replace(/</g, '&lt;') + '</p>' : '') +
+      '<p>Close this tab. To carry on setting up, go to your Sheet and click <b>🏠 HouseRunner</b> (along the top), then its first menu item.</p>');
+  }
+  myIdTab_(true);
+  tidyTabs_();
+  const link = appsBase_() + 'setup/#api=' + encodeURIComponent(u) + '&from=sheet';
+  return page('<h1 style="font-size:30px;margin:0 0 6px">✅ Published!</h1>' +
+    '<p style="font-size:19px;margin:0 0 22px">Your HouseRunner Sheet is ready. One more click:</p>' +
+    '<p><a href="' + link + '" target="_blank" onclick="setTimeout(function(){document.getElementById(\'after\').style.display=\'block\';document.getElementById(\'go\').style.display=\'none\';},300)" id="go" ' +
+    'style="display:inline-block;background:#3fa9f5;color:#fff;padding:16px 28px;border-radius:12px;text-decoration:none;font-weight:bold;font-size:20px">▶ Back to HouseRunner setup</a></p>' +
+    '<div id="after" style="display:none;background:#e8f6ee;border:1px solid #9bd3b0;border-radius:12px;padding:14px 18px">' +
+    '<b style="font-size:19px">✅ Done here.</b><br>Setup carries on in your <b>HouseRunner setup</b> tab. Now <b>close every other tab</b> – this one, Apps Script and your Sheet – so only HouseRunner setup is left.</div>' +
+    '<p style="color:#888;font-size:14px;margin-top:26px">Your Sheet keeps working in the background – you don’t need it open.</p>');
+}
+/** A new family's Sheet shows only its My ID tab: the rest is HouseRunner's own data (still there – right-click a tab's
+ *  name, or View → Hidden sheets, to see one). The copy's old instruction tab goes. */
+function tidyTabs_() {
+  try {
+    const ss = SpreadsheetApp.getActive(), id = ss.getSheetByName(MYID_TAB);
+    if (!id) return;
+    if (id.isSheetHidden()) id.showSheet();
+    ss.getSheets().forEach(sh => {
+      if (sh.getName() === MYID_TAB) return;
+      if (/^start here$/i.test(sh.getName().trim())) { try { ss.deleteSheet(sh); } catch (e) { /* fine */ } return; }
+      if (!sh.isSheetHidden()) { try { sh.hideSheet(); } catch (e) { /* fine */ } }
+    });
+    ss.setActiveSheet(id);
+  } catch (e) { /* not important */ }
 }
 
 /** A backup of the family's private links, emailed to the Google account the dashboard belongs to – so if a computer or phone
@@ -4253,8 +4299,11 @@ function spotifyControl_(op) {
 function onOpen() {
   try { freshCopy_(); } catch (e) { /* a simple trigger may not be allowed to – the first web request does it */ }
   // Just the one item: everything else is done on the HouseRunner website (System → My data), not in the Sheet.
-  SpreadsheetApp.getUi().createMenu('🏠 HouseRunner').addItem('▶ HouseRunner – SETUP', 'menuConnect').addToUi();
+  let done = false; try { done = !!PropertiesService.getScriptProperties().getProperty('claimed'); } catch (e) { /* not yet allowed */ }
+  SpreadsheetApp.getUi().createMenu('🏠 HouseRunner').addItem(done ? '▶ HouseRunner – SETUP' : SETUP_MENU_NEW, 'menuConnect').addToUi();
 }
+/** The menu item a new Sheet shows: the step window's last-but-one step, if the "published" page's button didn't work. */
+const SETUP_MENU_NEW = '▶ Click here to start step 16';
 function appsBase_() {
   const b = appsAddr_().replace(/\/?$/, '/');
   if (LOADED) { try { LOADED.setBase(b); } catch (e) { /* fine */ } }
@@ -4316,6 +4365,7 @@ function setupStep_(step) {
     const P = PropertiesService.getScriptProperties(), u = P.getProperty('execUrl');
     for (let i = 0; i < 8; i++) { if (answers_(u)) break; if (i === 7) return { ok: false, kind: 'slow', url: u }; Utilities.sleep(5000); }
     myIdTab_(true);
+    tidyTabs_();
     return { ok: true, link: appsBase_() + '#api=' + encodeURIComponent(u) + '&code=' + encodeURIComponent(inst_('AccessCode')) + '&from=sheet' };
   }
   throw new Error('Unknown setup step');
@@ -4353,27 +4403,27 @@ function menuConnect() {
     'var BTN="display:inline-block;background:#3fa9f5;color:#fff;padding:12px 22px;border-radius:10px;text-decoration:none;font-weight:bold";' +
     'function mark(k,ok,t){var e=document.getElementById("s-"+k);e.style.color=ok===null?"#222":"";e.innerHTML=(ok===null?"⏳ ":ok?"✅ ":"⚠️ ")+(t||e.innerHTML.replace(/^\\S+\\s/,""));}' +
     'function out(h){document.getElementById("out").innerHTML=h;}' +
-    'function fail(e){out("<p style=\\"color:#b91c1c\\"><b>Something went wrong:</b> "+String(e&&e.message||e).replace(/</g,"&lt;")+"</p><p>Close this window and choose <b>🏠 HouseRunner → ▶ HouseRunner – SETUP</b> again – it carries on from where it got to.</p>");}' +
+    'function fail(e){out("<p style=\\"color:#b91c1c\\"><b>Something went wrong:</b> "+String(e&&e.message||e).replace(/</g,"&lt;")+"</p><p>Close this window and choose <b>🏠 HouseRunner menu → its first item</b> again – it carries on from where it got to.</p>");}' +
     // Publishing with Deploy makes Google ask for permission again, and this window's link to the script lapses: try twice more,
     // then say plainly to choose SETUP once more (which finds the published dashboard and carries on).
     'var authTries=0;' +
     'function run(k,next){google.script.run.withSuccessHandler(next).withFailureHandler(function(e){var m=String(e&&e.message||e);' +
     ' if(/Authori[sz]ation is required/i.test(m)){if(++authTries<3){setTimeout(function(){run(k,next);},4000);return;}' +
-    '  mark(k,null,"Nearly there – one more click");out("<p>Google asked for your permission again while you published – that’s normal, and it means this window can’t carry on by itself.</p><p><b>Close this window and choose 🏠 HouseRunner → ▶ HouseRunner – SETUP once more.</b> It finds your published dashboard and goes straight on.</p>");return;}' +
+    '  mark(k,null,"Nearly there – one more click");out("<p>Google asked for your permission again while you published – that’s normal, and it means this window can’t carry on by itself.</p><p><b>Close this window and choose 🏠 HouseRunner menu → its first item once more.</b> It finds your published dashboard and goes straight on.</p>");return;}' +
     ' mark(k,false);fail(e);}).setup("hr:"+k);}' +
     'var waiting=false;' +
     'function publish(){run("publish",function(r){' +
     ' if(!r.ok&&r.kind==="deploy"){mark("publish",null,"Publish your dashboard – once, with Google’s Deploy button (1 minute)");' +
-    '  if(!waiting){waiting=true;out("<ol style=\\"margin:4px 0 8px;padding-left:20px\\"><li><a href=\\""+r.editor+"\\" target=\\"_blank\\" style=\\""+BTN+";padding:7px 14px\\">Open Apps Script</a> (a new tab)</li>' +
+    '  if(!waiting){waiting=true;out("<div style=\\"background:#e8f6ee;border:1px solid #9bd3b0;border-radius:8px;padding:8px 10px;margin:0 0 10px\\"><b>Already clicked Deploy once?</b> Don’t deploy again. In Apps Script click <b>Deploy → Manage deployments</b>, then click the link under <b>Web app</b> – a page opens saying <b>Published!</b>, and this window carries on by itself.</div><p style=\\"margin:0 0 4px\\"><b>Not deployed yet?</b></p><ol style=\\"margin:4px 0 8px;padding-left:20px\\"><li><a href=\\""+r.editor+"\\" target=\\"_blank\\" style=\\""+BTN+";padding:7px 14px\\">Open Apps Script</a> (a new tab)</li>' +
     '<li>Click the blue <b>Deploy</b> button (top right) → <b>New deployment</b></li><li>Click the ⚙ next to <b>Select type</b> → <b>Web app</b></li>' +
-    '<li>Set <b>Execute as: Me</b> and <b>Who has access: Anyone</b> → click <b>Deploy</b> (allow it if Google asks)</li><li>When it says <b>Deployment successfully created</b>, click the <b>Web app URL</b> link under it (a page opens saying <b>HouseRunner is published</b>) – then <b>Done</b>, and come back here</li></ol>' +
+    '<li>Set <b>Execute as: Me</b> and <b>Who has access: Anyone</b> → click <b>Deploy</b> (allow it if Google asks)</li><li>When it says <b>Deployment successfully created</b> (or <b>updated</b>), click the <b>Web app URL</b> link under it (a page opens saying <b>HouseRunner is published</b>) – then <b>Done</b>, and come back here</li></ol>' +
     '<p style=\\"font-size:13px;margin:6px 0\\">Or copy the <b>Web app URL</b> and paste it here: <input id=\\"pu\\" style=\\"width:58%;padding:4px 6px\\" placeholder=\\"https://script.google.com/macros/s/…/exec\\"> <button id=\\"pb\\">OK</button> <span id=\\"pm\\" style=\\"color:#b91c1c\\"></span></p>' +
     '<p style=\\"color:#888;font-size:13px\\">⏳ Watching for it – this window carries on by itself as soon as it’s published.</p>");}' +
     '  var pb=document.getElementById("pb");if(pb&&!pb.onclick)pb.onclick=function(){document.getElementById("pm").textContent="Checking…";google.script.run.withSuccessHandler(function(x){if(x.ok){document.getElementById("pm").textContent="";}else document.getElementById("pm").textContent=x.error;}).setup("hr:url:"+document.getElementById("pu").value);};' +
     '  setTimeout(publish,8000);return;}' +
-    ' if(!r.ok){mark("publish",false,"Couldn’t publish");out("<p>Close this window and choose <b>🏠 HouseRunner → ▶ HouseRunner – SETUP</b> again.</p>");return;}' +
+    ' if(!r.ok){mark("publish",false,"Couldn’t publish");out("<p>Close this window and choose <b>🏠 HouseRunner menu → its first item</b> again.</p>");return;}' +
     ' out("");mark("publish",true,r.already?"Your dashboard is published":"Published your dashboard");mark("check",null);run("check",function(c){' +
-    '  if(!c.ok){mark("check",false,"It isn’t answering yet");out("<p>Google can take a minute after publishing. Wait a minute, then choose <b>🏠 HouseRunner → ▶ HouseRunner – SETUP</b> again – nothing is published twice.</p>");return;}' +
+    '  if(!c.ok){mark("check",false,"It isn’t answering yet");out("<p>Google can take a minute after publishing. Wait a minute, then choose <b>🏠 HouseRunner menu → its first item</b> again – nothing is published twice.</p>");return;}' +
     '  mark("check",true,"It answers – all working");out("<h2 style=\\"margin:8px 0\\">Published ✅</h2><p>Now click <b>Open HouseRunner</b>. It takes you back to your HouseRunner setup page, already connected to this Sheet, for the last few steps – nothing to type.</p><p><a href=\\""+c.link+"\\" target=\\"_blank\\" onclick=\\"window.open(this.href);gone();return false\\" style=\\""+BTN+"\\">Open HouseRunner</a></p><p style=\\"color:#888;font-size:13px\\">That link contains your private access code. Don’t share it outside the family. You can close this window afterwards.</p>");' +
     ' });});}' +
     'function gone(){out("<h2 style=\\"margin:8px 0\\">✅ All done in the Sheet</h2><p style=\\"font-size:16px\\"><b>Close this tab now</b> (the ✕ on the Sheet’s tab at the top of your browser). Setup carries on in your <b>HouseRunner setup</b> tab.</p><p style=\\"color:#888;font-size:13px\\">Your Sheet keeps working in the background – you don’t need it open. Its first tab, <b>My ID</b>, has your private link if a device ever needs connecting again.</p>");}' +

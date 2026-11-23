@@ -228,16 +228,16 @@
                     ? '<div class="note bad">🗑 <b>The copy you made on ' + esc(new Date(S.copiedAt).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) + ' doesn’t answer any more</b> – it looks as if it was deleted. Just carry on below to make a new one.</div>'
                     : '<div class="note bad" style="display:flex;gap:14px;align-items:flex-start"><span aria-hidden="true" style="flex:none;width:30px;height:30px;border-radius:50%;background:#ef4444;color:#fff;font:700 19px/30px Georgia,serif;text-align:center;margin-top:1px">i</span><div><b>You started a setup on this computer before</b> (a copy made on ' + esc(new Date(S.copiedAt).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) + '). Carrying on below makes a <b>new</b> Sheet and starts again. ' +
                         'Your earlier copy isn’t changed or deleted – it stays in your Google Drive. ' +
-                        '<span class="mute">Meant to carry on with that one instead? Open it from <a href="https://drive.google.com/drive/search?q=HouseRunner" target="_blank" rel="noopener">Google Drive</a> and follow its Start HERE tab – or, if it’s already working, use <a href="../../?connect">Connect this computer to your family</a>.</span></div></div>') : '') +
-                    '<ol class="howto">' + (window.HRFloat ? '<li>Click <button class="btn ghost" id="floatStart">📌 Open the step window</button> – a small window that ' + (HRFloat.floats ? 'stays on top while you work in Google Sheets' : 'sits beside Google Sheets') + ' and shows each step as you go, with the video. <span class="mute">(Optional, but it helps.)</span></li>' : '') +
+                        '<span class="mute">Meant to carry on with that one instead? Open it from <a href="https://drive.google.com/drive/search?q=HouseRunner" target="_blank" rel="noopener">Google Drive</a> and follow the step window from step 3 – or, if it’s already working, use <a href="../../?connect">Connect this computer to your family</a>.</span></div></div>') : '') +
+                    '<ol class="howto">' + (window.HRFloat ? '<li>Click <button class="btn" id="floatStart">📌 Open the step window</button> – a small window that ' + (HRFloat.floats ? 'stays on top while you work in Google Sheets' : 'sits beside Google Sheets') + ' and walks you through every click, one at a time, with a short video of each. <b>Do this first</b> – it makes the Google part easy.</li>' : '') +
                     '<li>Click <a class="btn" id="copyGo" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/' + encodeURIComponent(tpl) + '/copy">Make my copy</a> ' +
                         '<span class="mute">(it opens in a new tab)</span>. If Google asks you to sign in, use the Google account you want the dashboard in – the one with the family calendar.</li>' +
                       '<li>Google shows <b>“Copy document?”</b> – click the blue <b>Make a copy</b> button. <span class="mute">(If it mentions “Apps Script files”, that’s right – they come too.)</span>' +
                         '<img src="../../shared/brand/copy-document.png" alt="Google’s Copy document page, with the blue Make a copy button" class="step-pic"></li>' +
-                      '<li>Your new Sheet opens on its <b>Start HERE</b> tab. <b>Follow the 9 steps on it</b> – they look like this (click to enlarge):' +
-                        '<a href="../../shared/brand/sheet-start.png" target="_blank" rel="noopener" title="Open the picture full size"><img src="../../shared/brand/sheet-start.png" alt="The Start HERE tab’s 8 steps: publish it in Apps Script, allow it, then 🏠 HouseRunner → SETUP" class="step-pic" style="max-width:560px;cursor:zoom-in"></a></li>' +
-                    '<li>When the <b>HouseRunner – SETUP</b> window in your Sheet says <b>“Published ✅”</b>, click <b>Open HouseRunner</b> – it brings you back to <b>this page</b>, already connected, and setup carries on here by itself.</li></ol>' +
-                    '<div class="status">⏳ Waiting for your Sheet to say <b>Published ✅</b> – this page notices by itself and carries on. No need to press Next.</div>' +
+                      '<li><b>Then follow the step window</b>, one click at a time (about 3 minutes): you switch your Sheet on in Google’s Apps Script and allow it. ' +
+                        'At the end a page says <b>✅ Published!</b> – click <b>▶ Back to HouseRunner setup</b>, and setup carries on here by itself.</li></ol>' +
+                    allSteps() +
+                    '<div class="status">⏳ Waiting for your Sheet – this page notices by itself and carries on. No need to press Next.</div>' +
                     whyPerms() +
                     helpLink('setup') + '</div>' +
                     '<details class="card"><summary>Stuck? Do it by hand</summary><p class="mute">No “Make my copy” page: make the Sheet by hand below. No menu, or publishing didn’t work: <button class="btn sm ghost" data-byhand>Publish it by hand instead</button></p>' + manual() + '</details>'
@@ -255,15 +255,9 @@
             var perms = whyPerms();
             if (connected()) return '<h1>Publish it and connect</h1><div class="card big">' + okLine(true, 'Done – this page is connected to your HouseRunner Google Sheet.') + '<p>Press <b>Next</b>.</p>' +
                 '<div id="connStatus"></div></div>' + packAndPair() + urlCard() + otherWay();
-            return '<h1>Publish it and connect</h1><p class="lead">Already clicked <b>Open HouseRunner</b> in your Sheet? Setup carries on in that new tab – you can close this one. Otherwise: your Sheet comes with a small program inside it. “Publishing” switches it on, so your screen and phones can talk to your Sheet – ' +
+            return '<h1>Publish it and connect</h1><p class="lead">Already clicked <b>▶ Back to HouseRunner setup</b>? Setup carries on by itself. Otherwise: your Sheet comes with a small program inside it. “Publishing” switches it on, so your screen and phones can talk to your Sheet – ' +
                 'using the private access code, and nothing else. You do it once, from a menu in your Sheet.</p>' +
-                '<div class="card big"><h3>In the tab with your new Sheet</h3><ol class="howto">' +
-                '<li>Wait a few seconds for the <b>🏠 HouseRunner</b> menu to appear along the top (next to <b>Help</b>). Click it → <b>▶ HouseRunner – SETUP</b>.</li>' +
-                '<li>Google asks for permission: click <b>Continue</b> (or <b>Authorize access</b>) and choose your account. You’ll see <b>“Google hasn’t verified this app”</b> – that’s normal, because it’s your own private copy. ' +
-                    'Click <b>Advanced</b> (small, bottom left) → <b>Go to HouseRunner (unsafe)</b> → <b>Allow</b>. ' + perms + '</li>' +
-                '<li>Choose the menu again: <b>🏠 HouseRunner → ▶ HouseRunner – SETUP</b>. ' +
-                    '<span class="mute">The first time, it may ask you to turn on one Google switch – follow its link, turn it on, and choose the menu once more.</span></li>' +
-                '<li>It says <b>“Published ✅”</b>. Click <b>Open HouseRunner</b> – this page opens again, already connected. Nothing to copy or paste.</li></ol>' +
+                '<div class="card big"><h3>In the tab with your new Sheet</h3>' + allSteps(true) +
                 helpLink('setup') + '<div id="connStatus"></div></div>' +
                 urlCard() +
                 '<details class="card"><summary>No menu, or it didn’t work? Publish it by hand instead</summary><ol class="howto">' +
@@ -284,9 +278,9 @@
                 '</details>' + otherWay();
             /** The Web app URL box: always in view (not inside a folded section), and it keeps what you typed. */
             function urlCard() {
-                return '<div class="card big" id="urlCard"><h3>Your Web app URL</h3><p class="mute">Only if you publish it by hand (below) – or if the window’s <b>Open HouseRunner</b> button didn’t work. It ends in <b>/exec</b>.</p>' +
+                return '<div class="card big" id="urlCard"><h3>Your Web app URL</h3><p class="mute">Only if you publish it by hand (below) – or if the <b>▶ Back to HouseRunner setup</b> button didn’t work. It ends in <b>/exec</b>.</p>' +
                     '<div class="row"><input id="url" placeholder="https://script.google.com/macros/s/…/exec" value="' + esc(S.urlDraft != null ? S.urlDraft : (S.url || '')) + '" spellcheck="false"><button class="btn" id="connect">Connect</button></div>' +
-                    '<div class="row" style="margin-top:8px"><input id="code" placeholder="Access code (only if it asks – in the Installation tab of your Sheet)" value="' + esc(S.code || '') + '"></div><div id="connStatus2"></div></div>';
+                    '<div class="row" style="margin-top:8px"><input id="code" placeholder="Access code (only if it asks – or use the link on your Sheet’s My ID tab)" value="' + esc(S.code || '') + '"></div><div id="connStatus2"></div></div>';
             }
             function packAndPair() {
                 return (S.pairCode && window.FDPairSend ? '<div class="card big" id="pairCard" style="border-color:var(--acc)"><h3>📺 Connect your new screen</h3>' +
@@ -298,8 +292,8 @@
             function otherWay() {
                 return '<details class="card"' + (S.needCode ? ' open' : '') + '><summary>Lost the URL, or it asks for an access code?</summary>' +
                     '<p class="mute">The URL: in Apps Script, <b>Deploy → Manage deployments</b>, and copy the <b>Web app URL</b> (it ends in /exec), then paste it in <b>Your Web app URL</b> on this page. ' +
-                    'Or, in your Sheet, reload it and use the menu <b>🏠 HouseRunner → ▶ HouseRunner – SETUP</b>.</p>' +
-                    '<p class="mute">If it asks for an access code, it’s in the <b>Installation</b> tab of your Sheet – type it in the second box, under the URL.</p></details>';
+                    'Or, in your Sheet, reload it and click <b>🏠 HouseRunner</b> and its first menu item.</p>' +
+                    '<p class="mute">If it asks for an access code: open your Sheet’s <b>My ID</b> tab and click the private link there instead – it connects this page by itself.</p></details>';
             }
         }, wire: function () {
             var st2 = function (h) { var el = $('connStatus2') || $('connStatus'); if (el) el.innerHTML = h; };
@@ -685,14 +679,17 @@
             if (connected()) return OLD.sheet.render();
             if (window.hrConnecting) return '<h1>⏳ Connecting to your new Sheet…</h1><p class="lead">Your Sheet says it’s published – this page is connecting to it now. Google can take up to a minute after publishing; it keeps trying by itself.</p>' +
                 '<div class="status">⏳ Connecting…</div>';
-            if (window.hrCopiedNow) return '<h1>⏳ Over to your new Sheet</h1>' +       // straight after Make my copy: one clear thing to do
-                '<p class="lead">Your copy opened in a new tab. <b>Follow the 9 steps on its Start HERE tab</b> – they look like this (click to enlarge):</p>' +
-                '<div class="card big" id="floatCard" style="margin:0 0 16px"><h3>📌 Keep the steps in view</h3><p>' + (window.HRFloat && HRFloat.floats ? 'A small window with the steps, one at a time, that <b>stays on top</b> while you work in the Sheet and Apps Script tabs.' : 'A small window with the steps, one at a time, to keep beside the Sheet while you work.') + '</p>' +
+            // Straight after Make my copy – or coming back to this page later (a reload, the browser closed) while that copy is still being
+            // switched on: one clear thing to do, and the step window carries on where it was. A brand-new copy only on purpose.
+            var resuming = !window.hrCopiedNow && !window.hrShowAll && S.copiedAt && !S.copyGone && Date.now() - S.copiedAt < 24 * 3600000;
+            if (window.hrCopiedNow || resuming) return (resuming ? '<div class="note">↩ <b>Welcome back – carry on where you were.</b> Your copy was made ' + esc(new Date(S.copiedAt).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })) + '. Open the step window: it remembers which step you’d reached.</div>' : '') +
+                '<h1>⏳ Over to your new Sheet</h1>' +
+                '<p class="lead">Your copy opened in a new tab. <b>The step window shows you every click, one at a time</b> – with a short video of each.</p>' +
+                '<div class="card big" id="floatCard" style="margin:0 0 16px"><h3>📌 The step window</h3><p>' + (window.HRFloat && HRFloat.floats ? 'It <b>stays on top</b> while you work in the Google tabs. Each step says which tab to be in and what to click. Press <b>Done – next step</b> after each one.' : 'Keep it beside the Google tabs while you work. Each step says which tab to be in and what to click. Press <b>Done – next step</b> after each one.') + '</p>' +
                     '<button class="btn" id="floatGo">' + (window.HRFloat && HRFloat.isOpen() ? 'Show the step window' : 'Open the step window') + '</button> <span class="mute small" id="floatMsg"></span></div>' +
-                '<a href="../../shared/brand/sheet-start.png" target="_blank" rel="noopener" title="Open the picture full size"><img src="../../shared/brand/sheet-start.png" alt="The Start HERE tab’s 9 steps" class="step-pic" style="max-width:640px;cursor:zoom-in"></a>' +
-                '<div class="card big" style="margin-top:18px"><h3>Then come back here</h3><p>At the end, the <b>SETUP</b> window in your Sheet says <b>Published ✅</b>. Click <b>Open HouseRunner</b> – it brings you back to <b>this page</b>, already connected, and setup carries on here by itself.</p>' +
-                    '<div class="status">⏳ Waiting for your Sheet to say <b>Published ✅</b>…</div></div>' +
-                '<p class="mute small">The copy didn’t open? <a id="copyGo" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/' + encodeURIComponent(CFG.templateId || '') + '/copy">Make my copy again</a> · ' +
+                '<div class="card big" style="margin-top:18px"><h3>Then you come back here by yourself</h3><p>At the end, a page says <b>✅ Published!</b> Click <b>▶ Back to HouseRunner setup</b> on it – setup carries on in <b>this tab</b>, already connected.</p>' +
+                    '<div class="status">⏳ Waiting for your Sheet…</div></div>' + allSteps() +
+                '<p class="mute small">' + (resuming ? 'Lost the Sheet? Find <b>Copy of HouseRunner BLANK</b> in <a href="https://drive.google.com/drive/recent" target="_blank" rel="noopener">your Google Drive</a>. Really want to start again with a new Sheet? ' : 'The copy didn’t open? ') + '<a id="copyGo" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/' + encodeURIComponent(CFG.templateId || '') + '/copy">Make my copy again</a> · ' +
                     '<a href="#" id="showAll">Show all the instructions</a> · <a href="../../shared/brand/setup.mp4" target="_blank" rel="noopener">▶ Watch the 2-minute video</a></p>';
             return (S.licKey ? '<div class="note ok">🔑 Your licence key <b class="mono">' + esc(S.licKey) + '</b> came with the link from your email. Setup fills it in for you – nothing to type.</div>' : '') +
                 (phoneish() ? '<div class="note bad"><b>📱 This looks like a phone or tablet.</b> Setup needs a <b>computer</b> (Windows PC or Mac) – part of it is done in Google Sheets, which doesn’t work properly on a phone. ' +
@@ -707,14 +704,14 @@
                     '<p class="mute small">No licence key yet? That’s fine – you get a 14-day free trial and can add it later.</p></div>' +
                 bare(OLD.sheet.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, '');
         }, wire: function () {
-            if ($('showAll')) $('showAll').onclick = function (e) { e.preventDefault(); window.hrCopiedNow = false; render(); };
+            if ($('showAll')) $('showAll').onclick = function (e) { e.preventDefault(); window.hrCopiedNow = false; window.hrShowAll = true; render(); };
             if ($('floatStart')) $('floatStart').onclick = function () {
                 var b = this;
                 HRFloat.open(true).then(function (ok) { b.textContent = ok ? '📌 Step window open ✓' : 'Your browser blocked it – allow pop-ups for this site'; });
             };
             if ($('floatGo')) $('floatGo').onclick = function () {
                 if (!window.HRFloat) return;
-                HRFloat.open().then(function (ok) { if (!ok && $('floatMsg')) $('floatMsg').textContent = 'Your browser blocked it – allow pop-ups for this site, or use the picture below.'; });
+                HRFloat.open().then(function (ok) { if (!ok && $('floatMsg')) $('floatMsg').textContent = 'Your browser blocked it – allow pop-ups for this site, or use the steps written out below.'; });
             };
             if (window.HRFloat) HRFloat.onchange = function () { if ($('floatGo')) $('floatGo').textContent = HRFloat.isOpen() ? 'Show the step window' : 'Open the step window'; };
             if (OLD.sheet.wire && !window.hrCopiedNow) OLD.sheet.wire();
@@ -725,12 +722,12 @@
                 }).catch(function () { S.copyGone = true; save(); render(); });
             }
         }, ready: function () { return connected(); },
-           blocked: 'Not connected yet – finish the steps in your Sheet (🏠 HouseRunner → ▶ HouseRunner – SETUP). This page carries on by itself.' },
+           blocked: 'Not connected yet – follow the step window to the end (the “Published!” page’s ▶ Back to HouseRunner setup). This page carries on by itself.' },
         OLD.publish,
         { id: 'welcome', title: 'Privacy notice', render: function () {
             if (connected() && !S.mode) return OLD.welcome.render();      // run again on a family that's set up: change it, or clear and start again?
             return (S.mode === 'fresh' && S.backup ? '<div class="note ok">🧹 Cleared, ready to set up again. Your backup is <a href="' + esc(S.backup.url) + '" target="_blank" rel="noopener">' + esc(S.backup.name) + '</a> in your Google Drive.</div>' : '') +
-                (window.hrArrived && connected() ? '<div class="note ok arrived big-ok"><h2>✅ Your Google Sheet is made and connected</h2><p>That part’s done – you can close any Sheet or Apps Script tabs still open. Now the rest of the setup, here: the privacy notice, your licence key, your family, your calendar, and connecting your screen and phones.</p></div>' : '') +
+                (window.hrArrived && connected() ? '<div class="note ok arrived big-ok"><h2>✅ Your Google Sheet is made and connected</h2><p>That part’s done – close every other tab (your Sheet, Apps Script and “Published”) and keep just this one. Now the rest of the setup, here: the privacy notice, your licence key, your family, your calendar, and connecting your screen and phones.</p></div>' : '') +
                 '<h1>Privacy notice</h1><p class="lead">' + (connected() && !window.hrArrived ? 'Your Google Sheet is connected. ' : '') + 'What HouseRunner keeps about your family, and where. In short – everything stays in your own Google account.</p>' +
                 bare(OLD.privacy.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, '');
         }, wire: function () { OLD.welcome.wire(); OLD.privacy.wire(); },
@@ -800,6 +797,12 @@
             .then(function (v) { LATEST = v; return connected() ? get('ping').then(function (p) { S.scriptVersion = p.version || ''; S.autoUpdate = !!p.autoUpdate; S.loader = p.loader || ''; save(); }).catch(function () {}) : null; });
     }
     /** Connect with S.url (+ S.code if known): fetch the code once if needed, check it works, record privacy acceptance. */
+    /** Every step of the step window, written out – for anyone who'd rather read them (or can't open the window). open: unfolded. */
+    function allSteps(open) {
+        if (!window.HRFloat) return '';
+        return '<details class="card"' + (open ? ' open' : '') + '><summary>Show all ' + HRFloat.count + ' steps written out</summary><ol class="howto">' +
+            HRFloat.list().map(function (x) { return '<li><span class="mute">' + x.where + ':</span> ' + x.what + '. <span class="mute">' + x.help + '</span></li>'; }).join('') + '</ol></details>';
+    }
     function connect(quiet) {
         var st = $('connStatus');
         if (st) st.innerHTML = '<div class="status">Connecting…</div>';
@@ -970,7 +973,7 @@
     function go(i) {
         for (var k = 0; k < i; k++) if (!canLeave(k)) {
             // Not connected yet: stay on "Make your Sheet" (the by-hand way only when asked for) – this page notices by itself when it's done
-            if ((STEPS[k].id === 'publish' || STEPS[k].id === 'start') && !S.byHand && !connected()) { S.step = k - 1; render(); toast('Not connected yet – finish the steps in your Sheet (🏠 HouseRunner → ▶ HouseRunner – SETUP). This page carries on by itself once it says Published ✅.', true); return; }
+            if ((STEPS[k].id === 'publish' || STEPS[k].id === 'start') && !S.byHand && !connected()) { S.step = k - 1; render(); toast('Not connected yet – follow the step window to the end (▶ Back to HouseRunner setup). This page carries on by itself once it says Published ✅.', true); return; }
             if (STEPS[k].id === 'start' && S.byHand) k = PUB;      // publishing by hand: stay on that page
             S.step = k; render(); toast(STEPS[k].blocked, true);
             var ub = $('url'); if (ub) { ub.scrollIntoView({ block: 'center' }); ub.focus(); }
@@ -1008,15 +1011,15 @@
                     if (!ADM) loadAdm(); licenceNow();
                     var t0 = document.title, n = 0, fl = setInterval(function () { document.title = ++n % 2 ? '✅ Carry on here – HouseRunner' : t0; if (n > 11 || !document.hidden) { clearInterval(fl); document.title = t0; } }, 900);
                 } else if (++tries <= 24) setTimeout(one, 5000);
-                else { window.hrConnecting = false; render(); toast('Your Sheet isn’t answering yet – in the Sheet choose 🏠 HouseRunner → ▶ SETUP again, then Open HouseRunner', true); }
+                else { window.hrConnecting = false; render(); toast('Your Sheet isn’t answering yet – wait a minute, then click ▶ Back to HouseRunner setup again on the “Published!” page', true); }
             });
         })();
     };
     var arrived = function () {
-        if (window.HRFloat) HRFloat.close();      // the steps window has done its job
+        if (window.HRFloat) HRFloat.at('back');      // the step window shows its last step (close the other tabs), then closes
         toast('Connected to your HouseRunner Google Sheet \u2705');
         window.hrArrived = true; window.hrConnecting = false; render();
-        var pg = $('page'); if (pg && !pg.querySelector('.arrived')) pg.insertAdjacentHTML('afterbegin', '<div class="note ok arrived">✅ <b>Your Google Sheet is published and connected – that part’s done.</b> You can close the Sheet’s tab. ' +
+        var pg = $('page'); if (pg && !pg.querySelector('.arrived')) pg.insertAdjacentHTML('afterbegin', '<div class="note ok arrived">✅ <b>Your Google Sheet is published and connected – that part’s done.</b> Now close every other tab (your Sheet, Apps Script and “Published”) – keep just this one. ' +
             'Carry on with this step, then press <b>Next →</b> at the bottom right.</div>');
         $('next').classList.add('pulse'); setTimeout(function () { $('next').classList.remove('pulse'); }, 12000);
     };
@@ -1104,12 +1107,14 @@
         // Started from a new screen's QR code: connect that screen once this family is set up.
         if (p.pair) { S.pairCode = p.pair; save(); }
         if (p.pack) { S.pack = p.pack.replace(/[^\w-]/g, ''); S.packFrom = p.packFrom || ''; save(); setTimeout(function () { toast('Moving your dashboard: set up this new one as usual – at “Publish & connect” you’ll bring everything across'); }, 600); }
-        if (p.api && p.code) {
-            var changed = p.api !== S.url || p.code !== S.code;
-            S.url = p.api; S.code = p.code; if (changed) S.connected = false; if (changed && p.from === 'sheet') { delete S.familyDone; delete S.calDone; FAM = null; }   // a different Sheet: its family isn't saved yet
+        // From the Sheet's "Published!" page only the address comes: the access code is then collected once ("claim")
+        if (p.api && (p.code || p.from === 'sheet')) {
+            var pc = p.code || (p.api === S.url ? S.code : '');
+            var changed = p.api !== S.url || pc !== S.code;
+            S.url = p.api; S.code = pc; if (changed) S.connected = false; if (changed && p.from === 'sheet') { delete S.familyDone; delete S.calDone; FAM = null; }   // a different Sheet: its family isn't saved yet
             save();
         }
-        if (p.from === 'sheet' && p.api && p.code && !SOLO) {
+        if (p.from === 'sheet' && p.api && !SOLO) {
             $('page').innerHTML = '<div class="card big"><h1>⏳ One moment…</h1><p class="lead">Finding your HouseRunner setup tab.</p></div>';
             var heard = false;
             try {
@@ -1140,14 +1145,14 @@
                 return connect(true).then(function (ok) {
                     var w = document.getElementById('suWait');
                     if (ok) { if (w) w.remove(); return true; }
-                    if (++tries > 24) { if (w) w.innerHTML = '⚠ Your Sheet isn’t answering yet. In the Sheet choose <b>🏠 HouseRunner → ▶ HouseRunner – SETUP</b> again, then click <b>Open HouseRunner</b>.'; return false; }
+                    if (++tries > 24) { if (w) w.innerHTML = '⚠ Your Sheet isn’t answering yet. Click <b>▶ Back to HouseRunner setup</b> again on the “Published!” page – or in your Sheet, click <b>🏠 HouseRunner</b> and its first menu item.'; return false; }
                     if (!w && pg()) pg().insertAdjacentHTML('afterbegin', '<div class="note" id="suWait">⏳ <b>Connecting to your Sheet…</b> Google can take up to a minute after publishing – this page keeps trying by itself.</div>');
                     return new Promise(function (r) { setTimeout(r, 5000); }).then(one);
                 });
             };
             return one();
         };
-        var pending = (p.api && p.code) ? (p.from === 'sheet' ? patient() : connect(true)) : Promise.resolve();
+        var pending = (p.api && (p.code || p.from === 'sheet')) ? (p.from === 'sheet' ? patient() : connect(true)) : Promise.resolve();
         // Read the Sheet (family, calendar) and the licence in the background, so the steps open straight away
         var ahead = function () { if (connected()) { if (!ADM) loadAdm(); licenceNow(); } };
         pending.then(refreshVersions).then(after, after).then(ahead, ahead);

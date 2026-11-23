@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.310",
+    "date": "2026-11-17",
+    "notes": [
+      "Rewards → Homework: the time target is now minutes every day, every week (Mon–Sun, starts afresh on Monday) or every week (Fri–Thu, starts afresh on Friday) – one choice instead of “a day/a week” plus days."
+    ]
+  },
+  {
     "version": "2026.11.309",
     "date": "2026-11-17",
     "notes": [
