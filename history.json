@@ -1,5 +1,18 @@
 [
   {
+    "version": "2026.11.312",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: the “Connect your screen and phones” step now ticks only when a screen has really shown your dashboard and Family Admin has really opened on a phone – it watches for them live. Skip them for now and the finish page says “not connected yet”, with where to do it later.",
+      "Setup's last page now starts with a big ▶ Open my dashboard button, and no leftover “press Next” message.",
+      "Setup's family page says up front that the home address is needed (just a postcode or town is enough), and spots two people with the same name before saving.",
+      "Setup no longer checks a licence key remembered from an earlier visit by itself – only one from the email link. If a key is in use elsewhere it says how to free it up, or to carry on with the free trial.",
+      "Removing a note on the dashboard now says which note, and Undo really puts that same note back (same words, name and time).",
+      "Adding a note in Family Admin or the Configurator now shows it straight away, as saved in your Sheet, instead of saying “added” before it appears.",
+      "Connecting a display: an empty or mistyped code (it's 8 letters and numbers, like K7Q2-M9XD) is caught before the “are you sure” question."
+    ]
+  },
+  {
     "version": "2026.11.311",
     "date": "2026-11-17",
     "notes": [

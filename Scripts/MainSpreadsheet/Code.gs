@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.130';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.131';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -4309,7 +4309,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('🏠 HouseRunner').addItem(done ? '▶ HouseRunner – SETUP' : SETUP_MENU_NEW, 'menuConnect').addToUi();
 }
 /** The menu item a new Sheet shows: the step window's last-but-one step, if the "published" page's button didn't work. */
-const SETUP_MENU_NEW = '▶ Click here to start step 16';
+const SETUP_MENU_NEW = '▶ Click here to start step 12';
 function appsBase_() {
   const b = appsAddr_().replace(/\/?$/, '/');
   if (LOADED) { try { LOADED.setBase(b); } catch (e) { /* fine */ } }

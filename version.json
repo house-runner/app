@@ -1,14 +1,15 @@
 {
-  "app": "2026.11.312",
-  "script": "2026.11.130",
+  "app": "2026.11.313",
+  "script": "2026.11.131",
   "date": "2026-11-17",
   "notes": [
-    "Setup is much shorter: after clicking the Web app URL, a page says ✅ Published! with one button – ▶ Back to HouseRunner setup. No going back to the Sheet, no Sheet menu, no SETUP window.",
-    "The step window now leads you one click at a time (17 small steps), says which tab to be in for each, and shows a short zoomed-in clip or picture of exactly what to click. It's bigger, and ends with closing every tab except HouseRunner setup.",
-    "Coming back to the setup page part-way (a reload, the browser closed) now carries on where you were, instead of offering to make another copy.",
-    "Clicked Done instead of the Web app URL? The Sheet, the step window and Help now say how to use the deployment you already made (Deploy → Manage deployments) rather than deploying again.",
-    "A new family's Sheet now shows only its My ID tab – HouseRunner's own data tabs are tucked away (still there, under View → Hidden sheets).",
-    "The setup picture in the Sheet is gone, and the Apps Script page now starts with a friendly note: nothing to read or change, just click Deploy."
+    "Setup: the “Connect your screen and phones” step now ticks only when a screen has really shown your dashboard and Family Admin has really opened on a phone – it watches for them live. Skip them for now and the finish page says “not connected yet”, with where to do it later.",
+    "Setup's last page now starts with a big ▶ Open my dashboard button, and no leftover “press Next” message.",
+    "Setup's family page says up front that the home address is needed (just a postcode or town is enough), and spots two people with the same name before saving.",
+    "Setup no longer checks a licence key remembered from an earlier visit by itself – only one from the email link. If a key is in use elsewhere it says how to free it up, or to carry on with the free trial.",
+    "Removing a note on the dashboard now says which note, and Undo really puts that same note back (same words, name and time).",
+    "Adding a note in Family Admin or the Configurator now shows it straight away, as saved in your Sheet, instead of saying “added” before it appears.",
+    "Connecting a display: an empty or mistyped code (it's 8 letters and numbers, like K7Q2-M9XD) is caught before the “are you sure” question."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

@@ -10,20 +10,16 @@
     var STEPS = [
         ['setup', 'Click <b>Make my copy</b>', 'It’s the blue button on the HouseRunner setup page, behind this window. Your copy opens in a new tab.', V + 'v-copy.mp4'],
         ['google', 'Click the blue <b>Make a copy</b> button', 'Google asks “Copy document?”. If it asks you to sign in, use the Google account you want the dashboard in – the one with the family calendar.', V + 'v-makecopy.mp4'],
-        ['sheet', 'Click <b>Extensions</b> in the menu along the top', 'Give the Sheet a few seconds to load first. <b>Extensions</b> is next to <b>Help</b>.', V + 'v-extensions.mp4'],
-        ['sheet', 'Click <b>Apps Script</b>', 'A new tab opens with some code in it. <b>Don’t worry – you don’t need to read or change anything.</b>', V + 'v-extensions.mp4'],
-        ['script', 'Click the blue <b>Deploy</b> button (top right)', 'A little menu drops down.', V + 'v-deploy.mp4'],
-        ['script', 'Click <b>New deployment</b>', 'The first item in that menu.', V + 'v-deploy.mp4'],
-        ['script', 'Click the ⚙ cog next to <b>“Select type”</b>, then <b>Web app</b>', 'The cog is at the top left of the “New deployment” box.', V + 'v-webapp.mp4'],
-        ['script', 'Set <b>Who has access</b> to <b>Anyone</b>, then click <b>Deploy</b>', 'Leave <b>Execute as</b> on <b>Me</b>. Choose <b>Anyone</b> – not “Anyone with Google account”.', V + 'v-webapp.mp4'],
-        ['script', 'Click <b>Authorize access</b>', 'A small Google window pops up.', V + 'v-authorize.mp4'],
-        ['popup', 'Choose your Google account', 'The one your Sheet is in – the family account. <span class="mute">Google may also ask you to confirm it’s you on your phone – do that, then come back here.</span>', V + 'v-authorize.mp4'],
-        ['popup', 'Click <b>Advanced</b>', 'Google says it hasn’t verified this app. That’s normal: it’s your own private copy, so you count as its “developer”. <b>Advanced</b> is small, at the bottom left.', V + 'p-advanced.png'],
-        ['popup', 'Click <b>Go to HouseRunner (unsafe)</b>', 'It appears under <b>Advanced</b>. It’s safe – it only means Google hasn’t reviewed your private copy.', V + 'p-advanced.png'],
+        ['sheet', 'Click <b>Extensions</b>, then <b>Apps Script</b>', 'Give the Sheet a few seconds to load first. <b>Extensions</b> is in the menu along the top, next to <b>Help</b>. A new tab opens with some code in it – <b>you don’t need to read or change anything</b>.', V + 'v-extensions.mp4'],
+        ['script', 'Click the blue <b>Deploy</b> button (top right), then <b>New deployment</b>', 'New deployment is the first item in the little menu that drops down.', V + 'v-deploy.mp4'],
+        ['script', 'Check two things in the box', '<b>① Under “Select type” it says Web app.</b> If not, click the ⚙ cog next to “Select type” and choose <b>Web app</b>.<br><b>② “Who has access” says Anyone.</b> If not, click it and choose <b>Anyone</b> – not “Anyone with Google account”.<br><span class="mute">Leave “Execute as” on Me.</span>', V + 'p-check.png'],
+        ['script', 'Click the blue <b>Deploy</b> button', 'Bottom right of the “New deployment” box. <span class="mute">Hidden behind this window? Drag this window by its top bar.</span>', V + 'p-deploy.png', 'small'],
+        ['script', 'Click <b>Authorize access</b>', 'A small Google window pops up. <span class="mute">If it asks which account, choose the family one. Google may also ask you to confirm it’s you on your phone – do that, then come back.</span>', V + 'v-authorize.mp4'],
+        ['popup', 'Click <b>Advanced</b>, then <b>Go to HouseRunner (unsafe)</b>', 'Google says it hasn’t verified this app – that’s normal: it’s your own private copy, and the “developer” it names is you (your own email). <b>Advanced</b> is small, at the bottom left; <b>Go to HouseRunner (unsafe)</b> then appears under it.', V + 'p-advanced.png'],
         ['popup', 'Tick <b>Select all</b>', 'At the top of the list. Every permission is needed for your dashboard to work.', V + 'p-selectall.png'],
         ['popup', 'Click <b>Continue</b>', 'The pop-up closes. Back in Apps Script, wait a few seconds for <b>“Deployment successfully created”</b> (or “updated”).', V + 'p-selectall.png'],
         ['script', 'Click the link under <b>Web app</b>', 'It starts <b>https://script.google.com/macros</b>. A new tab opens – it can take up to a minute to get your Sheet ready.<br><span class="mute">Clicked <b>Done</b> by mistake? Don’t deploy again: click <b>Deploy → Manage deployments</b>, then the link under <b>Web app</b>.</span>', V + 'v-weburl.mp4'],
-        ['pub', 'Click <b>▶ Back to HouseRunner setup</b>', 'On the page that says <b>✅ Published!</b> Setup then carries on in your HouseRunner setup tab by itself.<br><span class="mute">Closed that page by mistake? In your Sheet, click <b>🏠 HouseRunner</b> → <b>▶ Click here to start step 16</b>.</span>', V + 'p-published.png'],
+        ['pub', 'Click <b>▶ Back to HouseRunner setup</b>', 'On the page that says <b>✅ Published!</b> Setup then carries on in your HouseRunner setup tab by itself.<br><span class="mute">Closed that page by mistake? In your Sheet, click <b>🏠 HouseRunner</b> → <b>▶ Click here to start step 12</b>.</span>', V + 'p-published.png'],
         ['tabs', 'Close every tab except <b>HouseRunner setup</b>', 'Click the ✕ on your Sheet’s tab, the Apps Script tab and the “Published” tab. Your Sheet keeps working without being open.', 'tabs']
     ];
     var WHERE = {
@@ -36,7 +32,7 @@
         tabs: ['🧹', 'Along the top of your browser']
     };
     var VIDEO = B + 'setup.mp4';
-    var KEY = 'hrfloat.v2', win = null, i = 0;
+    var KEY = 'hrfloat.v3', win = null, i = 0;
     try { i = Math.min(STEPS.length - 1, Math.max(0, +localStorage.getItem(KEY) || 0)); } catch (e) { i = 0; }
     function abs(u) { return new URL(u, location.href).href; }
     function plain(h) { var d = document.createElement('div'); d.innerHTML = h; return d.textContent; }
@@ -47,7 +43,7 @@
         '.bd{flex:1;overflow:auto;padding:10px 14px}' +
         '.where{display:flex;gap:8px;align-items:center;background:#162231;border:1px solid #27405a;border-radius:10px;padding:7px 10px;font-size:14px;color:#cbd6e2}.where b{color:#fff}.where span{font-size:18px}' +
         'h2{font-size:21px;line-height:1.3;margin:12px 0 10px;font-weight:600}h2 b{color:#7cc4fa}' +
-        '.media{display:block;width:100%;max-height:44vh;object-fit:contain;border-radius:10px;background:#fff;border:1px solid #2b3a4c}' +
+        '.media{display:block;width:100%;max-height:34vh;object-fit:contain;border-radius:10px;background:#fff;border:1px solid #2b3a4c}' +
         'p{margin:10px 0 0;color:#cbd6e2}p b{color:#fff}.mute{color:#8a9bb0;font-size:13.5px}' +
         '.vl{color:#7cc4fa;font-weight:600;text-decoration:none;font-size:13.5px}.vl:hover{text-decoration:underline}' +
         '.ft{display:flex;gap:8px;align-items:center;padding:10px 14px 12px;border-top:1px solid #1e2a38}' +
@@ -55,6 +51,7 @@
         'button:disabled{opacity:.35;cursor:default}' +
         '.tabs{display:flex;flex-wrap:wrap;gap:4px;background:#dfe3e8;border-radius:10px 10px 0 0;padding:8px 8px 0}.tab{flex:1 1 45%;min-width:0;background:#c7ccd3;color:#333;border-radius:8px 8px 0 0;padding:7px 8px;font-size:12.5px;display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden}' +
         '.tab.keep{background:#fff;font-weight:700}.tab i{margin-left:auto;font-style:normal;color:#b91c1c;font-weight:800}.tab.keep i{color:#15803d}.tabsb{background:#fff;border-radius:0 0 10px 10px;height:26px;border:1px solid #dfe3e8;border-top:0}' +
+        'body.small h2{font-size:17px;margin:8px 0}body.small .media{max-height:70px}body.small .where,body.small .vl{display:none}body.small p{font-size:13px}body.small .hd{display:none}' +
         '.done{margin-top:12px;padding:10px 12px;border-radius:10px;background:#123322;border:1px solid #2b7a4b;font-size:14.5px}';
 
     function media(m) {
@@ -65,6 +62,7 @@
     function draw() {
         if (!win || win.closed) return;
         var d = win.document, s = STEPS[i], w = WHERE[s[0]], last = i === STEPS.length - 1;
+        d.body.classList.toggle('small', s[4] === 'small');
         // stop the last step's clip properly, so its download doesn't hold up the next picture
         Array.prototype.forEach.call(d.querySelectorAll('video'), function (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { /* fine */ } });
         d.body.innerHTML =
@@ -85,9 +83,19 @@
     function go(k) {
         i = Math.min(STEPS.length - 1, Math.max(0, k));
         try { localStorage.setItem(KEY, String(i)); } catch (e) { /* fine */ }
-        draw();
+        draw(); fit();
     }
-    function size() { return { width: 480, height: Math.max(560, Math.min(780, (screen.availHeight || 900) - 90)) }; }
+    function size() { return { width: 440, height: Math.max(480, Math.min(600, (screen.availHeight || 900) - 160)) }; }
+    var SMALL = { width: 330, height: 300 };
+    /** The "click Deploy" step: shrink (and, where the browser allows, move to the bottom left) so the button behind isn't covered. */
+    function fit() {
+        if (!win || win.closed) return;
+        var small = STEPS[i][4] === 'small', z = small ? SMALL : size();
+        try { win.resizeTo(z.width, z.height); } catch (e) { /* the browser decides */ }
+        if (small) { try { win.moveTo(10, (screen.availHeight || 800) - z.height - 10); } catch (e) { /* floating windows can't be moved – it says to drag it */ } }
+        else if (fit.moved) { try { win.moveTo((screen.availWidth || 1200) - z.width - 20, 40); } catch (e) { /* fine */ } }
+        fit.moved = small;
+    }
     function attach(w) {
         win = w;
         var d = w.document;
