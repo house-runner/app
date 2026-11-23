@@ -303,9 +303,16 @@
                     '<button class="ls-btn big danger" data-m="remove" data-id="' + esc(m.id) + '">Remove this note</button>', click);
             } else if (a === 'remove') {
                 closePop();
-                var id = b.getAttribute('data-id');
+                var id = b.getAttribute('data-id'), gone = data.items.filter(function (x) { return x.id === id; })[0];
                 data.items = data.items.filter(function (x) { return x.id !== id; }); render();
-                post({ action: 'memo', op: 'remove', id: id }, function (r) { data = r.data; render(); }).catch(function () {});
+                post({ action: 'memo', op: 'remove', id: id }, function (r) {
+                    data = r.data; render();
+                    if (!gone) return;
+                    // Undo puts the very same note back (its words, who it's from and when) – offered only once the removal is saved
+                    api().toast('Note removed: “' + (gone.text.length > 28 ? gone.text.slice(0, 27) + '…' : gone.text) + '”', false, function () {
+                        post({ action: 'memo', op: 'restore', id: gone.id, text: gone.text, from: gone.from, at: gone.at }, function (r2) { data = r2.data; render(); api().toast('Note put back'); }).catch(function () {});
+                    });
+                }).catch(function () { data.items = data.items.concat(gone ? [gone] : []); render(); });
             } else if (a === 'all') {
                 pop('Notes', '<div class="mm-notes all">' + data.items.map(function (m, i) {
                     return '<button class="mm-note" data-m="open" data-id="' + esc(m.id) + '" style="--nc:' + NOTE_COLOURS[i % NOTE_COLOURS.length] + ';--rot:0deg"><span class="mm-tx">' + esc(m.text) + '</span><small>' +

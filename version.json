@@ -1,9 +1,14 @@
 {
-  "app": "2026.11.311",
-  "script": "2026.11.129",
+  "app": "2026.11.312",
+  "script": "2026.11.130",
   "date": "2026-11-17",
   "notes": [
-    "Rewards → Homework: the time target is now minutes every day, every week (Mon–Sun, starts afresh on Monday) or every week (Fri–Thu, starts afresh on Friday) – one choice instead of “a day/a week” plus days."
+    "Setup is much shorter: after clicking the Web app URL, a page says ✅ Published! with one button – ▶ Back to HouseRunner setup. No going back to the Sheet, no Sheet menu, no SETUP window.",
+    "The step window now leads you one click at a time (17 small steps), says which tab to be in for each, and shows a short zoomed-in clip or picture of exactly what to click. It's bigger, and ends with closing every tab except HouseRunner setup.",
+    "Coming back to the setup page part-way (a reload, the browser closed) now carries on where you were, instead of offering to make another copy.",
+    "Clicked Done instead of the Web app URL? The Sheet, the step window and Help now say how to use the deployment you already made (Deploy → Manage deployments) rather than deploying again.",
+    "A new family's Sheet now shows only its My ID tab – HouseRunner's own data tabs are tucked away (still there, under View → Hidden sheets).",
+    "The setup picture in the Sheet is gone, and the Apps Script page now starts with a friendly note: nothing to read or change, just click Deploy."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

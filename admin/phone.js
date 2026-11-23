@@ -34,7 +34,7 @@
     var loading = null;
     function load(quiet) {
         dot('busy');
-        loading = FD.post({ action: 'admin' }, 60000).then(function (d) { setData(d); dot('ok'); loading = null; draw(); privacy(); },
+        loading = FD.post({ action: 'admin', phone: 1 }, 60000).then(function (d) { setData(d); dot('ok'); loading = null; draw(); privacy(); },
             function (e) { dot('err'); loading = null; if (!quiet) FD.toast(e.message, true); if (!DATA) draw(e.message); });
         return loading;
     }
@@ -44,6 +44,7 @@
         dot('busy');
         var run = function () {
             return FD.post(body, 60000).then(function (d) {
+                if (d && d.memos && body.action === 'memo') DATA.memos = d.memos;      // the notes as saved in the Sheet
                 if (d && d.saved && d.rows) DATA[d.saved] = d.rows;
                 else if (d && d.layoutOnly) { DATA.pages = d.pages; DATA.widgets = d.widgets; }
                 else if (d && d.state && !d.tasks) DATA.state = d.state;
@@ -221,7 +222,8 @@
             var t = $('mmNew').value.trim(), f = $('mmFrom').value.trim(); if (!t) return;
             try { localStorage.setItem('fdadmin.from', f); } catch (e) { /* fine */ }
             this.disabled = true;
-            act({ action: 'memo', op: 'add', text: t, from: f }, 'Note added').then(function () { return load(true); }, function () { draw(); });
+            var bt = this; bt.textContent = 'Saving…';
+            act({ action: 'memo', op: 'add', text: t, from: f }, 'Note saved').then(function () { draw(); }, function () { draw(); });
         };
         $('faMain').onclick = function (e) {
             var b = e.target.closest('[data-mrm]'); if (!b) return;
@@ -805,10 +807,11 @@
         $('faMain').onclick = null;
         $('faMain').innerHTML = '<a class="fa-back" href="#/more">‹ More</a>' + h('Connect a display') +
             '<p class="fa-lead">A new screen – the Corsair XENEON EDGE, a tablet, a Raspberry Pi or a computer – shows a code like <b>K7Q2-M9XD</b>. Type it here:</p>' +
-            box('<input id="prCode" class="fa-code" placeholder="K7Q2-M9XD" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn wide" id="prGo">Connect</button><div id="prOut"></div>') +
+            box('<input id="prCode" class="fa-code" maxlength="12" placeholder="K7Q2-M9XD" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn wide" id="prGo">Connect</button><div id="prOut"></div>') +
             '<p class="fa-note">Or scan the QR code on the screen with this phone’s camera. How to start a new screen: <a href="' + esc(ROOT) + 'help/#connect" target="_blank" rel="noopener">Help</a>.</p>';
         $('prGo').onclick = function () {
             if (!window.FDPairSend) { FD.toast('Not available here', true); return; }
+            var pc = String($('prCode').value || '').replace(/[^A-Za-z0-9]/g, ''); if (pc.length !== 8) { $('prOut').innerHTML = '<p class="neg small">' + (pc ? 'That doesn’t look right – the' : 'Type the') + ' code from the screen first: <b>8 letters and numbers</b>, like <b>K7Q2-M9XD</b>.</p>'; $('prCode').focus(); return; }
             if (!confirm('Connect it to YOUR family’s dashboard? Only do this for a screen in your own home.')) return;
             var b = this; b.disabled = true;
             FDPairSend.send($('prCode').value, FD.config()).then(function (code) {

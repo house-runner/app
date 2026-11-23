@@ -130,7 +130,8 @@
         },
         post: function (body) { return apiPost(body); },
         sync: function (kind, msg) { setSync(kind, msg); },
-        toast: function (text, bad) { showToast(text, null, bad); },
+        /** onUndo: a function – shows an Undo button (for UNDO_MS) that calls it. */
+        toast: function (text, bad, onUndo) { showToast(text, typeof onUndo === 'function' ? onUndo : null, bad); },
         esc: esc, store: store, load: load,
     };
     function screens() { return window.FDScreens || {}; }
@@ -528,6 +529,7 @@
         if (!undoId || busy) return;
         var id = undoId; undoId = null;
         $('toast').classList.remove('on');
+        if (typeof id === 'function') { id(); return; }      // a widget's own Undo (a removed note)
         send({ action: 'undo', id: id }, null);
     }
 

@@ -154,6 +154,7 @@
         pending++; actsAt++; busy = true; sync('busy'); acting(true);
         var run = function () {
             return FD.post(body, 60000).then(function (d) {
+                if (d.memos && body.action === 'memo') { DATA.memos = d.memos; setData(DATA); render(); }      // the notes as saved in the Sheet
                 if (d.saved && d.rows) { DATA[d.saved] = d.rows; setData(DATA); }      // a list on its own: quicker
                 else if (d.layoutOnly) { if (pending === 1) { DATA.pages = d.pages; DATA.widgets = d.widgets; setData(DATA); } }     // later changes still on their way: keep what's on the phone
                 else if (d.state && !d.tasks) { DATA.state = d.state; setData(DATA); }
@@ -1754,7 +1755,7 @@
             var t = $('mmNew').value.trim(), f = $('mmFrom').value.trim(); if (!t) return;
             try { localStorage.setItem('fdadmin.from', f); } catch (e) { /* ignore */ }
             $('mmNew').value = '';
-            act({ action: 'memo', op: 'add', text: t, from: f }, 'Note added').then(after, function () {});
+            act({ action: 'memo', op: 'add', text: t, from: f }, 'Note saved').then(after, function () { $('mmNew').value = t; });
         };
         if ($('mmNew')) $('mmNew').onkeydown = function (e) { if (e.key === 'Enter') $('mmAdd').onclick(); };
         $('mmItems').onclick = function (e) { var b = e.target.closest('[data-mrm]'); if (b) act({ action: 'memo', op: 'remove', id: b.getAttribute('data-mrm') }, 'Removed').then(after, function () {}); };
@@ -2809,7 +2810,7 @@
                 '<b>Phones</b> run the two apps, Family Admin and Family Dashboard – connect as many as you like; phones don’t count as displays.</p><p>Every link and QR code here contains your access code, so only use them for your own family’s devices.</p>') +
             screensCard() +
             card('Connect a display', '<p class="mute small">A new display (tablet, Raspberry Pi, computer) – or Family Admin or Family Dashboard opened on a computer – shows a code like <b>K7Q2-M9XD</b> and a QR code. ' + (DESK ? 'Scan the QR code with your phone, or type the code here:' : 'Scan the QR code with this phone, or type the code here:') + '</p>' +
-                '<input id="prCode" class="mono" placeholder="K7Q2-M9XD" autocomplete="off" autocapitalize="characters" spellcheck="false"><div class="ladd-row"><button class="btn fp-add" id="prGo">Connect</button></div><div id="prOut"></div>' +
+                '<label for="prCode" class="mute small">The code on the screen – 8 letters and numbers, like K7Q2-M9XD</label><input id="prCode" class="mono" placeholder="K7Q2-M9XD" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false"><div class="ladd-row"><button class="btn fp-add" id="prGo">Connect</button></div><div id="prOut"></div>' +
                 '<p class="mute small" style="margin-top:18px"><b>A new display:</b> on it open <b>' + esc(base.replace(/^https?:\/\//, '')) + 'dashboard</b>. <b>Windows PC (like the Corsair XENEON EDGE):</b> download it from <b>' + esc(base.replace(/^https?:\/\//, '')) + 'windows</b>, run it, and type the code it shows here. ' +
                 'It asks whether to start with Windows and whether to keep the display on, and updates itself.</p>' +
                 '<details class="adv"><summary>Or open the dashboard link directly (tablets)</summary><div class="qr-box">' + qrSvg(appLink('screen')) + '</div><p class="mute small">Scan this with the tablet itself – it opens the dashboard already connected.</p></details>') +
@@ -2827,6 +2828,7 @@
         if ($('devCopy')) $('devCopy').onclick = function () { try { navigator.clipboard.writeText(appLink(devPick)).then(function () { FD.toast('Copied'); }); } catch (e) { FD.toast('Couldn’t copy', true); } };
         wireScreens();
         $('prGo').onclick = function () {
+            var pc = String($('prCode').value || '').replace(/[^A-Za-z0-9]/g, ''); if (pc.length !== 8) { $('prOut').innerHTML = '<p class="neg small">' + (pc ? 'That doesn’t look right – the' : 'Type the') + ' code from the screen first: <b>8 letters and numbers</b>, like <b>K7Q2-M9XD</b>.</p>'; $('prCode').focus(); return; }
             if (!confirm('Connect it to YOUR family’s dashboard? Only do this for a display or computer in your own home – it will show your calendar, points, notes and photos. (Setting up someone else? They need their own setup.)')) return;
             var b = this; b.disabled = true;
             FDPairSend.send($('prCode').value, FD.config()).then(function (code) {

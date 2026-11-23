@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.129';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.130';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -997,7 +997,7 @@ function dispatch_(b) {
     case 'saveHomework': return saveHomework_(b);
     case 'undo': return deleteEntry_(b.id);
     case 'state': return getState_();
-    case 'admin': myIdTab_(); return getAdmin_();
+    case 'admin': myIdTab_(); if (b.phone) { try { PropertiesService.getScriptProperties().setProperty('phoneSeenAt', String(Date.now())); } catch (e) { /* not important */ } } return getAdmin_();
     case 'licence': return { ok: true, licence: licencePublic_(!!b.recheck) };
     case 'versions': return { ok: true, versions: versionsUsed_(true) };
     case 'startAfresh': return startAfresh_();
@@ -1008,7 +1008,7 @@ function dispatch_(b) {
     case 'importPack': return importPack_(b.pack, b.from);
     case 'setLicence': return setLicence_(b.key);
     case 'releaseLicence': return releaseLicence_();
-    case 'screens': return { ok: true, screens: screenList_(), allowed: screensAllowed_() };
+    case 'screens': return { ok: true, screens: screenList_(), allowed: screensAllowed_(), phoneSeenAt: Number(PropertiesService.getScriptProperties().getProperty('phoneSeenAt') || 0) };      // phoneSeenAt: Family Admin last opened on a phone (setup's "connected" check)
     case 'replaceScreen': return replaceScreen_(b);
     case 'forgetScreen': { const r = screensReg_(); delete r[String(b.id)]; screensSave_(r); return { ok: true, screens: screenList_(), allowed: screensAllowed_() }; }
     case 'renameScreen': { const r = screensReg_(); if (r[b.id]) r[b.id].name = String(b.name || '').trim().slice(0, 30) || r[b.id].name; screensSave_(r); return { ok: true, screens: screenList_(), allowed: screensAllowed_() }; }
@@ -1339,7 +1339,7 @@ function getAdmin_() {
     licenceServerVersion: licenceServerVersion_(),
     moving: (() => { try { return JSON.parse(PropertiesService.getScriptProperties().getProperty('moving') || 'null'); } catch (e) { return null; } })(),
     pages: L.pages, widgets: L.widgets, lists: lists, unused: unusedWidgets_(L.widgets),
-    memos: rows_('memos').map(m => ({ id: String(m.ID), text: String(m.Text), from: String(m.From || ''), added: m.Added instanceof Date ? fmt_(m.Added, 'd MMM HH:mm') : String(m.Added) })),
+    memos: memoRowsAdmin_(),
     whereabouts: L.widgets.filter(w => w.type === 'whereabouts').map(w => ({ id: w.id, data: whereabouts_(w.settings) })),
     family: family_(), calSetup: calSetup_(), familyName: String(inst_('FamilyName') || ''),
     spotifyConnected: !!PropertiesService.getScriptProperties().getProperty('spotifyRefresh'),
@@ -4061,7 +4061,7 @@ function memos_(s) {
   return { items: rows_('memos').filter(m => m.Text).map(m => {
     const d = m.Added instanceof Date ? m.Added : new Date(m.Added);
     return { id: String(m.ID), text: String(m.Text), from: String(m.From || ''), at: isNaN(d) ? '' : d.toISOString() };
-  }).filter(m => !m.at || now - Date.parse(m.at) < keep).reverse() };
+  }).filter(m => !m.at || now - Date.parse(m.at) < keep).reverse().sort((a, b) => (b.at || '') < (a.at || '') ? -1 : (b.at || '') > (a.at || '') ? 1 : 0) };      // newest first (a note put back with Undo goes back to its place)
 }
 function memo_(b) {
   if (b.op === 'add') {
@@ -4071,10 +4071,16 @@ function memo_(b) {
     if (memos_(mw ? mw.settings : { KeepDays: 7 }).items.length >= LIMITS.maxNotes) throw new Error('There are already ' + LIMITS.maxNotes + ' notes (3 pages on the screen) – remove one first');
     sheet_('memos').appendRow([newId_(), t, checkLen_('From', b.from || '', 12), new Date()]);
   } else if (b.op === 'remove') deleteWhere_('memos', r => String(r[0]) === String(b.id));
+  else if (b.op === 'restore') {      // Undo after removing a note: put it back as it was (same id and time), once
+    const id = String(b.id || '').replace(/[^\w-]/g, '').slice(0, 20), t = checkLen_('Note', b.text, LIMITS.memo);
+    if (!id || !t) throw new Error('Nothing to put back');
+    if (!rows_('memos').some(m => String(m.ID) === id)) { const at = new Date(b.at); sheet_('memos').appendRow([id, t, checkLen_('From', b.from || '', 12), isNaN(at) ? new Date() : at]); }
+  }
   else throw new Error('Unknown memo action');
   const w = layout_().widgets.find(x => x.type === 'memo');
-  return { ok: true, id: w ? w.id : '', data: memos_(w ? w.settings : { KeepDays: 7 }) };
+  return { ok: true, id: w ? w.id : '', data: memos_(w ? w.settings : { KeepDays: 7 }), memos: memoRowsAdmin_() };      // memos: the admin apps' list, saved – shown straight away
 }
+function memoRowsAdmin_() { return rows_('memos').map(m => ({ id: String(m.ID), text: String(m.Text), from: String(m.From || ''), added: m.Added instanceof Date ? fmt_(m.Added, 'd MMM HH:mm') : String(m.Added) })); }
 
 /* ------------------------------------------------------ quotes, NASA, Duolingo */
 

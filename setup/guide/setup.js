@@ -356,13 +356,15 @@
             licenceNow().then(function (d) {
                 show(d.licence);
                 // Key from the order email's link: check and save it by itself.
-                if (S.licKey && $('licGo') && d.licence && d.licence.required && (!d.licence.ok || d.licence.state === 'trial')) $('licGo').onclick();
+                // A key from the email link just clicked is checked by itself; one remembered from an earlier visit waits for "Check and save"
+                if (S.licKey && window.hrKeyFromLink && $('licGo') && d.licence && d.licence.required && (!d.licence.ok || d.licence.state === 'trial')) $('licGo').onclick();
+                else if (S.licKey && $('licStatus') && !$('licStatus').innerHTML) $('licStatus').innerHTML = '<div class="note">🔑 A licence key from earlier is filled in. Click <b>Check and save</b> to use it here – or just press <b>Next</b> to carry on with the 14-day free trial.</div>';
             }, function (e) { if ($('licStatus')) $('licStatus').innerHTML = okLine(false, /Unknown action/.test(e.message) ? 'Your Google script needs updating first – see the Updates step.' : e.message); });
             $('licGo').onclick = function () {
                 var k = $('licKey').value.trim(); if (!k) { toast('Paste your key in first', true); return; }
                 $('licStatus').innerHTML = '<div class="status">Checking your key with the licence server…</div>'; $('licGo').disabled = true;
                 post({ action: 'setLicence', key: k }).then(function (d) { LICP = Promise.resolve(d); $('licGo').disabled = false; S.licensed = true; S.licKey = ''; save(); show(d.licence); toast('Licence saved ✅'); },
-                    function (e) { $('licGo').disabled = false; S.licKey = ''; save(); $('licStatus').innerHTML = okLine(false, e.message); });
+                    function (e) { $('licGo').disabled = false; S.licKey = ''; save(); $('licStatus').innerHTML = okLine(false, e.message) + (/in use|another/i.test(e.message) ? '<p class="mute small">Moving it from another dashboard? Free it up there first (on that dashboard: houserunner.app → System → Licence → Free up my licence key), or <a href="../../help/#licence" target="_blank" rel="noopener">see Help</a>. Or press <b>Next</b> to use the free trial for now.</p>' : ''); });
             };
         } },
 
@@ -381,7 +383,7 @@
                     '<div class="grid2"><div><label>Weeks start on</label>' + FD_weekSelect('fwWeek', S.week || (instV('Country') ? instV('WeekStart') : FD_localeFor(FD_guessCountry()).WeekStart)) + '</div>' +
                     '<div><label>How dates are written</label>' + FD_orderSelect('fwOrder', S.order || (instV('Country') ? instV('DateOrder') : FD_localeFor(FD_guessCountry()).DateOrder)) + '</div></div>' +
                     '<p class="mute">Filled in from your country – change them if you like.</p>' +
-                    '<label>Home address or postcode</label><p class="mute">Used for the weather, traffic, the nearest bus stop, bin days and the flights map.</p>' +
+                    '<label for="home">Home address or postcode <span class="req" style="color:var(--warn,#f5a623);font-weight:700">– needed</span></label><p class="mute">Used for the weather, traffic, the nearest bus stop, bin days and the flights map. Just the postcode, or your town, is enough. It stays in your own Google Sheet.</p>' +
                     '<input id="home" value="' + esc(S.home || ((ADM.install || []).filter(function (f) { return f.k === 'HomeAddress'; })[0] || {}).value || '') + '" placeholder="e.g. London, SW1A 0AA"></div>' +
                 '<div class="card big"><h3>Everyone in the family</h3><div id="fwRows">' + FAM.people.map(famRow).join('') + '</div>' +
                     (FAM.people.length < 10 ? '<button class="btn sm" id="fwAdd">+ Add a person</button>' : '<p class="mute">That’s the most (10).</p>') +
@@ -417,8 +419,10 @@
             };
             $('fwSave').onclick = function () {
                 var home = $('home').value.trim(), list = FAM.people.filter(function (p) { return p.name.trim(); });
-                if (!list.length) { $('famStatus').innerHTML = okLine(false, 'Add at least one person'); return; }
-                if (!home) { $('famStatus').innerHTML = okLine(false, 'Add your home address or postcode'); return; }
+                if (!list.length) { $('famStatus').innerHTML = okLine(false, 'Add at least one person'); var f1 = document.querySelector('[data-fn]'); if (f1) f1.focus(); return; }
+                var seen = {}, dup = ''; list.forEach(function (p) { var k = p.name.trim().toLowerCase(); if (seen[k] && !dup) dup = p.name.trim(); seen[k] = 1; });
+                if (dup) { $('famStatus').innerHTML = okLine(false, 'Two people are called “' + esc(dup) + '” – give one a different name (a surname initial is fine)'); return; }
+                if (!home) { $('famStatus').innerHTML = okLine(false, 'Add your home address or postcode – just the postcode or your town is enough'); $('home').focus(); return; }
                 var b = this; b.disabled = true; S.home = home; save();
                 $('famStatus').innerHTML = '<div class="status">⏳ Saving the family – up to half a minute…</div>'; b.textContent = '⏳ Saving…';
                 var ctry = $('fwCountry').value, cinfo = FD_COUNTRIES.filter(function (x) { return x[0] === ctry; })[0];
@@ -739,13 +743,14 @@
         OLD.calendar,
         { id: 'connect', title: 'Connect your screen and phones', render: function () {
             if (!connected()) return '<h1>Connect your screen and phones</h1>' + needConnect();
-            return '<h1>Connect your screen and phones</h1>' +
+            return '<h1>Connect your screen and phones</h1>' + devLive() +
                 (S.pairCode && window.FDPairSend ? '<div class="card big" id="pairCard" style="border-color:var(--acc)"><h3>📺 Connect your new screen</h3>' +
                     '<p>The display showing <b>' + esc(S.pairCode) + '</b> is waiting. Connect it to this family now?</p><button class="btn" id="pairSend">Connect the display</button><div id="pairStatus" class="mute"></div></div>' : '') +
                 '<h2>📺 Your screen</h2>' + bare(OLD.devices.render()) +
                 '<h2 style="margin-top:34px">📱 Your phones</h2>' + bare(OLD.phones.render());
         }, wire: function () {
             OLD.devices.wire(); OLD.phones.wire();
+            watchDevices();
             if ($('pairSend')) $('pairSend').onclick = function () {
                 FDPairSend.send(S.pairCode, { url: S.url, code: S.code }).then(function () { $('pairStatus').innerHTML = okLine(true, 'Sent – the screen connects within a few seconds.'); S.pairCode = ''; save(); },
                     function (e) { $('pairStatus').innerHTML = okLine(false, e.message); });
@@ -758,10 +763,13 @@
                 [S.licOk || S.licensed ? true : 'note', 'Licence key added', 'No licence key yet – the dashboard runs as a 14-day free trial. Add your key before it ends (houserunner.app → System → Licence).', 'licence'],
                 [!!S.familyDone || S.mode === 'amend', 'Family saved', 'The family hasn’t been saved', 'family'],
                 [S.calDone ? true : 'note', 'Calendar set up', 'Calendar colours left as they came – fine to change later (houserunner.app → Screens → your calendar page)', 'calendar'],
-                [S.devicesSeen && S.phonesSeen ? true : 'note', 'Screen and phones step done – keep Family Admin on your phone: it reconnects this website if it ever forgets your family', 'Connect your screen and put Family Admin on your phone', 'connect']
+                [S.screenOk ? true : 'note', 'Screen connected – ' + (S.screenOk || ''), 'Screen not connected yet – do it whenever you’re ready (houserunner.app → System → Devices and Phones)', 'connect'],
+                [S.phoneOk ? true : 'note', 'Family Admin is on a phone – keep it: it reconnects this website if it ever forgets your family', 'Family Admin not on a phone yet – put it on when you’re ready (houserunner.app → System → Devices and Phones)', 'connect']
             ];
             var ids = STEPS.map(function (x) { return x.id; }), probs = rows.filter(function (r) { return r[0] === false; });
-            return '<h1>' + (probs.length ? 'Nearly there' : '🎉 You’re all set') + '</h1>' +
+            return '<h1>' + (probs.length ? 'Nearly there' : '🎉 Setup saved') + '</h1>' +
+                (connected() ? '<div class="card big" style="text-align:center"><a class="btn big" id="openDash" href="' + esc(screenUrl()) + '" target="_blank" rel="noopener">▶ Open my dashboard</a>' +
+                    '<p class="mute small" style="margin:10px 0 0">Opens it in a new tab on this computer.' + (S.screenOk ? '' : ' To put it on your screen, see <b>Connect your screen</b> below.') + '</p></div>' : '') +
                 '<div class="card big fin">' + rows.map(function (r) {
                     var cls = r[0] === true ? 'ok' : r[0] === 'note' ? (r[3] === 'licence' ? 'part' : 'info') : 'bad';
                     return '<div class="fin-r ' + cls + '"><span class="fin-i">' + (cls === 'ok' ? '✔' : cls === 'info' ? 'ℹ' : cls === 'part' ? '½' : '⚠') + '</span><span class="fin-t"><small>' + esc(cls === 'ok' ? r[1] : r[2]) + '</small></span>' +
@@ -797,6 +805,25 @@
             .then(function (v) { LATEST = v; return connected() ? get('ping').then(function (p) { S.scriptVersion = p.version || ''; S.autoUpdate = !!p.autoUpdate; S.loader = p.loader || ''; save(); }).catch(function () {}) : null; });
     }
     /** Connect with S.url (+ S.code if known): fetch the code once if needed, check it works, record privacy acceptance. */
+    /** What's really connected – a screen that has shown the dashboard, Family Admin opened on a phone – not just "the page was visited". */
+    function devLive() {
+        var row = function (ok, yes, no) { return '<div class="fin-r ' + (ok ? 'ok' : 'info') + '"><span class="fin-i">' + (ok ? '✔' : '⏳') + '</span><span class="fin-t" style="display:block">' + (ok ? yes : no) + '</span></div>'; };
+        return '<div class="card big fin" id="devLive">' +
+            row(S.screenOk, '<b>Screen connected</b> – ' + esc(S.screenOk || ''), '<b>Screen: not connected yet.</b> Follow “Your screen” below – this ticks by itself when it shows your dashboard.') +
+            row(S.phoneOk, '<b>Family Admin is on a phone</b>', '<b>Phone: not connected yet.</b> Follow “Your phones” below – this ticks by itself when Family Admin opens on a phone.') +
+            '<p class="mute small" style="margin:8px 0 0">Not now? Press <b>Next</b> – you can connect them later from houserunner.app → <b>System → Devices and Phones</b>.</p></div>';
+    }
+    function watchDevices() {
+        clearTimeout(watchDevices.t);
+        var here = function () { return STEPS[S.step] && (STEPS[S.step].id === 'connect' || STEPS[S.step].id === 'devices' || STEPS[S.step].id === 'phones'); };
+        if (!connected() || !here()) return;
+        post({ action: 'screens' }).then(function (d) {
+            var sc = (d.screens || [])[0], was = (S.screenOk || '') + '|' + !!S.phoneOk;
+            S.screenOk = sc ? (sc.name || 'Screen') : ''; S.phoneOk = !!(d.phoneSeenAt);
+            save();
+            if (was !== (S.screenOk || '') + '|' + !!S.phoneOk) { var el = $('devLive'); if (el) el.outerHTML = devLive(); renderSteps(); }
+        }).catch(function () { /* try again in a moment */ }).then(function () { if (here()) watchDevices.t = setTimeout(watchDevices, 6000); });
+    }
     /** Every step of the step window, written out – for anyone who'd rather read them (or can't open the window). open: unfolded. */
     function allSteps(open) {
         if (!window.HRFloat) return '';
@@ -932,8 +959,8 @@
     /* ------------------------------------------------------------ frame */
 
     function isDone(id) {
-        return { start: connected(), connect: !!(S.devicesSeen && S.phonesSeen), done: false,
-            welcome: SOLO ? S.step > 0 || S.privacy === P.version : S.privacy === P.version && (!connected() || !!S.mode), privacy: S.privacy === P.version, sheet: connected(), publish: connected(), licence: !!(S.licOk || S.licensed), devices: !!S.devicesSeen, phones: !!S.phonesSeen, family: !!S.familyDone, calendar: !!S.calDone,
+        return { start: connected(), connect: !!(S.screenOk && S.phoneOk), done: false,
+            welcome: SOLO ? S.step > 0 || S.privacy === P.version : S.privacy === P.version && (!connected() || !!S.mode), privacy: S.privacy === P.version, sheet: connected(), publish: connected(), licence: !!(S.licOk || S.licensed), devices: !!S.screenOk, phones: !!S.phoneOk, family: !!S.familyDone, calendar: !!S.calDone,
             keys: KEYS.every(function (x) { return S.keys && S.keys[x.k] || S.skip && S.skip[x.k]; }), check: !!S.checkedOk, finish: false }[id];
     }
     /** "Publish by hand" is only for when the Sheet's menu can't publish: hidden (and not counted) unless someone opens it. */
@@ -942,7 +969,7 @@
     function renderSteps() {
         $('steps').innerHTML = STEPS.map(function (st, i) {
             if (st.id === 'publish' && !pubShown()) return '';
-            var part = !isDone(st.id) && st.id === 'licence' && (S.step > i || S.licTrial) && connected();     // gone past it with no key: the free trial – half done
+            var part = !isDone(st.id) && (st.id === 'licence' && (S.step > i || S.licTrial) && connected() || st.id === 'connect' && (S.screenOk || S.phoneOk));     // gone past it with no key: the free trial – half done
             return '<li class="' + (i === S.step ? 'on' : '') + (isDone(st.id) ? ' done' : '') + (part ? ' part' : '') + '" data-i="' + i + '"' + (part ? ' title="No licence key yet – the 14-day free trial. Add your key later."' : '') + '><span class="n">' + (isDone(st.id) ? '✔' : part ? '½' : st.id === 'finish' || st.id === 'done' ? '🏁' : SOLO || STEPS !== NEW ? (st.id === 'welcome' ? '👋' : num(i)) : num(i) + 1) + '</span>' + esc(st.title) + '</li>';
         }).join('');
     }
@@ -950,9 +977,8 @@
         if (window.hrHanded) return;     // handed back to the first setup tab: this one just says so (loading in the background mustn't redraw it)
         S.step = Math.max(0, Math.min(STEPS.length - 1, S.step || 0)); save();
         var st = STEPS[S.step];
-        if (st.id === 'devices' && connected()) S.devicesSeen = true;
-        if (st.id === 'phones' && connected()) S.phonesSeen = true;
-        if (st.id === 'connect' && connected()) { S.devicesSeen = true; S.phonesSeen = true; }
+        // a message from the last page ("press Next…") doesn't belong on this one
+        if (render.was !== S.step) { var tt = $('toast'); if (tt) { clearTimeout(toast.h); tt.className = 'toast'; } render.was = S.step; }
         var pg = $('page'); pg.onclick = pg.oninput = pg.onchange = null; pg.classList.remove('show-match');
         $('page').innerHTML = st.render().replace(/<h1>\d+\.\s*/, S.step && st.id !== 'finish' && st.id !== 'done' && !SOLO && STEPS !== NEW ? '<h1>' + num(S.step) + '. ' : '<h1>');
         if (st.wire) st.wire();
@@ -1103,7 +1129,7 @@
         if (goTo === 'welcome') { delete S.mode; save(); }      // the whole wizard on this dashboard: ask again what to do
         // Moving from another Google account: remember the moving pack until the new dashboard is connected.
         // A licence key from the order email's link: filled in (and checked) once the Sheet is connected.
-        if (p.key) { S.licKey = p.key; save(); }
+        if (p.key) { S.licKey = p.key; save(); window.hrKeyFromLink = true; }
         // Started from a new screen's QR code: connect that screen once this family is set up.
         if (p.pair) { S.pairCode = p.pair; save(); }
         if (p.pack) { S.pack = p.pack.replace(/[^\w-]/g, ''); S.packFrom = p.packFrom || ''; save(); setTimeout(function () { toast('Moving your dashboard: set up this new one as usual – at “Publish & connect” you’ll bring everything across'); }, 600); }
