@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.132';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.133';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -4422,7 +4422,7 @@ function menuConnect() {
     ' if(!r.ok&&r.kind==="deploy"){mark("publish",null,"Publish your dashboard – once, with Google’s Deploy button (1 minute)");' +
     '  if(!waiting){waiting=true;out("<div style=\\"background:#e8f6ee;border:1px solid #9bd3b0;border-radius:8px;padding:8px 10px;margin:0 0 10px\\"><b>Already clicked Deploy once?</b> Don’t deploy again. In Apps Script click <b>Deploy → Manage deployments</b>, then click the link under <b>Web app</b> – a page opens saying <b>Published!</b>, and this window carries on by itself.</div><p style=\\"margin:0 0 4px\\"><b>Not deployed yet?</b></p><ol style=\\"margin:4px 0 8px;padding-left:20px\\"><li><a href=\\""+r.editor+"\\" target=\\"_blank\\" style=\\""+BTN+";padding:7px 14px\\">Open Apps Script</a> (a new tab)</li>' +
     '<li>Click the blue <b>Deploy</b> button (top right) → <b>New deployment</b></li><li>Click the ⚙ next to <b>Select type</b> → <b>Web app</b></li>' +
-    '<li>Set <b>Execute as: Me</b> and <b>Who has access: Anyone</b> → click <b>Deploy</b> (allow it if Google asks)</li><li>When it says <b>Deployment successfully created</b> (or <b>updated</b>), click the <b>Web app URL</b> link under it (a page opens saying <b>HouseRunner is published</b>) – then <b>Done</b>, and come back here</li></ol>' +
+    '<li>Set <b>Execute as: Me</b> and <b>Who has access: Anyone</b> → click <b>Deploy</b> (allow it if Google asks)</li><li><b>Wait</b> (10–20 seconds) until it says <b>Deployment successfully created</b> (or <b>updated</b>), then click the <b>Web app URL</b> link under it – the new tab can take up to a minute (a page opens saying <b>HouseRunner is published</b>) – then <b>Done</b>, and come back here</li></ol>' +
     '<p style=\\"font-size:13px;margin:6px 0\\">Or copy the <b>Web app URL</b> and paste it here: <input id=\\"pu\\" style=\\"width:58%;padding:4px 6px\\" placeholder=\\"https://script.google.com/macros/s/…/exec\\"> <button id=\\"pb\\">OK</button> <span id=\\"pm\\" style=\\"color:#b91c1c\\"></span></p>' +
     '<p style=\\"color:#888;font-size:13px\\">⏳ Watching for it – this window carries on by itself as soon as it’s published.</p>");}' +
     '  var pb=document.getElementById("pb");if(pb&&!pb.onclick)pb.onclick=function(){document.getElementById("pm").textContent="Checking…";google.script.run.withSuccessHandler(function(x){if(x.ok){document.getElementById("pm").textContent="";}else document.getElementById("pm").textContent=x.error;}).setup("hr:url:"+document.getElementById("pu").value);};' +

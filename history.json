@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.314",
+    "date": "2026-11-17",
+    "notes": [
+      "Step window: Select all and Continue are one step (12 steps now), with a picture of Google's current white Continue button. The Sheet's fallback menu item is now “▶ Click here to start step 11”."
+    ]
+  },
+  {
     "version": "2026.11.313",
     "date": "2026-11-17",
     "notes": [
