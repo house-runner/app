@@ -1035,11 +1035,18 @@
                     S.step = SOLO ? S.step : ids.indexOf(S.privacy === P.version ? (S.licOk || S.licensed ? 'family' : 'licence') : 'welcome'); save();
                     arrived();
                     if (!ADM) loadAdm(); licenceNow();
-                    var t0 = document.title, n = 0, fl = setInterval(function () { document.title = ++n % 2 ? '✅ Carry on here – HouseRunner' : t0; if (n > 11 || !document.hidden) { clearInterval(fl); document.title = t0; } }, 900);
+                    flashTitle();
                 } else if (++tries <= 24) setTimeout(one, 5000);
                 else { window.hrConnecting = false; render(); toast('Your Sheet isn’t answering yet – wait a minute, then click ▶ Back to HouseRunner setup again on the “Published!” page', true); }
             });
         })();
+    };
+    /** Draw the eye back to this tab: its name blinks "✅ Carry on here" until it's looked at, then settles back to "HouseRunner setup".
+     *  One at a time (two at once used to leave the tab stuck on "Carry on here"). */
+    var flashTitle = function () {
+        var BASE = 'HouseRunner setup', n = 0;
+        clearInterval(flashTitle.t);
+        flashTitle.t = setInterval(function () { document.title = ++n % 2 ? '✅ Carry on here – HouseRunner setup' : BASE; if (n > 11 || !document.hidden) { clearInterval(flashTitle.t); document.title = BASE; } }, 900);
     };
     var arrived = function () {
         if (window.HRFloat) HRFloat.at('back');      // the step window shows its last step (close the other tabs), then closes
@@ -1068,7 +1075,7 @@
             S.step = SOLO ? S.step : ids.indexOf(S.privacy === P.version ? (S.licOk || S.licensed ? 'family' : 'licence') : 'welcome'); save();
             render(); arrived();
             try { window.focus(); } catch (e) { /* the browser decides */ }
-            var t0 = document.title, n = 0, fl = setInterval(function () { document.title = ++n % 2 ? '✅ Carry on here – HouseRunner' : t0; if (n > 11 || !document.hidden) { clearInterval(fl); document.title = t0; } }, 900);
+            flashTitle();
         }
     };
     window.addEventListener('storage', function (e) { if (e.key === KEY) catchUp(); });

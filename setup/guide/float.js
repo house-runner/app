@@ -19,7 +19,7 @@
         ['popup', 'Tick <b>Select all</b>, then click <b>Continue</b>', '<b>Select all</b> is at the top of the list – every permission is needed. <b>Continue</b> is at the bottom right (scroll down if you can’t see it). The pop-up then closes and you’re back in Apps Script.', V + 'p-selectall.png'],
         ['script', '⏳ Wait, then click the link under <b>Web app</b>', '<span class="wait">⏳ <b>First wait</b> – Apps Script takes about 10–20 seconds. The link only appears when the box says <b>“Deployment successfully created”</b> (or “updated”).</span>Then click the link under <b>Web app</b> – it starts https://script.google.com/macros.<span class="wait">⏳ <b>Wait again</b> – the new tab can stay blank for up to a minute while your Sheet gets ready. Don’t click the link a second time.</span><span class="mute">Clicked <b>Done</b> by mistake? Don’t deploy again: click <b>Deploy → Manage deployments</b>, then the link under <b>Web app</b>.</span>', V + 'v-weburl.mp4'],
         ['pub', 'Click <b>▶ Back to HouseRunner setup</b>', 'On the page that says <b>✅ Published!</b> Setup then carries on in your HouseRunner setup tab by itself.<br><span class="mute">Closed that page by mistake? In your Sheet, click <b>🏠 HouseRunner</b> → <b>▶ Click here to start step 11</b>.</span>', V + 'p-published.png'],
-        ['tabs', 'Close every tab except <b>HouseRunner setup</b>', 'Click the ✕ on your Sheet’s tab, the Apps Script tab and the “Published” tab. Your Sheet keeps working without being open.', 'tabs']
+        ['tabs', 'Close every tab except <b>HouseRunner setup</b>', 'Keep the tab with the HouseRunner logo called <b>HouseRunner setup</b> <span class="mute">(for a moment it may say “✅ Carry on here”)</span>. Click the ✕ on the others: your Sheet (“Copy of HouseRunner BLANK” or “HouseRunner MAIN DATA”), <b>HouseRunner – Project Editor</b> (Apps Script) and <b>HouseRunner – published</b>. Your Sheet keeps working without being open.', 'tabs']
     ];
     var WHERE = {
         setup: ['🏠', 'In the <b>HouseRunner setup</b> tab'],
@@ -56,7 +56,7 @@
 
     function media(m) {
         if (m === 'tabs') return '<div class="tabs"><div class="tab keep">🏠 HouseRunner setup<i>✓ keep</i></div><div class="tab">📗 Copy of HouseRunner<i>✕</i></div>' +
-            '<div class="tab">📜 Apps Script<i>✕</i></div><div class="tab">✅ Published<i>✕</i></div></div><div class="tabsb"></div>';
+            '<div class="tab">📜 HouseRunner – Project Editor<i>✕</i></div><div class="tab">✅ HouseRunner – published<i>✕</i></div></div><div class="tabsb"></div>';
         return /\.mp4$/.test(m) ? '<video class="media" src="' + abs(m) + '" autoplay muted loop playsinline></video>' : '<img class="media" alt="" src="' + abs(m) + '">';
     }
     function draw() {

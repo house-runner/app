@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.315",
+  "app": "2026.11.316",
   "script": "2026.11.133",
   "date": "2026-11-17",
   "notes": [
-    "Step window: Select all and Continue are one step (12 steps now), with a picture of Google's current white Continue button. The Sheet's fallback menu item is now “▶ Click here to start step 11”."
+    "Step window, “click the link under Web app”: now says clearly to wait – first for Apps Script to say “Deployment successfully created”, then up to a minute for the new tab – with a closer clip of the link."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

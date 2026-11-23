@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.315",
+    "date": "2026-11-17",
+    "notes": [
+      "Step window, “click the link under Web app”: now says clearly to wait – first for Apps Script to say “Deployment successfully created”, then up to a minute for the new tab – with a closer clip of the link."
+    ]
+  },
+  {
     "version": "2026.11.314",
     "date": "2026-11-17",
     "notes": [
