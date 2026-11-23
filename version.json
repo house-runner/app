@@ -1,9 +1,10 @@
 {
-  "app": "2026.11.317",
+  "app": "2026.11.318",
   "script": "2026.11.133",
   "date": "2026-11-17",
   "notes": [
-    "The setup tab is now always called “HouseRunner setup” – it could get stuck saying “✅ Carry on here”. The step window's last step names each tab to keep and to close, as your browser shows them."
+    "Fixed: with the step window open, Make my copy could fail to open Google's copy tab (the step window resizing itself used up the click). It now only resizes for the Deploy step.",
+    "If no copy tab opened, or you come back and can't find your copy, the setup page now shows a clear Make my copy button again, and says where an earlier copy would be in Google Drive."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

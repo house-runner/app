@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.317",
+    "date": "2026-11-17",
+    "notes": [
+      "Fixed: with the step window open, Make my copy could fail to open Google's copy tab (the step window resizing itself used up the click). It now only resizes for the Deploy step.",
+      "If no copy tab opened, or you come back and can't find your copy, the setup page now shows a clear Make my copy button again, and says where an earlier copy would be in Google Drive."
+    ]
+  },
+  {
     "version": "2026.11.316",
     "date": "2026-11-17",
     "notes": [
