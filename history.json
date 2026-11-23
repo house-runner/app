@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.316",
+    "date": "2026-11-17",
+    "notes": [
+      "The setup tab is now always called “HouseRunner setup” – it could get stuck saying “✅ Carry on here”. The step window's last step names each tab to keep and to close, as your browser shows them."
+    ]
+  },
+  {
     "version": "2026.11.315",
     "date": "2026-11-17",
     "notes": [

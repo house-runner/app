@@ -90,7 +90,11 @@
     /** The "click Deploy" step: shrink (and, where the browser allows, move to the bottom left) so the button behind isn't covered. */
     function fit() {
         if (!win || win.closed) return;
-        var small = STEPS[i][4] === 'small', z = small ? SMALL : size();
+        var small = STEPS[i][4] === 'small';
+        // Only when going into or out of the small step: resizing a floating window uses up the click that caused it, and a
+        // resize from the setup page's own click (Make my copy) stopped Google's copy tab from opening.
+        if (small === !!fit.moved) return;
+        var z = small ? SMALL : size();
         try { win.resizeTo(z.width, z.height); } catch (e) { /* the browser decides */ }
         if (small) { try { win.moveTo(10, (screen.availHeight || 800) - z.height - 10); } catch (e) { /* floating windows can't be moved – it says to drag it */ } }
         else if (fit.moved) { try { win.moveTo((screen.availWidth || 1200) - z.width - 20, 40); } catch (e) { /* fine */ } }

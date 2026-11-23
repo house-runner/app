@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.316",
+  "app": "2026.11.317",
   "script": "2026.11.133",
   "date": "2026-11-17",
   "notes": [
-    "Step window, “click the link under Web app”: now says clearly to wait – first for Apps Script to say “Deployment successfully created”, then up to a minute for the new tab – with a closer clip of the link."
+    "The setup tab is now always called “HouseRunner setup” – it could get stuck saying “✅ Carry on here”. The step window's last step names each tab to keep and to close, as your browser shows them."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
