@@ -1,10 +1,9 @@
 {
-  "app": "2026.11.318",
+  "app": "2026.11.319",
   "script": "2026.11.133",
   "date": "2026-11-17",
   "notes": [
-    "Fixed: with the step window open, Make my copy could fail to open Google's copy tab (the step window resizing itself used up the click). It now only resizes for the Deploy step.",
-    "If no copy tab opened, or you come back and can't find your copy, the setup page now shows a clear Make my copy button again, and says where an earlier copy would be in Google Drive."
+    "Setup's “Welcome back” message now has the Make my copy button right in it, for when no copy tab opened – no scrolling to find it."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.318",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup's “Welcome back” message now has the Make my copy button right in it, for when no copy tab opened – no scrolling to find it."
+    ]
+  },
+  {
     "version": "2026.11.317",
     "date": "2026-11-17",
     "notes": [

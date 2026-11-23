@@ -36,27 +36,27 @@
     function abs(u) { return new URL(u, location.href).href; }
     function plain(h) { var d = document.createElement('div'); d.innerHTML = h; return d.textContent; }
 
-    var CSS = '*{box-sizing:border-box}html,body{margin:0;height:100%}body{background:#0f141b;color:#e6edf3;font:16px/1.45 "Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column}' +
+    var CSS = '*{box-sizing:border-box}html,body{margin:0;height:100%}body{background:#0f141b;color:#e6edf3;font:15px/1.42 "Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column}' +
         '.hd{display:flex;align-items:center;gap:8px;padding:10px 14px 6px;font-size:13px;color:#9fb0c2}.hd b{color:#e6edf3}.hd .n{margin-left:auto;font-weight:700;color:#3fa9f5;font-size:14px}' +
         '.bar{height:5px;background:#243040;margin:0 14px;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:#3fa9f5;transition:width .2s}' +
         '.bd{flex:1;overflow:auto;padding:10px 14px}' +
         '.where{display:flex;gap:8px;align-items:center;background:#162231;border:1px solid #27405a;border-radius:10px;padding:7px 10px;font-size:14px;color:#cbd6e2}.where b{color:#fff}.where span{font-size:18px}' +
-        'h2{font-size:21px;line-height:1.3;margin:12px 0 10px;font-weight:600}h2 b{color:#7cc4fa}' +
-        '.media{display:block;width:100%;max-height:34vh;object-fit:contain;border-radius:10px;background:#fff;border:1px solid #2b3a4c}' +
+        'h2{font-size:19px;line-height:1.3;margin:10px 0 8px;font-weight:600}h2 b{color:#7cc4fa}' +
+        '.media{display:block;width:100%;max-height:38vh;object-fit:contain;border-radius:10px;background:#fff;border:1px solid #2b3a4c}' +
         'p{margin:10px 0 0;color:#cbd6e2}p b{color:#fff}.mute{color:#8a9bb0;font-size:13.5px}' +
         '.vl{color:#7cc4fa;font-weight:600;text-decoration:none;font-size:13.5px}.vl:hover{text-decoration:underline}' +
         '.ft{display:flex;gap:8px;align-items:center;padding:10px 14px 12px;border-top:1px solid #1e2a38}' +
         'button{font:inherit;font-weight:700;border-radius:10px;padding:11px 16px;cursor:pointer;border:1px solid transparent}.go{background:#3fa9f5;color:#fff;margin-left:auto;font-size:16.5px}.gh{background:transparent;color:#cbd6e2;border-color:#33465c}' +
         'button:disabled{opacity:.35;cursor:default}' +
-        '.tabs{display:flex;flex-wrap:wrap;gap:4px;background:#dfe3e8;border-radius:10px 10px 0 0;padding:8px 8px 0}.tab{flex:1 1 45%;min-width:0;background:#c7ccd3;color:#333;border-radius:8px 8px 0 0;padding:7px 8px;font-size:12.5px;display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden}' +
+        '.tabs{display:flex;flex-direction:column;gap:4px;background:#dfe3e8;border-radius:10px;padding:8px}.tab{min-width:0;background:#c7ccd3;color:#333;border-radius:8px;padding:7px 10px;font-size:13.5px;display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden}' +
         '.tab.keep{background:#fff;font-weight:700}.tab i{margin-left:auto;font-style:normal;color:#b91c1c;font-weight:800}.tab.keep i{color:#15803d}.tabsb{background:#fff;border-radius:0 0 10px 10px;height:26px;border:1px solid #dfe3e8;border-top:0}' +
-        'body.small h2{font-size:17px;margin:8px 0}body.small .media{max-height:70px}body.small .where,body.small .vl{display:none}body.small p{font-size:13px}body.small .hd{display:none}' +
+        'body.small h2{font-size:17px;margin:8px 0}body.small .media{max-height:200px}body.small .where,body.small .vl{display:none}body.small p{font-size:13px}body.small .hd{display:none}' +
         '.wait{display:block;margin:8px 0;padding:8px 10px;border-radius:9px;background:#3a2a0c;border:1px solid #a06a12;color:#ffe2a8}.wait b{color:#fff}' +
         '.done{margin-top:12px;padding:10px 12px;border-radius:10px;background:#123322;border:1px solid #2b7a4b;font-size:14.5px}';
 
     function media(m) {
         if (m === 'tabs') return '<div class="tabs"><div class="tab keep">🏠 HouseRunner setup<i>✓ keep</i></div><div class="tab">📗 Copy of HouseRunner<i>✕</i></div>' +
-            '<div class="tab">📜 HouseRunner – Project Editor<i>✕</i></div><div class="tab">✅ HouseRunner – published<i>✕</i></div></div><div class="tabsb"></div>';
+            '<div class="tab">📜 HouseRunner – Project Editor<i>✕</i></div><div class="tab">✅ HouseRunner – published<i>✕</i></div></div>';
         return /\.mp4$/.test(m) ? '<video class="media" src="' + abs(m) + '" autoplay muted loop playsinline></video>' : '<img class="media" alt="" src="' + abs(m) + '">';
     }
     function draw() {
@@ -85,8 +85,9 @@
         try { localStorage.setItem(KEY, String(i)); } catch (e) { /* fine */ }
         draw(); fit();
     }
-    function size() { return { width: 440, height: Math.max(480, Math.min(600, (screen.availHeight || 900) - 160)) }; }
-    var SMALL = { width: 330, height: 300 };
+    // Tall and fairly narrow: room for the clip and the help without scrolling, while covering as little as possible of the page beside it
+    function size() { return { width: 400, height: Math.max(560, Math.min(920, (screen.availHeight || 900) - 60)) }; }
+    var SMALL = { width: 360, height: 440 };
     /** The "click Deploy" step: shrink (and, where the browser allows, move to the bottom left) so the button behind isn't covered. */
     function fit() {
         if (!win || win.closed) return;
