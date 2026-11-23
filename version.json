@@ -1,15 +1,13 @@
 {
-  "app": "2026.11.313",
-  "script": "2026.11.131",
+  "app": "2026.11.314",
+  "script": "2026.11.132",
   "date": "2026-11-17",
   "notes": [
-    "Setup: the “Connect your screen and phones” step now ticks only when a screen has really shown your dashboard and Family Admin has really opened on a phone – it watches for them live. Skip them for now and the finish page says “not connected yet”, with where to do it later.",
-    "Setup's last page now starts with a big ▶ Open my dashboard button, and no leftover “press Next” message.",
-    "Setup's family page says up front that the home address is needed (just a postcode or town is enough), and spots two people with the same name before saving.",
-    "Setup no longer checks a licence key remembered from an earlier visit by itself – only one from the email link. If a key is in use elsewhere it says how to free it up, or to carry on with the free trial.",
-    "Removing a note on the dashboard now says which note, and Undo really puts that same note back (same words, name and time).",
-    "Adding a note in Family Admin or the Configurator now shows it straight away, as saved in your Sheet, instead of saying “added” before it appears.",
-    "Connecting a display: an empty or mistyped code (it's 8 letters and numbers, like K7Q2-M9XD) is caught before the “are you sure” question."
+    "Step window: down to 13 steps – Extensions → Apps Script is one step, Deploy → New deployment is one, and Advanced → Go to HouseRunner (unsafe) is one. The clips are zoomed in closer.",
+    "New “Check two things” step with a clear picture: that it says Web app, and that Who has access says Anyone – only change them if not.",
+    "Clicking Deploy is its own step, and the step window shrinks for it (and moves to the bottom left where the browser allows) so it doesn't cover the button.",
+    "The step window is shorter, so it covers less of the Sheet. No separate “choose your account” step – Google only asks if you're signed in to more than one.",
+    "The Sheet's fallback menu item is now “▶ Click here to start step 12”."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

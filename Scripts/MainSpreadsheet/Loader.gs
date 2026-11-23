@@ -154,7 +154,7 @@ function onOpen(e) {
     // A brand-new copy can't download the program while the Sheet is opening (Google doesn't allow it yet), so this
     // menu has the same first steps: each one loads the program when it's clicked.
     try {
-      SpreadsheetApp.getUi().createMenu('🏠 HouseRunner').addItem('▶ Click here to start step 12', 'menuConnect').addToUi();
+      SpreadsheetApp.getUi().createMenu('🏠 HouseRunner').addItem('▶ Click here to start step 11', 'menuConnect').addToUi();
     } catch (x) { /* no UI */ }
   }
 }

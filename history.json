@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026.11.313",
+    "date": "2026-11-17",
+    "notes": [
+      "Step window: down to 13 steps – Extensions → Apps Script is one step, Deploy → New deployment is one, and Advanced → Go to HouseRunner (unsafe) is one. The clips are zoomed in closer.",
+      "New “Check two things” step with a clear picture: that it says Web app, and that Who has access says Anyone – only change them if not.",
+      "Clicking Deploy is its own step, and the step window shrinks for it (and moves to the bottom left where the browser allows) so it doesn't cover the button.",
+      "The step window is shorter, so it covers less of the Sheet. No separate “choose your account” step – Google only asks if you're signed in to more than one.",
+      "The Sheet's fallback menu item is now “▶ Click here to start step 12”."
+    ]
+  },
+  {
     "version": "2026.11.312",
     "date": "2026-11-17",
     "notes": [
