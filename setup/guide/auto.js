@@ -97,10 +97,10 @@
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
         else body = '<div class="card"><h3>⏳ ' + STEPS[k][1] + '…</h3><p class="mute">Working – this takes a few seconds. Don’t close this tab.</p></div>';
-        // An earlier try that didn't finish: carry on with that Sheet by default, or make a new one on purpose (the old one is kept)
-        var again = (S.sheetId && !S.answered && k > 0) || (S.sheetId && k === 0) ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making your Sheet' +
-            (S.started ? ' on ' + esc(new Date(S.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) : '') + (S.email ? ' as <b>' + esc(S.email) + '</b>' : '') +
-            ' – it carries on with that same Sheet below. <span class="mute">Want a brand-new Sheet instead? <a href="#" id="again">Make a new Sheet instead</a> – your earlier one isn’t changed or deleted; it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
+        // An earlier try that didn't finish: a new one starts by default; going back to it is one click (the old Sheet is kept either way)
+        var P = prev(), again = P && !S.sheetId ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making a Sheet' +
+            (P.started ? ' on ' + esc(new Date(P.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) : '') + (P.email ? ' as <b>' + esc(P.email) + '</b>' : '') +
+            ' but didn’t finish, so this starts afresh with a new one. <span class="mute">Rather pick up where you left off? <a href="#" id="again">Carry on with that Sheet instead</a>. Either way your earlier Sheet isn’t changed or deleted – it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
         app.innerHTML = again + list + (extra || '') + body + diag();
         if (k === 4) app.insertAdjacentHTML('beforeend', OPT.perms || '');
         wire();
@@ -114,12 +114,8 @@
         return '<details><summary>Details for Russ</summary><pre>' + esc(JSON.stringify(safe, null, 1) + '\n\n' + log.join('\n')) + '</pre>' +
             '</details>';
     }
-    /** Forget this try (only the installer's own progress – nothing about the family, the licence or the Sheet itself) */
-    function newTry() {
-        try { localStorage.removeItem(KEY); } catch (e) { /* fine */ }
-        S = {}; log = []; clearTimeout(setT); stage('start');
-        draw('<div class="note">↺ Ready for a brand-new Sheet – click <b>Sign in with Google</b>.</div>');
-    }
+    var PKEY = 'hrinstall.prev';
+    function prev() { try { return JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch (e) { return null; } }
     /** Done and handed over to setup: nothing more to carry on with, so the next new setup on this computer starts clean */
     function forget() { try { localStorage.setItem('hrinstall.last', JSON.stringify({ email: S.email, sheetId: S.sheetId, at: new Date().toISOString() })); localStorage.removeItem(KEY); } catch (e) { /* fine */ } }
     function wire() {
@@ -129,11 +125,11 @@
         on('approve', approve);
         on('again', function (e) {
             if (e) e.preventDefault();
-            var c = document.getElementById('againCard');
-            c.innerHTML = '<b>Make a new Sheet instead?</b> HouseRunner starts again and makes a brand-new Sheet. Your earlier Sheet isn’t changed or deleted – it stays in your Google Drive (bin it there if you don’t want it).' +
-                '<div class="row"><button class="btn" id="againYes">Make a new Sheet</button><button class="btn ghost" id="againNo">Cancel – carry on with it</button></div>';
-            on('againNo', function () { draw(); });
-            on('againYes', newTry);
+            var P = prev(); if (!P) return;
+            S = P; save(); try { localStorage.removeItem(PKEY); } catch (x) { /* fine */ }
+            note('carrying on with the earlier try');
+            draw('<div class="note ok">↩ Carrying on with the Sheet you started' + (S.email ? ' as <b>' + esc(S.email) + '</b>' : '') + ' – ' + (S.url ? 'it’s already made and published.' : 'sign in with the same account and it picks up where it stopped.') + '</div>');
+            if (S.url) check(true).then(function (ok) { if (ok) { draw(); finish(); } });
         });
     }
     function fail(e) {
@@ -165,7 +161,7 @@
     function build() {
         draw();
         return Promise.resolve()
-            .then(function () { if (S.sheetId) return; return api('POST', 'https://www.googleapis.com/drive/v3/files?fields=id', { name: 'HouseRunner MAIN DATA', mimeType: 'application/vnd.google-apps.spreadsheet', appProperties: { houserunner: 'installer' } }).then(function (f) { S.sheetId = f.id; save(); draw(); }); })
+            .then(function () { if (S.sheetId) return; return (function () { try { localStorage.removeItem(PKEY); } catch (e) { /* fine */ } })(), api('POST', 'https://www.googleapis.com/drive/v3/files?fields=id', { name: 'HouseRunner MAIN DATA', mimeType: 'application/vnd.google-apps.spreadsheet', appProperties: { houserunner: 'installer' } }).then(function (f) { S.sheetId = f.id; save(); draw(); }); })
             .then(function () { if (S.scriptId) return; return api('POST', 'https://script.googleapis.com/v1/projects', { title: 'HouseRunner App', parentId: S.sheetId }).then(function (p) { S.scriptId = p.scriptId; save(); draw(); }); })
             .then(function () {
                 if (S.contentDone) return;
@@ -260,6 +256,7 @@
             var back = !!OPT.approved;
             // Finished before (and handed over then): nothing to carry on with – a new setup on this computer starts clean
             if (S.answered && !back) { forget(); S = {}; stage('start'); }
+            else if (S.sheetId && !back && !OPT.resume) { try { localStorage.setItem(PKEY, JSON.stringify(S)); localStorage.removeItem(KEY); } catch (e) { /* fine */ } S = {}; stage('start'); note('earlier unfinished try put aside'); }
             if (back) { note('back from Google approval'); stage('checking'); }
             draw(back && !S.answered ? '<div class="note">⏳ Checking your Sheet answers…</div>' : '');
             if (S.answered) { finish(); return; }
@@ -279,6 +276,6 @@
         /** Has an automatic setup been started on this computer (so its card should show rather than the by-hand steps)? */
         started: function () { return !!(S.started || S.sheetId); },
         /** A new family on this computer: forget any unfinished try too */
-        reset: function () { try { localStorage.removeItem(KEY); localStorage.removeItem('hrinstall.stage'); } catch (e) { /* fine */ } S = {}; }
+        reset: function () { try { localStorage.removeItem(KEY); localStorage.removeItem(PKEY); localStorage.removeItem('hrinstall.stage'); } catch (e) { /* fine */ } S = {}; }
     };
 })();

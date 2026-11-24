@@ -1,5 +1,14 @@
 [
   {
+    "version": "2026.11.334",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: no more 'Start again from scratch' button – a new setup starts clean by itself",
+      "Came back part-way? 'Welcome back' carries on with the same Sheet, or makes a new one on purpose – the earlier Sheet is kept in your Google Drive, never deleted",
+      "Disconnect and start a new family also forgets any half-made Sheet"
+    ]
+  },
+  {
     "version": "2026.11.333",
     "date": "2026-11-17",
     "notes": [

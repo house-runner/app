@@ -1,9 +1,11 @@
 {
-  "app": "2026.11.334",
+  "app": "2026.11.335",
   "script": "2026.11.138",
   "date": "2026-11-17",
   "notes": [
-    "Setup: before opening your Apps Script settings it explains what will open, what to switch on, and to close that tab and come back – then confirms in green once it's on"
+    "Setup: no more 'Start again from scratch' button – a new setup starts clean by itself",
+    "Came back part-way? 'Welcome back' carries on with the same Sheet, or makes a new one on purpose – the earlier Sheet is kept in your Google Drive, never deleted",
+    "Disconnect and start a new family also forgets any half-made Sheet"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
