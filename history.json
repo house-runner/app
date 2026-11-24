@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.11.332",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: ⚡ HouseRunner now makes your Google Sheet for you – sign in with Google, approve, done. No copying, no Apps Script, no Deploy (doing it by hand is still there)",
+      "Setup checks first whether your Google account needs the Apps Script switch on, and carries on by itself once it is",
+      "A step window follows along, with a picture of each click, and moves on by itself",
+      "After Google's approval you come back to setup, which checks your Sheet answers, shows a green ✅ and carries on"
+    ]
+  },
+  {
     "version": "2026.11.331",
     "date": "2026-11-17",
     "notes": [

@@ -204,11 +204,20 @@
     }
     function askSwitch() {
         stage('api'); S.needSwitch = true; save();
-        draw('<div class="card big"><h3>One switch to turn on first</h3><p>Google only lets HouseRunner make your script once you’ve switched on <b>Google Apps Script API</b> in your own Apps Script settings – just once, for this Google account.</p>' +
-            '<ol><li>Click <b>Open my Apps Script settings</b> – they open in a new tab.</li><li>Click <b>Google Apps Script API</b> and switch it <b>On</b>.</li><li>Come back to this tab – it carries on by itself as soon as the switch is on.</li></ol>' +
-            '<div class="row"><button class="btn" id="setGo">Open my Apps Script settings</button><span class="mute" id="setMsg">⏳ Waiting for the switch…</span></div></div>');
+        draw('<div class="card big"><h3>⚙️ One switch to turn on first</h3>' +
+            '<p>Google only lets HouseRunner make your script once you’ve switched on <b>Google Apps Script API</b> in your own Apps Script settings. It’s a one-off for this Google account.</p>' +
+            '<div class="note warn" style="margin:12px 0"><b>The next button opens your Apps Script settings in a new tab.</b> In that tab:<ol style="margin:6px 0 0">' +
+            '<li>Click <b>Google Apps Script API</b>.</li><li>Click the switch so it turns <b>On</b> (blue).</li><li><b>Close that tab</b> (click its ✕) and <b>come back to this “HouseRunner setup” tab</b>.</li></ol></div>' +
+            '<img src="../../shared/brand/steps/i-apiswitch.png?v=333" alt="" style="max-width:420px;width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 12px">' +
+            '<div class="row"><button class="btn" id="setGo">Open my Apps Script settings (new tab)</button><span class="mute" id="setMsg"></span></div>' +
+            '<p class="mute small">This page watches for the switch and carries on by itself as soon as it’s on.</p></div>');
         var b = document.getElementById('setGo');
-        if (b) b.onclick = function () { setWin = window.open('https://script.google.com/home/usersettings', 'hrsettings'); };
+        if (b) b.onclick = function () {
+            setWin = window.open('https://script.google.com/home/usersettings', 'hrsettings');
+            var m = document.getElementById('setMsg');
+            if (m) m.innerHTML = setWin ? '⏳ Opened in a new tab – switch it <b>On</b>, close that tab, and come back here.' : 'Your browser blocked the new tab – allow pop-ups for houserunner.app, then click again.';
+        };
+        var t0 = document.title;
         clearTimeout(setT);
         (function watch() {
             setT = setTimeout(function () {
@@ -218,7 +227,10 @@
                     S.needSwitch = false; save();
                     try { if (setWin && !setWin.closed) setWin.close(); } catch (e) { /* the browser may not allow it */ }
                     try { window.focus(); } catch (e) { /* fine */ }
-                    draw('<div class="note ok">✅ <b>Switched on.</b> ' + (setWin && !setWin.closed ? 'You can close the Apps Script settings tab. ' : '') + 'Making your Sheet now…</div>');
+                    var still = setWin && !setWin.closed;
+                    if (still) document.title = '✅ Done – come back to HouseRunner';
+                    setTimeout(function () { document.title = t0; }, 20000);
+                    draw('<div class="note ok">✅ <b>Apps Script API is switched on – thank you.</b> ' + (still ? 'If the Apps Script settings tab is still open, close it. ' : '') + 'Making your Sheet now…</div>');
                     build().catch(fail);
                 });
             }, 3000);

@@ -33,7 +33,7 @@ button:disabled{opacity:.4;cursor:default}
  * during approval, and a floating window would close with it. It follows along by itself – auto.js writes where it is up
  * to (localStorage "hrinstall.stage") – and "Done – next step" moves it on by hand where it can't tell. */
 (function () {
-    var V = '../../shared/brand/steps/', REV = '332';
+    var V = '../../shared/brand/steps/', REV = '333';
     var HR = '<img src="' + V + 't-hr.png" alt="">';
     var WHERE = { setup: [HR, 'In the <b>HouseRunner setup</b> tab'], popup: ['🔐', 'In <b>Google’s window</b>'], settings: ['⚙️', 'In the <b>Apps Script settings</b> tab'], google: ['🔐', 'Google, in the HouseRunner setup tab'] };
     // [stage it belongs to, where, what to click, help, picture]
@@ -41,7 +41,7 @@ button:disabled{opacity:.4;cursor:default}
         ['start', 'setup', 'Click <b>Sign in with Google</b>', 'Use the Google account you want the dashboard in – ideally the one with your family calendar.', 'i-signin.png'],
         ['signin', 'popup', 'Choose your account, then click <b>Advanced</b> → <b>Go to HouseRunner Installer (unsafe)</b>', 'Google says it hasn’t verified the app yet – that’s expected. The installer only makes <b>one new Sheet</b> and its script; it can’t see your other files. <span class="mute">No warning? Skip to the next step.</span>', 'p-advanced.png'],
         ['signin', 'popup', 'Tick <b>Select all</b>, then click <b>Continue</b>', 'All three are needed: make one Sheet, make its script, and publish it. Google’s window then closes.', 'p-selectall.png'],
-        ['api', 'settings', 'Only if asked: switch on <b>Google Apps Script API</b>', 'HouseRunner shows a link to your Apps Script settings. Click <b>Google Apps Script API</b>, switch it <b>On</b>, close that tab, then click <b>Try again</b> in HouseRunner setup. <span class="mute">Not asked? Skip this step.</span>', 'i-apiswitch.png'],
+        ['api', 'settings', 'Only if asked: switch on <b>Google Apps Script API</b>', 'In HouseRunner setup click <b>Open my Apps Script settings</b> (a new tab). There: click <b>Google Apps Script API</b>, switch it <b>On</b>, <b>close that tab</b> and come back – setup carries on by itself. <span class="mute">Not asked? This step is skipped.</span>', 'i-apiswitch.png'],
         ['making', 'setup', '⏳ Wait – HouseRunner is making your Sheet', '<span class="wait">⏳ About 30 seconds. The list ticks itself off – don’t close the tab.</span>', 'i-making.png'],
         ['approve', 'setup', 'Click <b>Approve HouseRunner App</b>', 'Now Google asks you to approve what your HouseRunner does: your calendar, sending your setup emails and so on. The setup page explains each one.', 'i-approve.png'],
         ['google2', 'popup', 'Choose your account, then click <b>Advanced</b> → <b>Go to HouseRunner App (unsafe)</b>', 'Google says it hasn’t verified this app: that’s normal – it’s your own private copy, and the “developer” it names is you.', 'p-advanced.png'],
