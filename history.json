@@ -1,5 +1,14 @@
 [
   {
+    "version": "2026.11.320",
+    "date": "2026-11-17",
+    "notes": [
+      "Step window: the pictures and clips now always load fresh (your browser was still showing the older Deploy and Continue pictures).",
+      "The Make my copy and Make a copy clips stop before Google's blank loading page; the Extensions clip starts without the wait.",
+      "The step window opens shorter, so it stays clear of Apps Script's Deploy button at the top right; step 4 also says to drag it down if Deploy is hidden."
+    ]
+  },
+  {
     "version": "2026.11.319",
     "date": "2026-11-17",
     "notes": [

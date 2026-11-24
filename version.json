@@ -1,10 +1,11 @@
 {
-  "app": "2026.11.320",
+  "app": "2026.11.321",
   "script": "2026.11.133",
   "date": "2026-11-17",
   "notes": [
-    "Step window clips: a big yellow ring now shows exactly where each click happens, and the waiting at the start of clips is cut out.",
-    "Step window: taller and a little narrower, so the help fits without scrolling and it covers less of the page beside it. The Deploy step shows the whole box with the button marked in its corner. The tab list on the last step is one tab per row, with full names. The Continue picture's highlight now sits on the button."
+    "Step window: the pictures and clips now always load fresh (your browser was still showing the older Deploy and Continue pictures).",
+    "The Make my copy and Make a copy clips stop before Google's blank loading page; the Extensions clip starts without the wait.",
+    "The step window opens shorter, so it stays clear of Apps Script's Deploy button at the top right; step 4 also says to drag it down if Deploy is hidden."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
