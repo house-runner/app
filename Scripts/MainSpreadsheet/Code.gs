@@ -4068,6 +4068,7 @@ function memos_(s) {
   }).filter(m => !m.at || now - Date.parse(m.at) < keep).reverse().sort((a, b) => (b.at || '') < (a.at || '') ? -1 : (b.at || '') > (a.at || '') ? 1 : 0) };      // newest first (a note put back with Undo goes back to its place)
 }
 function memo_(b) {
+  try { PropertiesService.getScriptProperties().setProperty('dataVer', String(Date.now())); } catch (e) { /* fine */ }      // every screen then reads the notes afresh
   if (b.op === 'add') {
     const t = checkLen_('Note', b.text, LIMITS.memo);
     if (!t) throw new Error('Write something first');
@@ -4082,6 +4083,7 @@ function memo_(b) {
   }
   else throw new Error('Unknown memo action');
   const w = layout_().widgets.find(x => x.type === 'memo');
+  try { PropertiesService.getScriptProperties().setProperty('dataVer', String(Date.now())); } catch (e) { /* fine */ }      // and again once written, so nothing cached in between survives
   return { ok: true, id: w ? w.id : '', data: memos_(w ? w.settings : { KeepDays: 7 }), memos: memoRowsAdmin_() };      // memos: the admin apps' list, saved – shown straight away
 }
 function memoRowsAdmin_() { return rows_('memos').map(m => ({ id: String(m.ID), text: String(m.Text), from: String(m.From || ''), added: m.Added instanceof Date ? fmt_(m.Added, 'd MMM HH:mm') : String(m.Added) })); }

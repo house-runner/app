@@ -27,6 +27,19 @@
     }
     function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } }
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    /** The overview video plays here, over the page, with a clear way back – never in a tab of its own. */
+    function playOverview() {
+        var o = document.createElement('div');
+        o.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px';
+        o.innerHTML = '<p style="color:#fff;margin:0;max-width:900px">An overview of the whole setup. <span style="opacity:.75">It was made with an earlier version, so a few screens look a little different – the step window always shows the current steps.</span></p>' +
+            '<video src="../../shared/brand/setup.mp4" controls autoplay playsinline style="max-width:min(900px,100%);max-height:70vh;border-radius:10px;background:#000"></video>' +
+            '<button class="btn" type="button">✕ Close video – back to setup</button>';
+        function shut() { var v = o.querySelector('video'); try { v.pause(); v.removeAttribute('src'); v.load(); } catch (x) { /* fine */ } o.remove(); document.removeEventListener('keydown', esc1); }
+        function esc1(e) { if (e.key === 'Escape') shut(); }
+        o.querySelector('button').onclick = shut; o.onclick = function (e) { if (e.target === o) shut(); };
+        document.addEventListener('keydown', esc1);
+        document.body.appendChild(o); o.querySelector('button').focus();
+    }
     function toast(t, bad) { var el = $('toast'); el.textContent = t; el.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(toast.h); toast.h = setTimeout(function () { el.className = 'toast'; }, 3500); }
     var appsBase = location.href.replace(/setup\/.*$/, '');
     // Opened from Setup → Reconfigure (…&only): just that one page, not a step in the wizard.
@@ -371,6 +384,8 @@
         { id: 'family', title: 'Your family', render: function () {
             if (!connected()) return '<h1>4. Your family</h1>' + needConnect();
             if (!ADM) { loadAdm(); return '<h1>4. Your family</h1><div class="card" id="admLoad"><div class="status">Reading your Sheet…</div></div>'; }
+            // A family typed in but not yet saved survives a reload (kept on this computer until Save)
+            if (!FAM) { try { var dr = JSON.parse(localStorage.getItem('hr.famDraft') || 'null'); if (dr && dr.api === S.url && dr.fam && dr.fam.people) FAM = dr.fam; } catch (x) { /* fine */ } }
             if (!FAM) FAM = { name: ADM.familyName || '', people: ((ADM.family || {}).people || []).map(function (p) { return { name: p.name, was: p.name, colour: p.colour, rewards: !!p.points }; }) };
             return '<h1>4. Your family</h1>' +
                 '<p class="lead">Who’s in the family. Each person has a colour of their own, and you tick <b>⭐ Rewards</b> for anyone who takes part in the reward system (usually the children). ' +
@@ -400,7 +415,10 @@
         }, wire: function () {
             if (!connected() || !ADM || !FAM) return;
             var PAL = ['#3fa9f5', '#f5a623', '#7ed321', '#a855f7', '#f472b6', '#22d3ee', '#facc15', '#fb7185', '#34d399', '#c084fc'];
-            $('fwName').oninput = function () { FAM.name = this.value; };
+            var draft = function () { try { localStorage.setItem('hr.famDraft', JSON.stringify({ api: S.url, fam: FAM })); } catch (x) { /* fine */ } };
+            $('fwName').oninput = function () { FAM.name = this.value; draft(); };
+            $('fwRows').addEventListener('input', function () { setTimeout(draft, 0); });
+            $('fwRows').addEventListener('click', function () { setTimeout(draft, 0); });
             // Typed-in settings are kept as you go, so adding or removing a person (which redraws the page) never loses them
             var keep = function () { S.home = $('home').value; S.country = $('fwCountry').value; S.tz = $('fwTz').value; S.week = $('fwWeek').value; S.order = $('fwOrder').value; save(); };
             $('home').oninput = keep; ['fwTz', 'fwWeek', 'fwOrder'].forEach(function (id) { $(id).addEventListener('change', keep); });
@@ -414,7 +432,7 @@
                     keep(); FAM.people.splice(+t.getAttribute('data-fx'), 1); render(); } };
             if ($('fwAdd')) $('fwAdd').onclick = function () {
                 var used = FAM.people.map(function (p) { return p.colour; }), c = PAL.filter(function (x) { return used.indexOf(x) < 0; })[0] || PAL[FAM.people.length % PAL.length];
-                keep(); FAM.people.push({ name: '', colour: c, rewards: false }); render();
+                keep(); FAM.people.push({ name: '', colour: c, rewards: false }); try { localStorage.setItem('hr.famDraft', JSON.stringify({ api: S.url, fam: FAM })); } catch (x) { /* fine */ } render();
                 var ins = document.querySelectorAll('[data-fn]'); if (ins.length) ins[ins.length - 1].focus();
             };
             $('fwSave').onclick = function () {
@@ -430,7 +448,7 @@
                 post({ action: 'saveInstall', values: { HomeAddress: home, Country: ctry, TimeZone: S.tz, WeekStart: S.week, DateOrder: S.order, Currency: cinfo ? cinfo[2].trim() : '£' } }).then(function () {
                     return post({ action: 'saveFamilyPeople', people: list, familyName: $('fwName').value.trim() });
                 }).then(function (d) {
-                    ADM = d; FAM = null; S.familyDone = true; save(); render();
+                    ADM = d; FAM = null; S.familyDone = true; try { localStorage.removeItem('hr.famDraft'); } catch (x) { /* fine */ } var tt0 = $('toast'); if (tt0) { clearTimeout(toast.h); tt0.className = 'toast'; } save(); render();
                     $('famStatus').innerHTML = okLine(true, (STEPS === NEW ? 'Saved – press Next.' : 'Saved. Press Next to set up the calendar.'));
                     var pc = ctry === 'GB' && /\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i.exec(home);     // bin days: can this council be read automatically?
                     if (pc) get('binCouncil', { postcode: pc[1] }).then(function (x) {
@@ -697,7 +715,7 @@
                     '<div class="status">⏳ Waiting for your Sheet…</div></div>' + allSteps() +
                 (resuming ? '' : '<div class="card big"><h3>No new tab opened?</h3><p>' + (resuming ? 'If a copy was made, it’s in <a href="https://drive.google.com/drive/recent" target="_blank" rel="noopener">your Google Drive</a> as <b>Copy of HouseRunner BLANK</b>. If no copy was made (no new tab opened), make it now:' : 'Your browser may have blocked it. Click again:') + '</p>' +
                     '<a class="btn" id="copyGo" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/' + encodeURIComponent(CFG.templateId || '') + '/copy">Make my copy</a></div>') +
-                '<p class="mute small">' + '<a href="#" id="showAll">Show all the instructions</a> · <a href="../../shared/brand/setup.mp4" target="_blank" rel="noopener">▶ Watch the 2-minute video</a></p>';
+                '<p class="mute small">' + '<a href="#" id="showAll">Show all the instructions</a> · <a href="#" id="watchAll">▶ Watch the 2-minute overview video</a></p>';
             return (S.licKey ? '<div class="note ok">🔑 Your licence key <b class="mono">' + esc(S.licKey) + '</b> came with the link from your email. Setup fills it in for you – nothing to type.</div>' : '') +
                 (phoneish() ? '<div class="note bad"><b>📱 This looks like a phone or tablet.</b> Setup needs a <b>computer</b> (Windows PC or Mac) – part of it is done in Google Sheets, which doesn’t work properly on a phone. ' +
                     'Open your licence email on your computer and click the link there.</div>' : '') +
@@ -711,6 +729,7 @@
                     '<p class="mute small">No licence key yet? That’s fine – you get a 14-day free trial and can add it later.</p></div>' +
                 bare(OLD.sheet.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, '');
         }, wire: function () {
+            if ($('watchAll')) $('watchAll').onclick = function (e) { e.preventDefault(); playOverview(); };
             if ($('showAll')) $('showAll').onclick = function (e) { e.preventDefault(); window.hrCopiedNow = false; window.hrShowAll = true; render(); };
             if ($('floatStart')) $('floatStart').onclick = function () {
                 var b = this;
@@ -734,7 +753,7 @@
         { id: 'welcome', title: 'Privacy notice', render: function () {
             if (connected() && !S.mode) return OLD.welcome.render();      // run again on a family that's set up: change it, or clear and start again?
             return (S.mode === 'fresh' && S.backup ? '<div class="note ok">🧹 Cleared, ready to set up again. Your backup is <a href="' + esc(S.backup.url) + '" target="_blank" rel="noopener">' + esc(S.backup.name) + '</a> in your Google Drive.</div>' : '') +
-                (window.hrArrived && connected() ? '<div class="note ok arrived big-ok"><h2>✅ Your Google Sheet is made and connected</h2><p>That part’s done – close every other tab (your Sheet, Apps Script and “Published”) and keep just this one. Now the rest of the setup, here: the privacy notice, your licence key, your family, your calendar, and connecting your screen and phones.</p></div>' : '') +
+                (window.hrArrived && connected() ? '<div class="note ok arrived big-ok"><h2>✅ Your Google Sheet is made and connected</h2><p>That part’s done – close the 3 Google tabs (your Sheet, Apps Script and “Published”) and keep just this one. Now the rest of the setup, here: the privacy notice, your licence key, your family, your calendar, and connecting your screen and phones.</p></div>' : '') +
                 (connected() && !window.hrArrived ? '<div class="note ok">✅ <b>Your Google Sheet is connected.</b></div>' : '') + '<h1>Privacy notice</h1><p class="lead">' + 'What HouseRunner keeps about your family, and where. In short – everything stays in your own Google account.</p>' +
                 bare(OLD.privacy.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, '');
         }, wire: function () { OLD.welcome.wire(); OLD.privacy.wire(); },
@@ -1055,7 +1074,7 @@
         if (window.HRFloat) HRFloat.at('back');      // the step window shows its last step (close the other tabs), then closes
         toast('Connected to your HouseRunner Google Sheet \u2705');
         window.hrArrived = true; window.hrConnecting = false; render();
-        var pg = $('page'); if (pg && !pg.querySelector('.arrived')) pg.insertAdjacentHTML('afterbegin', '<div class="note ok arrived">✅ <b>Your Google Sheet is published and connected – that part’s done.</b> Now close every other tab (your Sheet, Apps Script and “Published”) – keep just this one. ' +
+        var pg = $('page'); if (pg && !pg.querySelector('.arrived')) pg.insertAdjacentHTML('afterbegin', '<div class="note ok arrived">✅ <b>Your Google Sheet is published and connected – that part’s done.</b> Now close the 3 Google tabs (your Sheet, Apps Script and “Published”) – keep just this one. ' +
             'Carry on with this step, then press <b>Next →</b> at the bottom right.</div>');
         $('next').classList.add('pulse'); setTimeout(function () { $('next').classList.remove('pulse'); }, 12000);
     };
@@ -1161,6 +1180,26 @@
             return;
         }
         boot2();
+        // Setup already open in another tab (opened twice, or from an old link)? Say so, so there's only ever one to follow.
+        if (!SOLO) try {
+            var dup = new BroadcastChannel('hr-setup-tabs'), seen = false;
+            dup.onmessage = function (e) {
+                if (e.data === 'who') dup.postMessage('me');
+                else if (e.data === 'me' && !seen && !window.hrHanded) {
+                    seen = true;
+                    var bn = document.createElement('div');
+                    bn.className = 'note'; bn.id = 'dupTab';
+                    bn.style.cssText = 'position:sticky;top:0;z-index:50;margin:0 0 12px';
+                    bn.innerHTML = '⚠️ <b>HouseRunner setup is already open in another tab.</b> Use that one and close this tab – or <a href="#" id="dupHere">use this tab instead</a>.';
+                    var pg = $('page'); pg.parentNode.insertBefore(bn, pg);
+                    $('dupHere').onclick = function (ev) { ev.preventDefault(); bn.remove(); dup.postMessage('mine'); };
+                } else if (e.data === 'mine') {
+                    var b2 = document.getElementById('dupTab'); if (b2) b2.remove();
+                    S = load(); render();       // the other tab carries on – pick up where it got to if this one comes back
+                }
+            };
+            dup.postMessage('who');
+        } catch (e) { /* older browser */ }
         function boot2() {
         render();
         var after = function () {

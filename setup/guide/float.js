@@ -16,10 +16,10 @@
         ['script', 'Click the blue <b>Deploy</b> button', 'Bottom right of the “New deployment” box. <span class="mute">Hidden behind this window? Drag this window by its top bar.</span>', V + 'p-deploy.png', 'small'],
         ['script', 'Click <b>Authorize access</b>', 'A small Google window pops up. <span class="mute">If it asks which account, choose the family one. Google may also ask you to confirm it’s you on your phone – do that, then come back.</span>', V + 'v-authorize.mp4'],
         ['popup', 'Click <b>Advanced</b>, then <b>Go to HouseRunner (unsafe)</b>', 'Google says it hasn’t verified this app – that’s normal: it’s your own private copy, and the “developer” it names is you (your own email). <b>Advanced</b> is small, at the bottom left; <b>Go to HouseRunner (unsafe)</b> then appears under it.', V + 'p-advanced.png'],
-        ['popup', 'Tick <b>Select all</b>, then click <b>Continue</b>', '<b>Select all</b> is at the top of the list – every permission is needed. <b>Continue</b> is at the bottom right (scroll down if you can’t see it). The pop-up then closes and you’re back in Apps Script.', V + 'p-selectall.png'],
+        ['popup', 'Tick <b>Select all</b>, then click <b>Continue</b>', '<b>Select all</b> is at the top of the list – every permission is needed. <b>Continue</b> is at the bottom right (scroll down if you can’t see it). The pop-up then closes and you’re back in Apps Script.<span class="mute">Missed a tick? Google just asks again: click <b>Authorize access</b>, then <b>Select all</b> and <b>Continue</b>.</span>', V + 'p-selectall.png'],
         ['script', '⏳ Wait, then click the link under <b>Web app</b>', '<span class="wait">⏳ <b>First wait</b> – Apps Script takes about 10–20 seconds. The link only appears when the box says <b>“Deployment successfully created”</b> (or “updated”).</span>Then click the link under <b>Web app</b> – it starts https://script.google.com/macros.<span class="mute">Clicked <b>Done</b> by mistake? Don’t deploy again: click <b>Deploy → Manage deployments</b>, then the link under <b>Web app</b>.</span>', V + 'v-weburl.mp4'],
         ['pub', '⏳ Wait for <b>✅ Published!</b>, then click <b>▶ Back to HouseRunner setup</b>', '<span class="wait">⏳ <b>Wait</b> – the new tab stays blank (or says “loading”) for up to a minute while your Sheet gets ready. Don’t close it or click the link again.</span>When it shows <b>✅ Published!</b>, click the blue <b>▶ Back to HouseRunner setup</b> button. Setup then carries on in your HouseRunner setup tab by itself.<br><span class="mute">Closed that page by mistake? In your Sheet, click <b>🏠 HouseRunner</b> → <b>▶ Click here to start step 11</b>.</span>', V + 'p-published.png'],
-        ['tabs', 'Close every tab except <b>HouseRunner setup</b>', 'Keep the tab with the HouseRunner logo called <b>HouseRunner setup</b> <span class="mute">(for a moment it may say “✅ Carry on here”)</span>. Click the ✕ on the others: your Sheet (“HouseRunner MAIN DATA”, or “Copy of HouseRunner BLANK”), <b>HouseRunner – Project Editor</b> (Apps Script) and <b>HouseRunner – published</b>. Your Sheet keeps working without being open.', 'tabs']
+        ['tabs', 'Close the 3 Google tabs', 'Keep the tab with the HouseRunner logo called <b>HouseRunner setup</b> <span class="mute">(for a moment it may say “✅ Carry on here”)</span>. Click the ✕ on just these three: your Sheet (“HouseRunner MAIN DATA”, or “Copy of HouseRunner BLANK”), <b>HouseRunner – Project Editor</b> (Apps Script) and <b>HouseRunner – published</b>. Your Sheet keeps working without being open. Any other tabs of your own can stay.', 'tabs']
     ];
     var WHERE = {
         setup: ['hr', 'In the <b>HouseRunner setup</b> tab'],
@@ -30,7 +30,6 @@
         pub: ['script', 'In the new <b>“HouseRunner – published”</b> tab'],
         tabs: ['🧹', 'Along the top of your browser']
     };
-    var VIDEO = B + 'setup.mp4';
     var KEY = 'hrfloat.v3', win = null, i = 0;
     try { i = Math.min(STEPS.length - 1, Math.max(0, +localStorage.getItem(KEY) || 0)); } catch (e) { i = 0; }
     var REV = '323';      // bumped when a clip or picture changes, so browsers fetch the new one instead of an old copy
@@ -75,8 +74,7 @@
             '<div class="bar"><i style="width:' + Math.round((i + 1) / STEPS.length * 100) + '%"></i></div>' +
             '<div class="bd"><div class="where"><span>' + (/^[a-z]+$/.test(w[0]) ? ico(w[0]) : w[0]) + '</span><div>' + w[1] + '</div></div>' +
             '<h2>' + s[1] + '</h2>' + media(s[3]) + '<p>' + s[2] + '</p>' +
-            (last ? '<div class="done">🎉 That’s the Google part done. Carry on in the <b>HouseRunner setup</b> tab – this window closes by itself.</div>' :
-                '<p><a class="vl" target="_blank" rel="noopener" href="' + abs(VIDEO) + '">▶ Watch the whole 2-minute video</a></p>') + '</div>' +
+            (last ? '<div class="done">🎉 That’s the Google part done. Carry on in the <b>HouseRunner setup</b> tab – this window closes by itself.</div>' : '') + '</div>' +
             '<div class="ft"><button class="gh" id="bk"' + (i ? '' : ' disabled') + '>← Back</button>' +
             (last ? '<button class="go" id="cl">✕ Close this window</button>' : '<button class="go" id="nx">Done – next step →</button>') + '</div>';
         var on = function (id, f) { var b = d.getElementById(id); if (b) b.onclick = f; };

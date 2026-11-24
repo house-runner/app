@@ -3,8 +3,7 @@
   "script": "2026.11.134",
   "date": "2026-11-17",
   "notes": [
-    "Step window: the tab pictures and “where you are” labels now use the real icons your browser shows – HouseRunner, Google Sheets and Apps Script – with the tab names as they appear.",
-    "Setup's privacy page: “Your Google Sheet is connected” is now a green message above it."
+    "New BETA (not linked from the site, normal setup unchanged): houserunner.app/beta/install/ – automatic setup that makes your Sheet and publishes it for you with Google's own APIs, then carries on with the normal setup. Needs HouseRunner's Google sign-in client ID before it can be tried."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

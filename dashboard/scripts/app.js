@@ -61,6 +61,16 @@
         var changed = url !== cfg.url || code !== cfg.code;
         cfg.url = String(url).trim();
         cfg.code = String(code).trim();
+        // Everything kept from last time belongs to one family: connected to a different one now, forget it before anything is drawn
+        if (cfg.url && load('familyDashboard.cacheFor') !== cfg.url) {
+            try {
+                Object.keys(localStorage).forEach(function (k) {
+                    if (k === CACHE_KEY || /^familyDashboard\.(layout|screen|pagedata|calBlock|cats|add)\./.test(k)) localStorage.removeItem(k);
+                });
+            } catch (e) { /* fine */ }
+            state = null;
+            store('familyDashboard.cacheFor', cfg.url);
+        }
         return changed;
     }
 
@@ -526,10 +536,12 @@
         toastTimer = setTimeout(function () { t.classList.remove('on'); undoId = null; }, UNDO_MS);
     }
     function onUndo() {
-        if (!undoId || busy) return;
-        var id = undoId; undoId = null;
+        if (!undoId) return;
+        var id = undoId;
+        if (typeof id === 'function') { undoId = null; $('toast').classList.remove('on'); id(); return; }      // a widget's own Undo (a removed note) – never held up by a points change
+        if (busy) return;
+        undoId = null;
         $('toast').classList.remove('on');
-        if (typeof id === 'function') { id(); return; }      // a widget's own Undo (a removed note)
         send({ action: 'undo', id: id }, null);
     }
 

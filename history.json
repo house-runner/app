@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.324",
+    "date": "2026-11-17",
+    "notes": [
+      "New BETA (not linked from the site, normal setup unchanged): houserunner.app/beta/install/ – automatic setup that makes your Sheet and publishes it for you with Google's own APIs, then carries on with the normal setup. Needs HouseRunner's Google sign-in client ID before it can be tried."
+    ]
+  },
+  {
     "version": "2026.11.323",
     "date": "2026-11-17",
     "notes": [
