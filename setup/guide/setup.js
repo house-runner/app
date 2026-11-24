@@ -735,7 +735,7 @@
             if (connected() && !S.mode) return OLD.welcome.render();      // run again on a family that's set up: change it, or clear and start again?
             return (S.mode === 'fresh' && S.backup ? '<div class="note ok">🧹 Cleared, ready to set up again. Your backup is <a href="' + esc(S.backup.url) + '" target="_blank" rel="noopener">' + esc(S.backup.name) + '</a> in your Google Drive.</div>' : '') +
                 (window.hrArrived && connected() ? '<div class="note ok arrived big-ok"><h2>✅ Your Google Sheet is made and connected</h2><p>That part’s done – close every other tab (your Sheet, Apps Script and “Published”) and keep just this one. Now the rest of the setup, here: the privacy notice, your licence key, your family, your calendar, and connecting your screen and phones.</p></div>' : '') +
-                '<h1>Privacy notice</h1><p class="lead">' + (connected() && !window.hrArrived ? 'Your Google Sheet is connected. ' : '') + 'What HouseRunner keeps about your family, and where. In short – everything stays in your own Google account.</p>' +
+                (connected() && !window.hrArrived ? '<div class="note ok">✅ <b>Your Google Sheet is connected.</b></div>' : '') + '<h1>Privacy notice</h1><p class="lead">' + 'What HouseRunner keeps about your family, and where. In short – everything stays in your own Google account.</p>' +
                 bare(OLD.privacy.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, '');
         }, wire: function () { OLD.welcome.wire(); OLD.privacy.wire(); },
            ready: function () { return (!connected() || !!S.mode) && S.privacy === P.version; },

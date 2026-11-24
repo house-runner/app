@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.322",
+  "app": "2026.11.323",
   "script": "2026.11.133",
   "date": "2026-11-17",
   "notes": [
-    "Step window, step 11: now says to wait (the new tab can stay blank for up to a minute) until it shows ✅ Published!, then click ▶ Back to HouseRunner setup."
+    "Step window, last step: the tab to keep now shows both names it can have – “HouseRunner setup” or “✅ Carry on here”."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

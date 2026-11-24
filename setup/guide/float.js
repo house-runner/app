@@ -19,21 +19,21 @@
         ['popup', 'Tick <b>Select all</b>, then click <b>Continue</b>', '<b>Select all</b> is at the top of the list – every permission is needed. <b>Continue</b> is at the bottom right (scroll down if you can’t see it). The pop-up then closes and you’re back in Apps Script.', V + 'p-selectall.png'],
         ['script', '⏳ Wait, then click the link under <b>Web app</b>', '<span class="wait">⏳ <b>First wait</b> – Apps Script takes about 10–20 seconds. The link only appears when the box says <b>“Deployment successfully created”</b> (or “updated”).</span>Then click the link under <b>Web app</b> – it starts https://script.google.com/macros.<span class="mute">Clicked <b>Done</b> by mistake? Don’t deploy again: click <b>Deploy → Manage deployments</b>, then the link under <b>Web app</b>.</span>', V + 'v-weburl.mp4'],
         ['pub', '⏳ Wait for <b>✅ Published!</b>, then click <b>▶ Back to HouseRunner setup</b>', '<span class="wait">⏳ <b>Wait</b> – the new tab stays blank (or says “loading”) for up to a minute while your Sheet gets ready. Don’t close it or click the link again.</span>When it shows <b>✅ Published!</b>, click the blue <b>▶ Back to HouseRunner setup</b> button. Setup then carries on in your HouseRunner setup tab by itself.<br><span class="mute">Closed that page by mistake? In your Sheet, click <b>🏠 HouseRunner</b> → <b>▶ Click here to start step 11</b>.</span>', V + 'p-published.png'],
-        ['tabs', 'Close every tab except <b>HouseRunner setup</b>', 'Keep the tab with the HouseRunner logo called <b>HouseRunner setup</b> <span class="mute">(for a moment it may say “✅ Carry on here”)</span>. Click the ✕ on the others: your Sheet (“Copy of HouseRunner BLANK” or “HouseRunner MAIN DATA”), <b>HouseRunner – Project Editor</b> (Apps Script) and <b>HouseRunner – published</b>. Your Sheet keeps working without being open.', 'tabs']
+        ['tabs', 'Close every tab except <b>HouseRunner setup</b>', 'Keep the tab with the HouseRunner logo called <b>HouseRunner setup</b> <span class="mute">(for a moment it may say “✅ Carry on here”)</span>. Click the ✕ on the others: your Sheet (“HouseRunner MAIN DATA”, or “Copy of HouseRunner BLANK”), <b>HouseRunner – Project Editor</b> (Apps Script) and <b>HouseRunner – published</b>. Your Sheet keeps working without being open.', 'tabs']
     ];
     var WHERE = {
-        setup: ['🏠', 'In the <b>HouseRunner setup</b> tab'],
-        google: ['📄', 'In the <b>new tab</b> that just opened'],
-        sheet: ['📗', 'In your new <b>Sheet</b> (“Copy of HouseRunner BLANK”)'],
-        script: ['📜', 'In the <b>Apps Script</b> tab'],
+        setup: ['hr', 'In the <b>HouseRunner setup</b> tab'],
+        google: ['sheet', 'In the <b>new tab</b> that just opened'],
+        sheet: ['sheet', 'In your new <b>Sheet</b> (“Copy of HouseRunner BLANK”)'],
+        script: ['script', 'In the <b>Apps Script</b> tab (“HouseRunner – Project Editor”)'],
         popup: ['🔐', 'In Google’s small <b>pop-up window</b>'],
-        pub: ['✅', 'In the new <b>“Published!”</b> tab'],
+        pub: ['script', 'In the new <b>“HouseRunner – published”</b> tab'],
         tabs: ['🧹', 'Along the top of your browser']
     };
     var VIDEO = B + 'setup.mp4';
     var KEY = 'hrfloat.v3', win = null, i = 0;
     try { i = Math.min(STEPS.length - 1, Math.max(0, +localStorage.getItem(KEY) || 0)); } catch (e) { i = 0; }
-    var REV = '321';      // bumped when a clip or picture changes, so browsers fetch the new one instead of an old copy
+    var REV = '323';      // bumped when a clip or picture changes, so browsers fetch the new one instead of an old copy
     function abs(u) { return new URL(u, location.href).href; }
     function media_(u) { return abs(u) + '?v=' + REV; }
     function plain(h) { var d = document.createElement('div'); d.innerHTML = h; return d.textContent; }
@@ -51,14 +51,17 @@
         'button{font:inherit;font-weight:700;border-radius:10px;padding:11px 16px;cursor:pointer;border:1px solid transparent}.go{background:#3fa9f5;color:#fff;margin-left:auto;font-size:16.5px}.gh{background:transparent;color:#cbd6e2;border-color:#33465c}' +
         'button:disabled{opacity:.35;cursor:default}' +
         '.tabs{display:flex;flex-direction:column;gap:4px;background:#dfe3e8;border-radius:10px;padding:8px}.tab{min-width:0;background:#c7ccd3;color:#333;border-radius:8px;padding:7px 10px;font-size:13.5px;display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden}' +
+        '.ti{width:18px;height:18px;border-radius:4px;flex:none;vertical-align:middle}.where .ti{width:22px;height:22px;display:block}' +
         '.tab.keep{background:#fff;font-weight:700;white-space:normal}.tab .alt{font-weight:400;color:#15803d;font-size:12.5px}.tab i{margin-left:auto;font-style:normal;color:#b91c1c;font-weight:800}.tab.keep i{color:#15803d}.tabsb{background:#fff;border-radius:0 0 10px 10px;height:26px;border:1px solid #dfe3e8;border-top:0}' +
         'body.small h2{font-size:17px;margin:8px 0}body.small .media{max-height:200px}body.small .where,body.small .vl{display:none}body.small p{font-size:13px}body.small .hd{display:none}' +
         '.wait{display:block;margin:8px 0;padding:8px 10px;border-radius:9px;background:#3a2a0c;border:1px solid #a06a12;color:#ffe2a8}.wait b{color:#fff}' +
         '.done{margin-top:12px;padding:10px 12px;border-radius:10px;background:#123322;border:1px solid #2b7a4b;font-size:14.5px}';
 
+    /** The real tab icons, as the browser shows them: HouseRunner, Google Sheets, Apps Script. */
+    function ico(k) { return '<img class="ti" alt="" src="' + media_(V + 't-' + k + '.png') + '">'; }
     function media(m) {
-        if (m === 'tabs') return '<div class="tabs"><div class="tab keep">🏠 HouseRunner setup <span class="alt">or ✅ Carry on here</span><i>✓ keep</i></div><div class="tab">📗 Copy of HouseRunner<i>✕</i></div>' +
-            '<div class="tab">📜 HouseRunner – Project Editor<i>✕</i></div><div class="tab">✅ HouseRunner – published<i>✕</i></div></div>';
+        if (m === 'tabs') return '<div class="tabs"><div class="tab keep">' + ico('hr') + 'HouseRunner setup <span class="alt">or ✅ Carry on here</span><i>✓ keep</i></div><div class="tab">' + ico('sheet') + 'HouseRunner MAIN DATA<i>✕</i></div>' +
+            '<div class="tab">' + ico('script') + 'HouseRunner – Project Editor<i>✕</i></div><div class="tab">' + ico('script') + 'HouseRunner – published<i>✕</i></div></div>';
         return /\.mp4$/.test(m) ? '<video class="media" src="' + media_(m) + '" autoplay muted loop playsinline></video>' : '<img class="media" alt="" src="' + media_(m) + '">';
     }
     function draw() {
@@ -70,7 +73,7 @@
         d.body.innerHTML =
             '<div class="hd"><b>HouseRunner setup</b><span class="n">Step ' + (i + 1) + ' of ' + STEPS.length + '</span></div>' +
             '<div class="bar"><i style="width:' + Math.round((i + 1) / STEPS.length * 100) + '%"></i></div>' +
-            '<div class="bd"><div class="where"><span>' + w[0] + '</span><div>' + w[1] + '</div></div>' +
+            '<div class="bd"><div class="where"><span>' + (/^[a-z]+$/.test(w[0]) ? ico(w[0]) : w[0]) + '</span><div>' + w[1] + '</div></div>' +
             '<h2>' + s[1] + '</h2>' + media(s[3]) + '<p>' + s[2] + '</p>' +
             (last ? '<div class="done">🎉 That’s the Google part done. Carry on in the <b>HouseRunner setup</b> tab – this window closes by itself.</div>' :
                 '<p><a class="vl" target="_blank" rel="noopener" href="' + abs(VIDEO) + '">▶ Watch the whole 2-minute video</a></p>') + '</div>' +
