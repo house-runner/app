@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.331",
-  "script": "2026.11.137",
+  "app": "2026.11.332",
+  "script": "2026.11.138",
   "date": "2026-11-17",
   "notes": [
-    "Beta installer: tells you to reload if Google sticks on 'Waiting for authorization…'"
+    "Beta installer: after Google's approval you're taken back to the installer automatically, which checks your Sheet answers and shows a green ✅ All done"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

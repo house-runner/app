@@ -1,4 +1,4 @@
-/* HouseRunner – BETA automatic setup.
+/* HouseRunner – "Set it up for me": the automatic Sheet maker, built into the setup page (setup/guide/).
  * Instead of copying the template Sheet and publishing it by hand in Apps Script, this page does it with Google's own APIs,
  * in the family's account, from their browser:
  *   1. Sign in with Google (permission to make one Sheet, and to make and publish its script).
@@ -7,13 +7,16 @@
  *   4. Hand over to the normal setup page (Privacy, family, calendar…), already connected – it collects the access code once.
  * Nothing is kept on a server. The Google sign-in lasts only while this page is open; progress (the new Sheet's and script's
  * IDs) is remembered in this browser, so a reload or a failure carries on with the same Sheet instead of making another.
- * BETA: not linked from the site; the normal setup is unchanged. */
+ * The setup page's first step shows this; the by-hand route (Make my copy + the step window) stays as the fallback.
+ * A small step window (guide.html) follows along by itself, reading the stage this writes to localStorage. */
 (function () {
     var SCOPES = 'openid email https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/script.projects https://www.googleapis.com/auth/script.deployments';
     var KEY = 'hrbeta.install.v1', CKEY = 'hrbeta.clientId';
-    var FILES = '../../setup/files/';
+    var FILES = '../files/', CONFIG = '../../install/config.json';
     var S = load(), token = null, tokenAt = 0, client = null, log = [];
-    var app = document.getElementById('app');
+    var app = null, OPT = {}, started = false, cfgP = null;
+    /** Where the step window is up to – it reads this (and follows changes) by itself */
+    function stage(k) { try { if (localStorage.getItem('hrinstall.stage') !== k) localStorage.setItem('hrinstall.stage', k); } catch (e) { /* fine */ } }
 
     function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
     function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* fine */ } }
@@ -23,7 +26,7 @@
     /* ---------------------------------------------------------------- the public Google client ID (not a secret) */
     function clientId() { return (window.HR_BETA_CLIENT || '').trim() || localStorage.getItem(CKEY) || ''; }
     function loadConfig() {
-        return fetch('config.json?t=' + Date.now()).then(function (r) { return r.ok ? r.json() : {}; }).then(function (c) { window.HR_BETA_CLIENT = c.clientId || ''; }, function () {});
+        return fetch(CONFIG + '?t=' + Date.now()).then(function (r) { return r.ok ? r.json() : {}; }).then(function (c) { window.HR_BETA_CLIENT = c.clientId || ''; }, function () {});
     }
 
     /* ---------------------------------------------------------------- Google sign-in (token kept in memory only) */
@@ -61,7 +64,7 @@
         ['sheet', 'Make your HouseRunner Sheet'],
         ['script', 'Add the HouseRunner script to it'],
         ['publish', 'Publish it'],
-        ['approve', 'Approve HouseRunner’s permissions (one Google page)'],
+        ['approve', 'Approve HouseRunner App’s permissions'],
         ['ready', 'Check it answers, then carry on with setup']
     ];
     function stepIndex() {
@@ -75,27 +78,32 @@
         return 5;
     }
     function draw(extra) {
+        if (!app || !document.body.contains(app)) return;
         var k = stepIndex();
-        var list = '<ol class="steps">' + STEPS.map(function (s, i) {
+        if (k === 5) stage('done'); else if (k === 4) { if (stage.now !== 'google2') stage('approve'); } else if (k > 0 && !S.needSwitch) stage('making');
+        var list = '<ol class="hri-steps">' + STEPS.map(function (s, i) {
             var cls = i < k ? 'ok' : i === k ? 'now' : '';
             return '<li class="' + cls + '"><span class="i">' + (i < k ? '✅' : i === k ? '▶' : '○') + '</span><span>' + s[1] + '</span></li>';
         }).join('') + '</ol>';
         var body = '';
         if (!clientId()) body = devForm();
-        else if (k === 0) body = '<div class="card"><h2>Sign in with the Google account for your family dashboard</h2><p>Google asks you to allow HouseRunner to <b>make one new Sheet</b> in your Drive and to <b>make and publish its script</b>. It can’t see your other files.' +
+        else if (S.needSwitch && k <= 2) body = '';
+        else if (k === 0) body = '<div class="card big"><h3>Sign in with the Google account for your family dashboard</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.' +
             (S.email ? ' <span class="mute">Last time you used ' + esc(S.email) + ' – use the same account to carry on with the same Sheet.</span>' : '') + '</p>' +
-            '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Sign in and carry on' : 'Go – sign in with Google') + '</button></div></div>';
-        else if (k === 4) body = '<div class="card"><h2>One Google approval</h2><p>Click the button: this tab goes to Google, which asks you to approve what HouseRunner does in your account (your calendar, sending your setup emails, and so on).</p>' +
-            '<ol><li>Google may open its approval in a <b>small window of its own</b> – that’s Google’s, and it closes itself when you’re done.</li><li>Choose your account if asked.</li><li>Google says it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner (unsafe)</b> – it’s your own private copy.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li><li>Stuck on <b>Waiting for authorization…</b> after Continue? Press <b>F5</b> (reload) – Google sometimes forgets to move on.</li><li>Google then brings you <b>back here</b> by itself, and this page shows a green ✅ when it’s all done.</li></ol>' +
-            '<div class="row"><button class="btn" id="approve">Approve HouseRunner’s permissions</button><span class="mute" id="watch"></span></div></div>';
-        else if (k === 5) body = '<div class="note ok" style="margin:0 0 16px;font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers.</div><div class="card"><h2>Next: the normal setup</h2><p>Now the normal setup carries on: privacy notice, your family, your calendar and your screen – already connected.</p><div class="row"><a class="btn good" id="next" href="' + esc(handover()) + '">Carry on with setup →</a></div></div>';
-        else body = '<div class="card"><h2>' + STEPS[k][1] + '…</h2><p class="mute">Working – this takes a few seconds.</p></div>';
-        var again = (S.started || S.sheetId || S.url || hasSetup()) ? '<div class="card" id="againCard"><div class="row"><button class="btn ghost" id="again">↺ Start again from scratch</button><span class="mute">Forgets this try on this computer, including the setup it led to.</span></div></div>' : '';
+            '<ol class="mute"><li>A Google window opens: choose your account.</li><li>Google may say it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner Installer (unsafe)</b>.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li></ol>' +
+            '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Sign in and carry on' : 'Sign in with Google') + '</button></div></div>';
+        else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> does in your account – your calendar, sending your setup emails and so on (why each is needed is below). This tab goes to Google, then comes back here.</p>' +
+            '<ol class="mute"><li>Google may open its approval in a <b>small window of its own</b> – it closes itself when you’re done.</li><li>Choose your account if asked.</li><li>Google says it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b> – it’s your own private copy.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li><li>Google shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b> if it doesn’t bring you back by itself. <span class="mute">Stuck on “Waiting for authorization…”? Press <b>F5</b>.</span></li></ol>' +
+            '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
+        else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
+        else body = '<div class="card"><h3>⏳ ' + STEPS[k][1] + '…</h3><p class="mute">Working – this takes a few seconds. Don’t close this tab.</p></div>';
+        var again = (S.started || S.sheetId || S.url || hasSetup()) ? '<div class="card" id="againCard" style="margin-top:22px"><div class="row"><button class="btn ghost" id="again">↺ Start again from scratch</button><span class="mute">Forgets this try on this computer, including the setup it led to.</span></div></div>' : '';
         app.innerHTML = list + (extra || '') + body + again + diag();
+        if (k === 4) app.insertAdjacentHTML('beforeend', OPT.perms || '');
         wire();
     }
     function devForm() {
-        return '<div class="card"><h2>For Russ: the Google client ID</h2><p>This BETA needs HouseRunner’s Google sign-in “client ID” (public, not a secret). Either put it in <code>beta/install/config.json</code> as <code>{"clientId": "…"}</code>, or paste it here for this browser only.</p>' +
+        return '<div class="card"><h2>For Russ: the Google client ID</h2><p>The installer needs HouseRunner’s Google sign-in “client ID” (public, not a secret). Either put it in <code>install/config.json</code> as <code>{"clientId": "…"}</code>, or paste it here for this browser only.</p>' +
             '<input id="cid" placeholder="1234567890-abc….apps.googleusercontent.com" autocomplete="off"><div class="row"><button class="btn" id="cidSave">Save</button></div></div>';
     }
     function diag() {
@@ -111,18 +119,19 @@
         S = {}; token = null; tokenAt = 0; log = [];
         // Take back the installer's Google permission too, so the next Go asks afresh, like a new family would see it
         try { if (t && window.google && google.accounts && google.accounts.oauth2) google.accounts.oauth2.revoke(t, function () {}); } catch (e) { /* fine */ }
-        draw('<div class="card"><p>↺ Forgotten – click <b>Sign in and carry on</b> to start a brand-new try.</p></div>');
+        stage('start');
+        if (OPT.onReset) OPT.onReset();
+        draw('<div class="note">↺ Forgotten – click <b>Sign in with Google</b> to start a brand-new try.</div>');
     }
-    function handover() { return '../../setup/#api=' + encodeURIComponent(S.url) + '&from=sheet'; }
     function wire() {
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
         on('cidSave', function () { var v = document.getElementById('cid').value.trim(); if (!/\.apps\.googleusercontent\.com$/.test(v)) { alert('That doesn’t look like a Google client ID.'); return; } localStorage.setItem(CKEY, v); draw(); });
-        on('go', function () { signIn().then(afterSignIn).catch(fail); });
+        on('go', function () { stage('signin'); signIn().then(afterSignIn).catch(fail); });
         on('approve', approve);
         on('again', function () {
             var c = document.getElementById('againCard');
-            c.innerHTML = '<h2>Start again from scratch?</h2><p>This computer forgets the last try – the installer’s progress and the HouseRunner setup it led to . Signing in again then makes a brand-new Sheet.</p>' +
-                '<p class="mute">The Sheet it made stays in your Google Drive (bin it there if you like). To have Google ask for its approvals again as a new family would see them, remove both <b>HouseRunner</b> entries at <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener">myaccount.google.com/connections</a>.</p>' +
+            c.innerHTML = '<h3>Start again from scratch?</h3><p>This computer forgets the last try – the installer’s progress and the HouseRunner setup it led to . Signing in again then makes a brand-new Sheet.</p>' +
+                '<p class="mute">The Sheet it made stays in your Google Drive (bin it there if you like). To have Google ask for its approvals again as a new family would see them, remove <b>HouseRunner Installer</b> and <b>HouseRunner App</b> at <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener">myaccount.google.com/connections</a>.</p>' +
                 '<div class="row"><button class="btn bad" id="againYes">Start again</button><button class="btn ghost" id="againNo">Cancel</button></div>';
             on('againNo', function () { draw(); });
             on('againYes', startAgain);
@@ -132,6 +141,7 @@
         note('ERROR ' + (e && e.message));
         var m = e && e.message || String(e);
         if (e && e.status === 403 && /Apps Script API/i.test(m)) {
+            stage('api');
             draw('<div class="note warn"><b>One switch to turn on in Google first.</b> Google only lets HouseRunner make a script for you once you allow it:<ol><li><a href="https://script.google.com/home/usersettings" target="_blank" rel="noopener">Open your Apps Script settings</a> (a new tab).</li><li>Click <b>Google Apps Script API</b> and switch it <b>On</b>.</li><li>Close that tab and click <b>Try again</b> here.</li></ol><div class="row"><button class="btn" id="again">Try again</button></div></div>');
             var a = document.getElementById('again'); if (a) a.onclick = function () { build().catch(fail); };
             return;
@@ -149,14 +159,15 @@
                 S = {};
             }
             S.email = u.email; if (!S.started) S.started = new Date().toISOString(); save();
-            return build();
+            if (S.contentDone) return build();          // the script is already made: the switch was on
+            return apiOn().then(function (on) { if (on) return build(); askSwitch(); });
         });
     }
     function build() {
         draw();
         return Promise.resolve()
-            .then(function () { if (S.sheetId) return; return api('POST', 'https://www.googleapis.com/drive/v3/files?fields=id', { name: 'HouseRunner MAIN DATA', mimeType: 'application/vnd.google-apps.spreadsheet', appProperties: { houserunner: 'beta-installer' } }).then(function (f) { S.sheetId = f.id; save(); draw(); }); })
-            .then(function () { if (S.scriptId) return; return api('POST', 'https://script.googleapis.com/v1/projects', { title: 'HouseRunner', parentId: S.sheetId }).then(function (p) { S.scriptId = p.scriptId; save(); draw(); }); })
+            .then(function () { if (S.sheetId) return; return api('POST', 'https://www.googleapis.com/drive/v3/files?fields=id', { name: 'HouseRunner MAIN DATA', mimeType: 'application/vnd.google-apps.spreadsheet', appProperties: { houserunner: 'installer' } }).then(function (f) { S.sheetId = f.id; save(); draw(); }); })
+            .then(function () { if (S.scriptId) return; return api('POST', 'https://script.googleapis.com/v1/projects', { title: 'HouseRunner App', parentId: S.sheetId }).then(function (p) { S.scriptId = p.scriptId; save(); draw(); }); })
             .then(function () {
                 if (S.contentDone) return;
                 return Promise.all(['Loader.gs', 'Admin.html', 'appsscript-loader.json'].map(function (f) { return fetch(FILES + f + '?t=' + Date.now()).then(function (r) { if (!r.ok) throw new Error('Couldn’t load HouseRunner’s ' + f); return r.text(); }); }))
@@ -176,13 +187,48 @@
                     return have || api('POST', 'https://script.googleapis.com/v1/projects/' + S.scriptId + '/deployments', { versionNumber: S.version, manifestFileName: 'appsscript', description: 'HouseRunner' });
                 }).then(function (d) { S.deploymentId = d.deploymentId; S.url = webUrl(d); if (!S.url) throw new Error('Google published it but gave no web address – see Details.'); save(); });
             })
-            .then(function () { draw(); return check(true); });
+            .then(function () { draw(); return check(true).then(function (ok) { if (ok) { draw(); finish(); } }); });
+    }
+    /* ---------------------------------------------------------------- the Apps Script API switch (once per Google account)
+     * Google only lets an app make scripts for someone who has switched on "Google Apps Script API" in their own Apps Script
+     * settings – and there's no way to switch it on for them. So: check first (before making anything), and only if it's off,
+     * open the settings in a tab of their own, watch from here until it's on, then close that tab (where the browser lets us)
+     * and carry on by ourselves. */
+    var setWin = null, setT = 0;
+    function apiOn() {
+        // Asking for a script that can't exist: with the switch off Google says so (403); with it on, just "not found"
+        return api('GET', 'https://script.googleapis.com/v1/projects/hr-switch-check-0').then(function () { return true; }, function (e) {
+            if (e && e.status === 403 && /Apps Script API/i.test(e.message || '')) return false;
+            return true;
+        });
+    }
+    function askSwitch() {
+        stage('api'); S.needSwitch = true; save();
+        draw('<div class="card big"><h3>One switch to turn on first</h3><p>Google only lets HouseRunner make your script once you’ve switched on <b>Google Apps Script API</b> in your own Apps Script settings – just once, for this Google account.</p>' +
+            '<ol><li>Click <b>Open my Apps Script settings</b> – they open in a new tab.</li><li>Click <b>Google Apps Script API</b> and switch it <b>On</b>.</li><li>Come back to this tab – it carries on by itself as soon as the switch is on.</li></ol>' +
+            '<div class="row"><button class="btn" id="setGo">Open my Apps Script settings</button><span class="mute" id="setMsg">⏳ Waiting for the switch…</span></div></div>');
+        var b = document.getElementById('setGo');
+        if (b) b.onclick = function () { setWin = window.open('https://script.google.com/home/usersettings', 'hrsettings'); };
+        clearTimeout(setT);
+        (function watch() {
+            setT = setTimeout(function () {
+                if (!token) return;
+                apiOn().then(function (on) {
+                    if (!on) { watch(); return; }
+                    S.needSwitch = false; save();
+                    try { if (setWin && !setWin.closed) setWin.close(); } catch (e) { /* the browser may not allow it */ }
+                    try { window.focus(); } catch (e) { /* fine */ }
+                    draw('<div class="note ok">✅ <b>Switched on.</b> ' + (setWin && !setWin.closed ? 'You can close the Apps Script settings tab. ' : '') + 'Making your Sheet now…</div>');
+                    build().catch(fail);
+                });
+            }, 3000);
+        })();
     }
     function webUrl(d) { var e = (d.entryPoints || []).filter(function (x) { return x.webApp && x.webApp.url; })[0]; return e ? e.webApp.url : ''; }
 
     /** Approval happens in this same tab (a separate window couldn't be closed for you once Google had shown its pages in it).
-     *  The script's "Published!" page then links straight on to the normal setup. */
-    function approve() { note('approve: going to Google'); save(); location.href = S.url + '?hrbeta=1'; }
+     *  The script's "Approved" page then brings this tab straight back to setup (#approved), which checks it and carries on. */
+    function approve() { note('approve: going to Google'); stage('google2'); stage.now = 'google2'; save(); location.href = S.url + '?hrbeta=1'; }
     /** Does the published script answer, and has its first visit set the Sheet up? (Before approval, Google answers with a sign-in page, not HouseRunner.) */
     function check(quiet) {
         if (!S.url) return Promise.resolve(false);
@@ -192,17 +238,33 @@
         }, function () { if (!quiet) note('ping: no answer yet'); return false; });
     }
 
-    loadConfig().then(function () {
-        var back = /approved/.test(location.hash);
-        if (back) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* fine */ } note('back from Google approval'); }
-        draw(back && !S.answered ? '<div class="note">⏳ Checking your Sheet answers…</div>' : '');
-        // Back from Google's approval (or reopened part-way): check the Sheet answers – a few tries, as Google can take a moment
-        if (S.url && !S.answered) (function tryIt(n) {
-            check(true).then(function (ok) {
-                if (ok) draw();
-                else if (n < 8) setTimeout(function () { tryIt(n + 1); }, 3000);
-                else if (back) draw('<div class="note warn">Your Sheet didn’t answer yet. Click <b>Approve HouseRunner’s permissions</b> again – if Google says it’s already approved, it carries straight on.</div>');
-            });
-        })(0);
-    });
+    /** Show it in el. opt: approved (just back from Google's approval), perms (the "why each permission" card), onReady(url), onReset(). */
+    function mount(el, opt) {
+        app = el; OPT = opt || {};
+        try { stage.now = localStorage.getItem('hrinstall.stage'); } catch (e) { /* fine */ }
+        if (!cfgP) cfgP = loadConfig();
+        cfgP.then(function () {
+            if (started) { draw(); return; }
+            started = true;
+            var back = !!OPT.approved;
+            if (back) { note('back from Google approval'); stage('checking'); }
+            draw(back && !S.answered ? '<div class="note">⏳ Checking your Sheet answers…</div>' : '');
+            if (S.answered) { finish(); return; }
+            // Back from Google's approval (or reopened part-way): check the Sheet answers – a few tries, as Google can take a moment
+            if (S.url) (function tryIt(n) {
+                check(true).then(function (ok) {
+                    if (ok) { draw(); finish(); }
+                    else if (n < 8) setTimeout(function () { tryIt(n + 1); }, 3000);
+                    else if (back) { stage.now = ''; draw('<div class="note warn">Your Sheet didn’t answer yet. Click <b>Approve HouseRunner App</b> again – if Google says it’s already approved, it carries straight on.</div>'); }
+                });
+            })(0);
+        });
+    }
+    function finish() { stage('done'); setTimeout(function () { if (OPT.onReady) OPT.onReady(S.url); }, 1800); }
+    window.HRInstall = {
+        mount: mount,
+        /** Has an automatic setup been started on this computer (so its card should show rather than the by-hand steps)? */
+        started: function () { return !!(S.started || S.sheetId); },
+        reset: function () { S = load(); }
+    };
 })();

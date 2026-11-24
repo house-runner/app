@@ -228,3 +228,11 @@ button[data-hrbusy] { cursor: progress !important; }
 html.hr-busy, html.hr-busy * { cursor: progress !important; }
 table.check tr.todo td { color: var(--mute); } table.check tr.todo td:nth-child(3) { color: var(--mute); } table.check tr.wait td:nth-child(3) { color: #f5a623; }
 .fin-r.part .fin-i { background: #f59e0b; color: #111; font-weight: 800; }
+/* "Set it up for me" (auto.js) */
+.hri-steps { list-style: none; margin: 8px 0 14px; padding: 0; }
+.hri-steps li { display: flex; gap: 10px; padding: 7px 4px; border-bottom: 1px solid var(--line); color: var(--mute); }
+.hri-steps li.ok { color: var(--text); } .hri-steps li.now { color: var(--text); font-weight: 700; }
+.hri-steps .i { width: 24px; text-align: center; flex: none; }
+#hrInstall .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+#hrInstall details { margin-top: 14px; color: var(--mute); font-size: 13px; } #hrInstall pre { white-space: pre-wrap; font-size: 12px; }
+#hrInstall .btn.bad { background: #dc2626; color: #fff; border-color: #dc2626; }

@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.331",
+    "date": "2026-11-17",
+    "notes": [
+      "Beta installer: after Google's approval you're taken back to the installer automatically, which checks your Sheet answers and shows a green ✅ All done"
+    ]
+  },
+  {
     "version": "2026.11.330",
     "date": "2026-11-17",
     "notes": [

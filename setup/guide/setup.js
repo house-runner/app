@@ -7,6 +7,8 @@
     'use strict';
     var KEY = 'fdsetup.v1';
     var CFG = window.FD_SETUP || {};
+    var BYHAND = /byhand/.test(location.hash);      // asked for the by-hand route (Make my copy + the step window)
+    var APPROVED = /approved/.test(location.hash);  // just back from Google's approval of the Sheet that "Set it up for me" made
     var S = load();
     var $ = function (id) { return document.getElementById(id); };
     function load() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
@@ -696,6 +698,21 @@
        Then just three more steps. The full list above is still used when one step is opened by itself (…&only, from houserunner.app). */
     var OLD = {}; FULL.forEach(function (x) { OLD[x.id] = x; });
     var bare = function (h) { return String(h).replace(/^\s*<h1>[\s\S]*?<\/h1>/, ''); };     // a step's page without its title
+    /** "Set it up for me": HouseRunner makes and publishes the Sheet itself (auto.js), with a step window (guide.html) alongside */
+    function autoView() {
+        return '<div class="card big"><h3>📌 The step window</h3><p>A small window beside this page shows each thing to click, with a picture, and moves on by itself as you go.</p>' +
+                '<button class="btn" id="guideGo">Open the step window</button> <span class="mute small" id="guideMsg"></span></div>' +
+            '<h2 style="margin-top:24px">⚡ HouseRunner makes your Sheet for you</h2>' +
+            '<div id="hrInstall"></div>' +
+            '<p class="mute small" style="margin-top:18px">Rather do it by hand (copy the Sheet and publish it yourself)? <a href="#" id="byHandGo">Do it by hand instead</a>.</p>';
+    }
+    var guideWin = null;
+    function openGuide() {
+        var w = 420, h = Math.max(520, Math.min(820, (screen.availHeight || 900) - 120));
+        guideWin = window.open('guide.html', 'hrautoguide', 'popup,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - w - 20) + ',top=40');
+        if ($('guideMsg')) $('guideMsg').textContent = guideWin ? '✅ Open – keep it beside this page.' : 'Your browser blocked it – allow pop-ups for houserunner.app, then click again.';
+        try { if (guideWin) guideWin.focus(); } catch (e) { /* fine */ }
+    }
     var NEW = [
         { id: 'start', title: 'Make your Google Sheet', render: function () {
             if (connected()) return OLD.sheet.render();
@@ -704,7 +721,8 @@
             // Straight after Make my copy – or coming back to this page later (a reload, the browser closed) while that copy is still being
             // switched on: one clear thing to do, and the step window carries on where it was. A brand-new copy only on purpose.
             var resuming = !window.hrCopiedNow && !window.hrShowAll && S.copiedAt && !S.copyGone && Date.now() - S.copiedAt < 24 * 3600000;
-            if (window.hrCopiedNow || resuming) return (resuming ? '<div class="note">↩ <b>Welcome back.</b> You clicked Make my copy at ' + esc(new Date(S.copiedAt).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })) + '. ' +
+            var auto = !!window.HRInstall && !BYHAND && !S.byhand;
+            if (!auto && (window.hrCopiedNow || resuming)) return (resuming ? '<div class="note">↩ <b>Welcome back.</b> You clicked Make my copy at ' + esc(new Date(S.copiedAt).toLocaleString('en-GB', { weekday: 'short', hour: '2-digit', minute: '2-digit' })) + '. ' +
                     '<b>Got a new Sheet tab?</b> Carry on with the step window below – it remembers which step you’d reached.<br><b>No new tab opened, or can’t find it?</b> ' +
                     '<a class="btn" id="copyGo" target="_blank" rel="noopener" style="margin-top:8px" href="https://docs.google.com/spreadsheets/d/' + encodeURIComponent(CFG.templateId || '') + '/copy">Make my copy</a></div>' : '') +
                 '<h1>⏳ Over to your new Sheet</h1>' +
@@ -720,16 +738,26 @@
                 (phoneish() ? '<div class="note bad"><b>📱 This looks like a phone or tablet.</b> Setup needs a <b>computer</b> (Windows PC or Mac) – part of it is done in Google Sheets, which doesn’t work properly on a phone. ' +
                     'Open your licence email on your computer and click the link there.</div>' : '') +
                 '<h1>Let’s set up HouseRunner</h1>' +
-                '<p class="lead">It starts in Google Sheets: you make your own copy of the HouseRunner Sheet and it sets itself up. Then it brings you back here, already connected, for a few short steps. ' +
+                '<p class="lead">First you get your own HouseRunner Google Sheet – HouseRunner can make it for you. Then it brings you back here, already connected, for a few short steps. ' +
                     '<span class="mute">About 20 minutes in all.</span></p>' +
                 '<p class="mute">Already have HouseRunner, and want this computer to manage it? <a href="../../?connect">Connect this computer to your family</a> instead.</p>' +
                 '<div class="note warn"><h3>What you need</h3><ul class="need">' +
                     '<li><b>A Google (Gmail) account</b> – ideally the one your family calendar is in. No Google account yet? <a href="https://accounts.google.com/signup" target="_blank" rel="noopener">Create one free</a>.</li>' +
                     '<li><b>A computer</b> for this part, and <b>your phone</b> for the Family Admin app at the end.</li></ul>' +
                     '<p class="mute small">No licence key yet? That’s fine – you get a 14-day free trial and can add it later.</p></div>' +
-                bare(OLD.sheet.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, '');
+                (auto ? autoView() : '<p class="note">⚡ <b>Easier:</b> <a href="#" id="autoGo">let HouseRunner make your Sheet for you</a> – about 2 minutes, no copying or Apps Script.</p><h2 style="margin-top:22px">Doing it by hand</h2>' +
+                bare(OLD.sheet.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, ''));
         }, wire: function () {
             if ($('watchAll')) $('watchAll').onclick = function (e) { e.preventDefault(); playOverview(); };
+            if ($('guideGo')) $('guideGo').onclick = openGuide;
+            if ($('byHandGo')) $('byHandGo').onclick = function (e) { e.preventDefault(); S.byhand = true; save(); render(); };
+            if ($('autoGo')) $('autoGo').onclick = function (e) { e.preventDefault(); S.byhand = false; BYHAND = false; save(); render(); };
+            if ($('hrInstall') && window.HRInstall) HRInstall.mount($('hrInstall'), {
+                approved: APPROVED, perms: whyPerms(),
+                // Sheet made, approved and answering: connect to it exactly as the by-hand route's hand-back does
+                onReady: function (url) { location.replace(location.pathname + '#api=' + encodeURIComponent(url) + '&from=sheet'); location.reload(); },
+                onReset: function () { location.replace(location.pathname); location.reload(); }
+            });
             if ($('showAll')) $('showAll').onclick = function (e) { e.preventDefault(); window.hrCopiedNow = false; window.hrShowAll = true; render(); };
             if ($('floatStart')) $('floatStart').onclick = function () {
                 var b = this;
