@@ -3,7 +3,7 @@
  * in the family's account, from their browser:
  *   1. Sign in with Google (permission to make one Sheet, and to make and publish its script).
  *   2. Make a new Sheet; make its script (the standard HouseRunner loader); save a version; publish it as a web app.
- *   3. One Google approval of the script's own permissions (a small window). Its "Published!" page sets the Sheet up.
+ *   3. One Google approval of the script's own permissions (in the same tab). Its "Published!" page sets the Sheet up.
  *   4. Hand over to the normal setup page (Privacy, family, calendar…), already connected – it collects the access code once.
  * Nothing is kept on a server. The Google sign-in lasts only while this page is open; progress (the new Sheet's and script's
  * IDs) is remembered in this browser, so a reload or a failure carries on with the same Sheet instead of making another.
@@ -61,7 +61,7 @@
         ['sheet', 'Make your HouseRunner Sheet'],
         ['script', 'Add the HouseRunner script to it'],
         ['publish', 'Publish it'],
-        ['approve', 'Approve HouseRunner’s permissions (one Google window)'],
+        ['approve', 'Approve HouseRunner’s permissions (one Google page)'],
         ['ready', 'Check it answers, then carry on with setup']
     ];
     function stepIndex() {
@@ -83,8 +83,8 @@
         else if (k === 0) body = '<div class="card"><h2>Sign in with the Google account for your family dashboard</h2><p>Google asks you to allow HouseRunner to <b>make one new Sheet</b> in your Drive and to <b>make and publish its script</b>. It can’t see your other files.' +
             (S.email ? ' <span class="mute">Last time you used ' + esc(S.email) + ' – use the same account to carry on with the same Sheet.</span>' : '') + '</p>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Sign in and carry on' : 'Go – sign in with Google') + '</button></div></div>';
-        else if (k === 4) body = '<div class="card"><h2>One Google approval</h2><p>Click the button: a small Google window asks you to approve what HouseRunner does in your account (your calendar, sending your setup emails, and so on).</p>' +
-            '<ol><li>Choose your account if asked.</li><li>Google says it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner (unsafe)</b> – it’s your own private copy.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li><li>Wait for <b>✅ Published!</b> – up to a minute. That window then closes, and this page carries on by itself.</li></ol>' +
+        else if (k === 4) body = '<div class="card"><h2>One Google approval</h2><p>Click the button: this tab goes to Google, which asks you to approve what HouseRunner does in your account (your calendar, sending your setup emails, and so on).</p>' +
+            '<ol><li>Choose your account if asked.</li><li>Google says it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner (unsafe)</b> – it’s your own private copy.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li><li>Wait for <b>✅ Published!</b> – up to a minute – then click <b>▶ Carry on setting up</b>. Everything stays in this one tab.</li></ol>' +
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner’s permissions</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5) body = '<div class="card"><h2>✅ Your Sheet is ready</h2><p>Now the normal setup carries on: privacy notice, your family, your calendar and your screen – already connected.</p><div class="row"><a class="btn good" id="next" href="' + esc(handover()) + '">Carry on with setup →</a></div></div>';
         else body = '<div class="card"><h2>' + STEPS[k][1] + '…</h2><p class="mute">Working – this takes a few seconds.</p></div>';
@@ -160,20 +160,9 @@
     }
     function webUrl(d) { var e = (d.entryPoints || []).filter(function (x) { return x.webApp && x.webApp.url; })[0]; return e ? e.webApp.url : ''; }
 
-    var popup = null, watchT = 0;
-    function approve() {
-        popup = window.open(S.url + '?hrbeta=1', 'hrapprove', 'popup,width=560,height=720');
-        if (!popup) { fail(new Error('Your browser blocked the Google window. Allow pop-ups for houserunner.app, then click the button again.')); return; }
-        watch(0);
-    }
-    function watch(n) {
-        clearTimeout(watchT);
-        var w = document.getElementById('watch'); if (w) w.textContent = n ? '⏳ Waiting for your approval…' : '';
-        check(false).then(function (ok) {
-            if (ok) { try { if (popup && !popup.closed) popup.close(); } catch (e) { /* fine */ } draw(); return; }
-            if (n < 150) watchT = setTimeout(function () { watch(n + 1); }, 4000);      // up to 10 minutes
-        });
-    }
+    /** Approval happens in this same tab (a separate window couldn't be closed for you once Google had shown its pages in it).
+     *  The script's "Published!" page then links straight on to the normal setup. */
+    function approve() { note('approve: going to Google'); save(); location.href = S.url + '?hrbeta=1'; }
     /** Does the published script answer, and has its first visit set the Sheet up? (Before approval, Google answers with a sign-in page, not HouseRunner.) */
     function check(quiet) {
         if (!S.url) return Promise.resolve(false);
