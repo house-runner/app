@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.330",
-  "script": "2026.11.136",
+  "app": "2026.11.331",
+  "script": "2026.11.137",
   "date": "2026-11-17",
   "notes": [
-    "Beta installer: always loads its latest version, and explains Google's own approval window"
+    "Beta installer: tells you to reload if Google sticks on 'Waiting for authorization…'"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

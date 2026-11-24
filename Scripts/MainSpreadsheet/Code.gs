@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.136';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.137';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -856,15 +856,17 @@ function publishedPage_(p) {
     try { freshCopy_(); brandNew = !String(inst_('AccessCode') || ''); } catch (e) { brandNew = true; }
     if (brandNew) withLock_(() => setup());
   } catch (e) { err = e.message; }
+  // Opened by the BETA automatic installer (houserunner.app/beta/install/), in the installer's own tab: straight back to it.
+  // The installer knows this Sheet's address itself, checks it answers, and shows the result.
+  if (p.hrbeta && !err) {
+    try { if (myUrl_()) { myIdTab_(true); tidyTabs_(); } } catch (e) { /* the setup page does this too */ }
+    const back = appsBase_() + 'beta/install/#approved';
+    return page('<div style="background:#dcfce7;border:1px solid #16a34a;border-radius:14px;padding:18px 22px;color:#14532d"><h1 style="font-size:26px;margin:0 0 6px">✅ Approved – your Sheet is switched on</h1><p style="margin:0">Taking you back to HouseRunner setup…</p></div>' +
+      '<p style="margin-top:22px"><a id="back" href="' + back + '" target="_top" style="display:inline-block;background:#2563eb;color:#fff;font-weight:700;font-size:19px;padding:13px 24px;border-radius:12px;text-decoration:none">▶ Back to HouseRunner setup</a></p>' +
+      '<script>setTimeout(function(){try{window.top.location.href=' + JSON.stringify(back) + '}catch(e){}},1200)</script>');
+  }
   const u = myUrl_();
   const open = !P.getProperty('claimed') && (Date.now() < Number(P.getProperty('claimUntil') || 0) || Date.now() - Number(P.getProperty('installedAt') || 0) < 24 * 3600000);
-  // Opened by the BETA automatic installer (houserunner.app/beta/install/), in its own tab: straight on to the normal setup
-  if (p.hrbeta && u && !err) {
-    myIdTab_(true); tidyTabs_();
-    const go = appsBase_() + 'setup/#api=' + encodeURIComponent(u) + '&from=sheet';
-    return page('<h1 style="font-size:30px;margin:0 0 6px">✅ Published!</h1><p style="font-size:19px;margin:0 0 22px">Your HouseRunner Sheet is ready.</p>' +
-      '<p><a href="' + go + '" target="_top" style="display:inline-block;background:#2563eb;color:#fff;font-weight:700;font-size:20px;padding:14px 26px;border-radius:12px;text-decoration:none">▶ Carry on setting up</a></p>');
-  }
   if (err || !u || !open) {
     return page('<h1 style="font-size:28px">✅ HouseRunner is published</h1>' + (err ? '<p style="color:#b91c1c">Something went wrong finishing the Sheet: ' + String(err).replace(/</g, '&lt;') + '</p>' : '') +
       '<p>Close this tab and carry on in your <b>HouseRunner setup</b> tab. Closed it? Go to <b>houserunner.app</b> → <b>Setup</b>.</p>');

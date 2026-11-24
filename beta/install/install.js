@@ -65,6 +65,8 @@
         ['ready', 'Check it answers, then carry on with setup']
     ];
     function stepIndex() {
+        if (S.answered) return 5;
+        if (S.url) return 4;          // approval needs no sign-in here, so coming back to this page carries on
         if (!token) return 0;
         if (!S.sheetId) return 1;
         if (!S.scriptId || !S.contentDone) return 2;
@@ -84,9 +86,9 @@
             (S.email ? ' <span class="mute">Last time you used ' + esc(S.email) + ' – use the same account to carry on with the same Sheet.</span>' : '') + '</p>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Sign in and carry on' : 'Go – sign in with Google') + '</button></div></div>';
         else if (k === 4) body = '<div class="card"><h2>One Google approval</h2><p>Click the button: this tab goes to Google, which asks you to approve what HouseRunner does in your account (your calendar, sending your setup emails, and so on).</p>' +
-            '<ol><li>Google may open its approval in a <b>small window of its own</b> – that’s Google’s, and it closes itself when you’re done.</li><li>Choose your account if asked.</li><li>Google says it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner (unsafe)</b> – it’s your own private copy.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li><li>Stuck on <b>Waiting for authorization…</b> after Continue? Press <b>F5</b> (reload) – Google sometimes forgets to move on.</li><li>Wait for <b>✅ Published!</b> – up to a minute – in <b>this</b> tab, then click <b>▶ Carry on setting up</b>.</li></ol>' +
+            '<ol><li>Google may open its approval in a <b>small window of its own</b> – that’s Google’s, and it closes itself when you’re done.</li><li>Choose your account if asked.</li><li>Google says it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner (unsafe)</b> – it’s your own private copy.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li><li>Stuck on <b>Waiting for authorization…</b> after Continue? Press <b>F5</b> (reload) – Google sometimes forgets to move on.</li><li>Google then brings you <b>back here</b> by itself, and this page shows a green ✅ when it’s all done.</li></ol>' +
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner’s permissions</button><span class="mute" id="watch"></span></div></div>';
-        else if (k === 5) body = '<div class="card"><h2>✅ Your Sheet is ready</h2><p>Now the normal setup carries on: privacy notice, your family, your calendar and your screen – already connected.</p><div class="row"><a class="btn good" id="next" href="' + esc(handover()) + '">Carry on with setup →</a></div></div>';
+        else if (k === 5) body = '<div class="note ok" style="margin:0 0 16px;font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers.</div><div class="card"><h2>Next: the normal setup</h2><p>Now the normal setup carries on: privacy notice, your family, your calendar and your screen – already connected.</p><div class="row"><a class="btn good" id="next" href="' + esc(handover()) + '">Carry on with setup →</a></div></div>';
         else body = '<div class="card"><h2>' + STEPS[k][1] + '…</h2><p class="mute">Working – this takes a few seconds.</p></div>';
         var again = (S.started || S.sheetId || S.url || hasSetup()) ? '<div class="card" id="againCard"><div class="row"><button class="btn ghost" id="again">↺ Start again from scratch</button><span class="mute">Forgets this try on this computer, including the setup it led to.</span></div></div>' : '';
         app.innerHTML = list + (extra || '') + body + again + diag();
@@ -191,7 +193,16 @@
     }
 
     loadConfig().then(function () {
-        draw();
-        if (S.url && !S.answered) check(true).then(function (ok) { if (ok) draw(); });
+        var back = /approved/.test(location.hash);
+        if (back) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* fine */ } note('back from Google approval'); }
+        draw(back && !S.answered ? '<div class="note">⏳ Checking your Sheet answers…</div>' : '');
+        // Back from Google's approval (or reopened part-way): check the Sheet answers – a few tries, as Google can take a moment
+        if (S.url && !S.answered) (function tryIt(n) {
+            check(true).then(function (ok) {
+                if (ok) draw();
+                else if (n < 8) setTimeout(function () { tryIt(n + 1); }, 3000);
+                else if (back) draw('<div class="note warn">Your Sheet didn’t answer yet. Click <b>Approve HouseRunner’s permissions</b> again – if Google says it’s already approved, it carries straight on.</div>');
+            });
+        })(0);
     });
 })();
