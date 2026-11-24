@@ -1,9 +1,16 @@
 {
-  "app": "2026.11.324",
-  "script": "2026.11.134",
+  "app": "2026.11.325",
+  "script": "2026.11.135",
   "date": "2026-11-17",
   "notes": [
-    "New BETA (not linked from the site, normal setup unchanged): houserunner.app/beta/install/ – automatic setup that makes your Sheet and publishes it for you with Google's own APIs, then carries on with the normal setup. Needs HouseRunner's Google sign-in client ID before it can be tried."
+    "Removing a note on the screen: Undo appears straight away and always works (it used to wait for the Sheet, and could be blocked)",
+    "Notes change everywhere at once – no screen keeps showing a removed note",
+    "A screen connected to a different family no longer briefly shows the previous family's pages and notes",
+    "Setup: the family you're typing in is kept if the page reloads before you press Save",
+    "Setup: the 'Save the family first' warning clears once you've saved",
+    "Setup: the overview video plays in the page with a 'Close video – back to setup' button, and says it shows an earlier version",
+    "Setup: warns if it's open in two tabs",
+    "Step window: tip for a missed permission tick; last step now says close the 3 Google tabs"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
