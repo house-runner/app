@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.319",
+    "date": "2026-11-17",
+    "notes": [
+      "Step window clips: a big yellow ring now shows exactly where each click happens, and the waiting at the start of clips is cut out.",
+      "Step window: taller and a little narrower, so the help fits without scrolling and it covers less of the page beside it. The Deploy step shows the whole box with the button marked in its corner. The tab list on the last step is one tab per row, with full names. The Continue picture's highlight now sits on the button."
+    ]
+  },
+  {
     "version": "2026.11.318",
     "date": "2026-11-17",
     "notes": [

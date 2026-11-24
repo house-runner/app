@@ -11,7 +11,7 @@
         ['setup', 'Click <b>Make my copy</b>', 'It’s the blue button on the HouseRunner setup page, behind this window. Your copy opens in a new tab.', V + 'v-copy.mp4'],
         ['google', 'Click the blue <b>Make a copy</b> button', 'Google asks “Copy document?”. If it asks you to sign in, use the Google account you want the dashboard in – the one with the family calendar.', V + 'v-makecopy.mp4'],
         ['sheet', 'Click <b>Extensions</b>, then <b>Apps Script</b>', 'Give the Sheet a few seconds to load first. <b>Extensions</b> is in the menu along the top, next to <b>Help</b>. A new tab opens with some code in it – <b>you don’t need to read or change anything</b>.', V + 'v-extensions.mp4'],
-        ['script', 'Click the blue <b>Deploy</b> button (top right), then <b>New deployment</b>', 'New deployment is the first item in the little menu that drops down.', V + 'v-deploy.mp4'],
+        ['script', 'Click the blue <b>Deploy</b> button (top right), then <b>New deployment</b>', 'New deployment is the first item in the little menu that drops down. <span class="mute">Can’t see Deploy? It may be behind this window – drag this window down by its top bar.</span>', V + 'v-deploy.mp4'],
         ['script', 'Check two things in the box', '<b>① Under “Select type” it says Web app.</b> If not, click the ⚙ cog next to “Select type” and choose <b>Web app</b>.<br><b>② “Who has access” says Anyone.</b> If not, click it and choose <b>Anyone</b> – not “Anyone with Google account”.<br><span class="mute">Leave “Execute as” on Me.</span>', V + 'p-check.png'],
         ['script', 'Click the blue <b>Deploy</b> button', 'Bottom right of the “New deployment” box. <span class="mute">Hidden behind this window? Drag this window by its top bar.</span>', V + 'p-deploy.png', 'small'],
         ['script', 'Click <b>Authorize access</b>', 'A small Google window pops up. <span class="mute">If it asks which account, choose the family one. Google may also ask you to confirm it’s you on your phone – do that, then come back.</span>', V + 'v-authorize.mp4'],
@@ -33,7 +33,9 @@
     var VIDEO = B + 'setup.mp4';
     var KEY = 'hrfloat.v3', win = null, i = 0;
     try { i = Math.min(STEPS.length - 1, Math.max(0, +localStorage.getItem(KEY) || 0)); } catch (e) { i = 0; }
+    var REV = '320';      // bumped when a clip or picture changes, so browsers fetch the new one instead of an old copy
     function abs(u) { return new URL(u, location.href).href; }
+    function media_(u) { return abs(u) + '?v=' + REV; }
     function plain(h) { var d = document.createElement('div'); d.innerHTML = h; return d.textContent; }
 
     var CSS = '*{box-sizing:border-box}html,body{margin:0;height:100%}body{background:#0f141b;color:#e6edf3;font:15px/1.42 "Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column}' +
@@ -57,7 +59,7 @@
     function media(m) {
         if (m === 'tabs') return '<div class="tabs"><div class="tab keep">🏠 HouseRunner setup<i>✓ keep</i></div><div class="tab">📗 Copy of HouseRunner<i>✕</i></div>' +
             '<div class="tab">📜 HouseRunner – Project Editor<i>✕</i></div><div class="tab">✅ HouseRunner – published<i>✕</i></div></div>';
-        return /\.mp4$/.test(m) ? '<video class="media" src="' + abs(m) + '" autoplay muted loop playsinline></video>' : '<img class="media" alt="" src="' + abs(m) + '">';
+        return /\.mp4$/.test(m) ? '<video class="media" src="' + media_(m) + '" autoplay muted loop playsinline></video>' : '<img class="media" alt="" src="' + media_(m) + '">';
     }
     function draw() {
         if (!win || win.closed) return;
@@ -86,7 +88,8 @@
         draw(); fit();
     }
     // Tall and fairly narrow: room for the clip and the help without scrolling, while covering as little as possible of the page beside it
-    function size() { return { width: 400, height: Math.max(560, Math.min(920, (screen.availHeight || 900) - 60)) }; }
+    // The window opens at the bottom right: kept clear of the top ~260 pixels, where Apps Script's Deploy button is
+    function size() { return { width: 420, height: Math.max(520, Math.min(820, (screen.availHeight || 900) - 260)) }; }
     var SMALL = { width: 360, height: 440 };
     /** The "click Deploy" step: shrink (and, where the browser allows, move to the bottom left) so the button behind isn't covered. */
     function fit() {
