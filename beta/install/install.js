@@ -88,7 +88,8 @@
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner’s permissions</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5) body = '<div class="card"><h2>✅ Your Sheet is ready</h2><p>Now the normal setup carries on: privacy notice, your family, your calendar and your screen – already connected.</p><div class="row"><a class="btn good" id="next" href="' + esc(handover()) + '">Carry on with setup →</a></div></div>';
         else body = '<div class="card"><h2>' + STEPS[k][1] + '…</h2><p class="mute">Working – this takes a few seconds.</p></div>';
-        app.innerHTML = list + (extra || '') + body + diag();
+        var again = (S.started || S.sheetId || S.url || hasSetup()) ? '<div class="card" id="againCard"><div class="row"><button class="btn ghost" id="again">↺ Start again from scratch</button><span class="mute">Forgets this try on this computer, including the setup it led to.</span></div></div>' : '';
+        app.innerHTML = list + (extra || '') + body + again + diag();
         wire();
     }
     function devForm() {
@@ -98,7 +99,17 @@
     function diag() {
         var safe = { email: S.email, sheetId: S.sheetId, scriptId: S.scriptId, version: S.version, deploymentId: S.deploymentId, url: S.url ? '(saved)' : '', answered: S.answered, started: S.started };
         return '<details><summary>Details for Russ</summary><pre>' + esc(JSON.stringify(safe, null, 1) + '\n\n' + log.join('\n')) + '</pre>' +
-            '<div class="row"><button class="btn ghost" id="forget">Forget this attempt (keeps the Sheet in Drive)</button></div></details>';
+            '</details>';
+    }
+    function hasSetup() { try { return !!localStorage.getItem('fdsetup.v1'); } catch (e) { return false; } }
+    function startAgain() {
+        var t = token;
+        ['fdsetup.v1', 'hr.famDraft', 'hrfloat.v3', KEY].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) { /* fine */ } });
+        try { sessionStorage.clear(); } catch (e) { /* fine */ }
+        S = {}; token = null; tokenAt = 0; log = [];
+        // Take back the installer's Google permission too, so the next Go asks afresh, like a new family would see it
+        try { if (t && window.google && google.accounts && google.accounts.oauth2) google.accounts.oauth2.revoke(t, function () {}); } catch (e) { /* fine */ }
+        draw('<div class="card"><p>↺ Forgotten – click <b>Sign in and carry on</b> to start a brand-new try.</p></div>');
     }
     function handover() { return '../../setup/#api=' + encodeURIComponent(S.url) + '&from=sheet'; }
     function wire() {
@@ -106,7 +117,14 @@
         on('cidSave', function () { var v = document.getElementById('cid').value.trim(); if (!/\.apps\.googleusercontent\.com$/.test(v)) { alert('That doesn’t look like a Google client ID.'); return; } localStorage.setItem(CKEY, v); draw(); });
         on('go', function () { signIn().then(afterSignIn).catch(fail); });
         on('approve', approve);
-        on('forget', function () { if (confirm('Forget this attempt? The Sheet it made stays in your Google Drive (delete it there if you like); the next Go makes a new one.')) { S = {}; save(); token = null; draw(); } });
+        on('again', function () {
+            var c = document.getElementById('againCard');
+            c.innerHTML = '<h2>Start again from scratch?</h2><p>This computer forgets the last try – the installer’s progress and the HouseRunner setup it led to . Signing in again then makes a brand-new Sheet.</p>' +
+                '<p class="mute">The Sheet it made stays in your Google Drive (bin it there if you like). To have Google ask for its approvals again as a new family would see them, remove both <b>HouseRunner</b> entries at <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener">myaccount.google.com/connections</a>.</p>' +
+                '<div class="row"><button class="btn bad" id="againYes">Start again</button><button class="btn ghost" id="againNo">Cancel</button></div>';
+            on('againNo', function () { draw(); });
+            on('againYes', startAgain);
+        });
     }
     function fail(e) {
         note('ERROR ' + (e && e.message));
