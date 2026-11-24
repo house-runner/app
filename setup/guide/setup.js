@@ -216,7 +216,8 @@
             };
             if ($('suForget')) $('suForget').onclick = function () {
                 if (!confirm('Disconnect this page from that dashboard and start setting up a new family? (The other dashboard isn’t changed.)')) return;
-                try { localStorage.removeItem(KEY); sessionStorage.removeItem(KEY); } catch (e) { /* fine */ }
+                try { localStorage.removeItem(KEY); sessionStorage.removeItem(KEY); localStorage.removeItem('hr.famDraft'); } catch (e) { /* fine */ }
+                if (window.HRInstall) HRInstall.reset();      // and any half-made automatic Sheet: a new family starts clean
                 location.replace(location.pathname);
             };
         }, ready: function () { return !connected() || !!S.mode; }, blocked: 'Choose what to do first – change the existing set-up, or start again' },
@@ -756,7 +757,6 @@
                 approved: APPROVED, perms: whyPerms(),
                 // Sheet made, approved and answering: connect to it exactly as the by-hand route's hand-back does
                 onReady: function (url) { location.replace(location.pathname + '#api=' + encodeURIComponent(url) + '&from=sheet'); location.reload(); },
-                onReset: function () { location.replace(location.pathname); location.reload(); }
             });
             if ($('showAll')) $('showAll').onclick = function (e) { e.preventDefault(); window.hrCopiedNow = false; window.hrShowAll = true; render(); };
             if ($('floatStart')) $('floatStart').onclick = function () {

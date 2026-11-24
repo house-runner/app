@@ -97,8 +97,11 @@
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
         else body = '<div class="card"><h3>⏳ ' + STEPS[k][1] + '…</h3><p class="mute">Working – this takes a few seconds. Don’t close this tab.</p></div>';
-        var again = (S.started || S.sheetId || S.url || hasSetup()) ? '<div class="card" id="againCard" style="margin-top:22px"><div class="row"><button class="btn ghost" id="again">↺ Start again from scratch</button><span class="mute">Forgets this try on this computer, including the setup it led to.</span></div></div>' : '';
-        app.innerHTML = list + (extra || '') + body + again + diag();
+        // An earlier try that didn't finish: carry on with that Sheet by default, or make a new one on purpose (the old one is kept)
+        var again = (S.sheetId && !S.answered && k > 0) || (S.sheetId && k === 0) ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making your Sheet' +
+            (S.started ? ' on ' + esc(new Date(S.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) : '') + (S.email ? ' as <b>' + esc(S.email) + '</b>' : '') +
+            ' – it carries on with that same Sheet below. <span class="mute">Want a brand-new Sheet instead? <a href="#" id="again">Make a new Sheet instead</a> – your earlier one isn’t changed or deleted; it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
+        app.innerHTML = again + list + (extra || '') + body + diag();
         if (k === 4) app.insertAdjacentHTML('beforeend', OPT.perms || '');
         wire();
     }
@@ -111,30 +114,26 @@
         return '<details><summary>Details for Russ</summary><pre>' + esc(JSON.stringify(safe, null, 1) + '\n\n' + log.join('\n')) + '</pre>' +
             '</details>';
     }
-    function hasSetup() { try { return !!localStorage.getItem('fdsetup.v1'); } catch (e) { return false; } }
-    function startAgain() {
-        var t = token;
-        ['fdsetup.v1', 'hr.famDraft', 'hrfloat.v3', KEY].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) { /* fine */ } });
-        try { sessionStorage.clear(); } catch (e) { /* fine */ }
-        S = {}; token = null; tokenAt = 0; log = [];
-        // Take back the installer's Google permission too, so the next Go asks afresh, like a new family would see it
-        try { if (t && window.google && google.accounts && google.accounts.oauth2) google.accounts.oauth2.revoke(t, function () {}); } catch (e) { /* fine */ }
-        stage('start');
-        if (OPT.onReset) OPT.onReset();
-        draw('<div class="note">↺ Forgotten – click <b>Sign in with Google</b> to start a brand-new try.</div>');
+    /** Forget this try (only the installer's own progress – nothing about the family, the licence or the Sheet itself) */
+    function newTry() {
+        try { localStorage.removeItem(KEY); } catch (e) { /* fine */ }
+        S = {}; log = []; clearTimeout(setT); stage('start');
+        draw('<div class="note">↺ Ready for a brand-new Sheet – click <b>Sign in with Google</b>.</div>');
     }
+    /** Done and handed over to setup: nothing more to carry on with, so the next new setup on this computer starts clean */
+    function forget() { try { localStorage.setItem('hrinstall.last', JSON.stringify({ email: S.email, sheetId: S.sheetId, at: new Date().toISOString() })); localStorage.removeItem(KEY); } catch (e) { /* fine */ } }
     function wire() {
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
         on('cidSave', function () { var v = document.getElementById('cid').value.trim(); if (!/\.apps\.googleusercontent\.com$/.test(v)) { alert('That doesn’t look like a Google client ID.'); return; } localStorage.setItem(CKEY, v); draw(); });
         on('go', function () { stage('signin'); signIn().then(afterSignIn).catch(fail); });
         on('approve', approve);
-        on('again', function () {
+        on('again', function (e) {
+            if (e) e.preventDefault();
             var c = document.getElementById('againCard');
-            c.innerHTML = '<h3>Start again from scratch?</h3><p>This computer forgets the last try – the installer’s progress and the HouseRunner setup it led to . Signing in again then makes a brand-new Sheet.</p>' +
-                '<p class="mute">The Sheet it made stays in your Google Drive (bin it there if you like). To have Google ask for its approvals again as a new family would see them, remove <b>HouseRunner Installer</b> and <b>HouseRunner App</b> at <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener">myaccount.google.com/connections</a>.</p>' +
-                '<div class="row"><button class="btn bad" id="againYes">Start again</button><button class="btn ghost" id="againNo">Cancel</button></div>';
+            c.innerHTML = '<b>Make a new Sheet instead?</b> HouseRunner starts again and makes a brand-new Sheet. Your earlier Sheet isn’t changed or deleted – it stays in your Google Drive (bin it there if you don’t want it).' +
+                '<div class="row"><button class="btn" id="againYes">Make a new Sheet</button><button class="btn ghost" id="againNo">Cancel – carry on with it</button></div>';
             on('againNo', function () { draw(); });
-            on('againYes', startAgain);
+            on('againYes', newTry);
         });
     }
     function fail(e) {
@@ -259,6 +258,8 @@
             if (started) { draw(); return; }
             started = true;
             var back = !!OPT.approved;
+            // Finished before (and handed over then): nothing to carry on with – a new setup on this computer starts clean
+            if (S.answered && !back) { forget(); S = {}; stage('start'); }
             if (back) { note('back from Google approval'); stage('checking'); }
             draw(back && !S.answered ? '<div class="note">⏳ Checking your Sheet answers…</div>' : '');
             if (S.answered) { finish(); return; }
@@ -272,11 +273,12 @@
             })(0);
         });
     }
-    function finish() { stage('done'); setTimeout(function () { if (OPT.onReady) OPT.onReady(S.url); }, 1800); }
+    function finish() { stage('done'); var u = S.url; setTimeout(function () { forget(); if (OPT.onReady) OPT.onReady(u); }, 1800); }
     window.HRInstall = {
         mount: mount,
         /** Has an automatic setup been started on this computer (so its card should show rather than the by-hand steps)? */
         started: function () { return !!(S.started || S.sheetId); },
-        reset: function () { S = load(); }
+        /** A new family on this computer: forget any unfinished try too */
+        reset: function () { try { localStorage.removeItem(KEY); localStorage.removeItem('hrinstall.stage'); } catch (e) { /* fine */ } S = {}; }
     };
 })();

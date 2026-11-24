@@ -1,12 +1,9 @@
 {
-  "app": "2026.11.333",
+  "app": "2026.11.334",
   "script": "2026.11.138",
   "date": "2026-11-17",
   "notes": [
-    "Setup: ⚡ HouseRunner now makes your Google Sheet for you – sign in with Google, approve, done. No copying, no Apps Script, no Deploy (doing it by hand is still there)",
-    "Setup checks first whether your Google account needs the Apps Script switch on, and carries on by itself once it is",
-    "A step window follows along, with a picture of each click, and moves on by itself",
-    "After Google's approval you come back to setup, which checks your Sheet answers, shows a green ✅ and carries on"
+    "Setup: before opening your Apps Script settings it explains what will open, what to switch on, and to close that tab and come back – then confirms in green once it's on"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

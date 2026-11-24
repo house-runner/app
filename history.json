@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.333",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: before opening your Apps Script settings it explains what will open, what to switch on, and to close that tab and come back – then confirms in green once it's on"
+    ]
+  },
+  {
     "version": "2026.11.332",
     "date": "2026-11-17",
     "notes": [
