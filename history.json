@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.336",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: no pop-out window for the automatic route – each step's instructions, with pictures of Google's screens, now sit right under that step"
+    ]
+  },
+  {
     "version": "2026.11.335",
     "date": "2026-11-17",
     "notes": [

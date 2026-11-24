@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.336",
+  "app": "2026.11.337",
   "script": "2026.11.138",
   "date": "2026-11-17",
   "notes": [
-    "Setup: coming back to an unfinished automatic setup now starts afresh, with a one-click option to carry on with the earlier Sheet instead (it's kept in your Drive either way)"
+    "Setup: no pop-out window for the automatic route – each step's instructions, with pictures of Google's screens, now sit right under that step"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

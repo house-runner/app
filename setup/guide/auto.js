@@ -85,6 +85,7 @@
             var cls = i < k ? 'ok' : i === k ? 'now' : '';
             return '<li class="' + cls + '"><span class="i">' + (i < k ? '✅' : i === k ? '▶' : '○') + '</span><span>' + s[1] + '</span></li>';
         }).join('') + '</ol>';
+        if (!extra && justOn && k < 4) extra = '<div class="note ok">✅ <b>Apps Script API is switched on – thank you.</b> If the Apps Script settings tab is still open, close it. HouseRunner is carrying on…</div>';
         var body = '';
         if (!clientId()) body = devForm();
         else if (S.needSwitch && k <= 2) body = '';
@@ -103,6 +104,7 @@
         var P = prev(), again = P && !S.sheetId ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making a Sheet' +
             (P.started ? ' on ' + esc(new Date(P.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) : '') + (P.email ? ' as <b>' + esc(P.email) + '</b>' : '') +
             ' but didn’t finish, so this starts afresh with a new one. <span class="mute">Rather pick up where you left off? <a href="#" id="again">Carry on with that Sheet instead</a>. Either way your earlier Sheet isn’t changed or deleted – it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
+        if (k === 4) body += OPT.perms || '';      // why each permission is needed, right where Google asks for them
         // What to do now sits straight under the step it belongs to; the steps still to come follow below it
         list = '<ol class="hri-steps">' + STEPS.map(function (st, i) {
             var cls = i < k ? 'ok' : i === k ? 'now' : '';
@@ -110,7 +112,6 @@
                 (i === k ? '<li class="here">' + (extra || '') + body + '</li>' : '');
         }).join('') + '</ol>';
         app.innerHTML = again + list + diag();
-        if (k === 4) app.insertAdjacentHTML('beforeend', OPT.perms || '');
         wire();
     }
     function devForm() {
@@ -143,12 +144,7 @@
     function fail(e) {
         note('ERROR ' + (e && e.message));
         var m = e && e.message || String(e);
-        if (e && e.status === 403 && /Apps Script API/i.test(m)) {
-            stage('api');
-            draw('<div class="note warn"><b>One switch to turn on in Google first.</b> Google only lets HouseRunner make a script for you once you allow it:<ol><li><a href="https://script.google.com/home/usersettings" target="_blank" rel="noopener">Open your Apps Script settings</a> (a new tab).</li><li>Click <b>Google Apps Script API</b> and switch it <b>On</b>.</li><li>Close that tab and click <b>Try again</b> here.</li></ol><div class="row"><button class="btn" id="again">Try again</button></div></div>');
-            var a = document.getElementById('again'); if (a) a.onclick = function () { build().catch(fail); };
-            return;
-        }
+        if (isSwitchOff(e)) { askSwitch(); return; }
         if (e && e.status === 401) { token = null; }
         draw('<div class="note bad">' + esc(m) + '<div class="row"><button class="btn ghost" id="again">Try again</button></div></div>');
         var b = document.getElementById('again'); if (b) b.onclick = function () { (token ? build() : signIn().then(afterSignIn)).catch(fail); };
@@ -166,11 +162,11 @@
             return apiOn().then(function (on) { if (on) return build(); askSwitch(); });
         });
     }
-    function build() {
-        draw();
+    function build(quiet) {
+        if (!quiet) draw();
         return Promise.resolve()
             .then(function () { if (S.sheetId) return; return (function () { try { localStorage.removeItem(PKEY); } catch (e) { /* fine */ } })(), api('POST', 'https://www.googleapis.com/drive/v3/files?fields=id', { name: 'HouseRunner MAIN DATA', mimeType: 'application/vnd.google-apps.spreadsheet', appProperties: { houserunner: 'installer' } }).then(function (f) { S.sheetId = f.id; save(); draw(); }); })
-            .then(function () { if (S.scriptId) return; return api('POST', 'https://script.googleapis.com/v1/projects', { title: 'HouseRunner App', parentId: S.sheetId }).then(function (p) { S.scriptId = p.scriptId; save(); draw(); }); })
+            .then(function () { if (S.scriptId) return; return api('POST', 'https://script.googleapis.com/v1/projects', { title: 'HouseRunner App', parentId: S.sheetId }).then(function (p) { S.scriptId = p.scriptId; save(); if (S.needSwitch) switchedOn(document.title); draw(); }); })
             .then(function () {
                 if (S.contentDone) return;
                 return Promise.all(['Loader.gs', 'Admin.html', 'appsscript-loader.json'].map(function (f) { return fetch(FILES + f + '?t=' + Date.now()).then(function (r) { if (!r.ok) throw new Error('Couldn’t load HouseRunner’s ' + f); return r.text(); }); }))
@@ -224,20 +220,26 @@
         clearTimeout(setT);
         (function watch() {
             setT = setTimeout(function () {
-                if (!token) return;
+                if (!token || !S.needSwitch) return;
                 apiOn().then(function (on) {
                     if (!on) { watch(); return; }
-                    S.needSwitch = false; save();
-                    try { if (setWin && !setWin.closed) setWin.close(); } catch (e) { /* the browser may not allow it */ }
-                    try { window.focus(); } catch (e) { /* fine */ }
-                    var still = setWin && !setWin.closed;
-                    if (still) document.title = '✅ Done – come back to HouseRunner';
-                    setTimeout(function () { document.title = t0; }, 20000);
-                    draw('<div class="note ok">✅ <b>Apps Script API is switched on – thank you.</b> ' + (still ? 'If the Apps Script settings tab is still open, close it. ' : '') + 'Making your Sheet now…</div>');
-                    build().catch(fail);
+                    build(true).then(function () { switchedOn(t0); }, function (e) {
+                        if (isSwitchOff(e)) { watch(); return; }      // the quick check said yes too soon: keep watching
+                        switchedOn(t0); fail(e);
+                    });
                 });
             }, 3000);
         })();
+    }
+    function isSwitchOff(e) { return !!(e && e.status === 403 && /Apps Script API/i.test(e.message || '')); }
+    var justOn = false;
+    function switchedOn(t0) {
+        if (!S.needSwitch) return;
+        S.needSwitch = false; save(); justOn = true;
+        try { if (setWin && !setWin.closed) setWin.close(); } catch (e) { /* the browser may not allow it */ }
+        var still = setWin && !setWin.closed;
+        if (still) { document.title = '✅ Done – come back to HouseRunner'; setTimeout(function () { document.title = t0; }, 20000); }
+        draw();
     }
     function webUrl(d) { var e = (d.entryPoints || []).filter(function (x) { return x.webApp && x.webApp.url; })[0]; return e ? e.webApp.url : ''; }
 
