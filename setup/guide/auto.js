@@ -8,7 +8,7 @@
  * Nothing is kept on a server. The Google sign-in lasts only while this page is open; progress (the new Sheet's and script's
  * IDs) is remembered in this browser, so a reload or a failure carries on with the same Sheet instead of making another.
  * The setup page's first step shows this; the by-hand route (Make my copy + the step window) stays as the fallback.
- * A small step window (guide.html) follows along by itself, reading the stage this writes to localStorage. */
+ * Each step's instructions (and pictures of Google's screens) sit straight under it in the list. */
 (function () {
     var SCOPES = 'openid email https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/script.projects https://www.googleapis.com/auth/script.deployments';
     var KEY = 'hrbeta.install.v1', CKEY = 'hrbeta.clientId';
@@ -91,9 +91,11 @@
         else if (k === 0) body = '<div class="card big"><h3>Sign in with the Google account for your family dashboard</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.' +
             (S.email ? ' <span class="mute">Last time you used ' + esc(S.email) + ' – use the same account to carry on with the same Sheet.</span>' : '') + '</p>' +
             '<ol class="mute"><li>A Google window opens: choose your account.</li><li>Google may say it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner Installer (unsafe)</b>.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li></ol>' +
+            '<div class="hri-pics"><figure><img src="../../shared/brand/steps/p-advanced.png?v=335" alt=""><figcaption>Advanced, then Go to … (unsafe)</figcaption></figure><figure><img src="../../shared/brand/steps/p-selectall.png?v=335" alt=""><figcaption>Select all, then Continue</figcaption></figure></div>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Sign in and carry on' : 'Sign in with Google') + '</button></div></div>';
         else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> does in your account – your calendar, sending your setup emails and so on (why each is needed is below). This tab goes to Google, then comes back here.</p>' +
             '<ol class="mute"><li>Google may open its approval in a <b>small window of its own</b> – it closes itself when you’re done.</li><li>Choose your account if asked.</li><li>Google says it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b> – it’s your own private copy.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li><li>Google shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b> if it doesn’t bring you back by itself. <span class="mute">Stuck on “Waiting for authorization…”? Press <b>F5</b>.</span></li></ol>' +
+            '<div class="hri-pics"><figure><img src="../../shared/brand/steps/p-advanced.png?v=335" alt=""><figcaption>Advanced, then Go to … (unsafe)</figcaption></figure><figure><img src="../../shared/brand/steps/p-selectall.png?v=335" alt=""><figcaption>Select all, then Continue</figcaption></figure></div>' +
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
         else body = '<div class="card"><h3>⏳ ' + STEPS[k][1] + '…</h3><p class="mute">Working – this takes a few seconds. Don’t close this tab.</p></div>';
@@ -101,7 +103,13 @@
         var P = prev(), again = P && !S.sheetId ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making a Sheet' +
             (P.started ? ' on ' + esc(new Date(P.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) : '') + (P.email ? ' as <b>' + esc(P.email) + '</b>' : '') +
             ' but didn’t finish, so this starts afresh with a new one. <span class="mute">Rather pick up where you left off? <a href="#" id="again">Carry on with that Sheet instead</a>. Either way your earlier Sheet isn’t changed or deleted – it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
-        app.innerHTML = again + list + (extra || '') + body + diag();
+        // What to do now sits straight under the step it belongs to; the steps still to come follow below it
+        list = '<ol class="hri-steps">' + STEPS.map(function (st, i) {
+            var cls = i < k ? 'ok' : i === k ? 'now' : '';
+            return '<li class="' + cls + '"><span class="i">' + (i < k ? '✅' : i === k ? '▶' : '○') + '</span><span>' + st[1] + '</span></li>' +
+                (i === k ? '<li class="here">' + (extra || '') + body + '</li>' : '');
+        }).join('') + '</ol>';
+        app.innerHTML = again + list + diag();
         if (k === 4) app.insertAdjacentHTML('beforeend', OPT.perms || '');
         wire();
     }

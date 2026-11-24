@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.335",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: coming back to an unfinished automatic setup now starts afresh, with a one-click option to carry on with the earlier Sheet instead (it's kept in your Drive either way)"
+    ]
+  },
+  {
     "version": "2026.11.334",
     "date": "2026-11-17",
     "notes": [

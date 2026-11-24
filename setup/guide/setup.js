@@ -699,20 +699,11 @@
        Then just three more steps. The full list above is still used when one step is opened by itself (…&only, from houserunner.app). */
     var OLD = {}; FULL.forEach(function (x) { OLD[x.id] = x; });
     var bare = function (h) { return String(h).replace(/^\s*<h1>[\s\S]*?<\/h1>/, ''); };     // a step's page without its title
-    /** "Set it up for me": HouseRunner makes and publishes the Sheet itself (auto.js), with a step window (guide.html) alongside */
+    /** "Set it up for me": HouseRunner makes and publishes the Sheet itself (auto.js); each step's instructions and pictures sit under it */
     function autoView() {
-        return '<div class="card big"><h3>📌 The step window</h3><p>A small window beside this page shows each thing to click, with a picture, and moves on by itself as you go.</p>' +
-                '<button class="btn" id="guideGo">Open the step window</button> <span class="mute small" id="guideMsg"></span></div>' +
-            '<h2 style="margin-top:24px">⚡ HouseRunner makes your Sheet for you</h2>' +
+        return '<h2 style="margin-top:24px">⚡ HouseRunner makes your Sheet for you</h2>' +
             '<div id="hrInstall"></div>' +
             '<p class="mute small" style="margin-top:18px">Rather do it by hand (copy the Sheet and publish it yourself)? <a href="#" id="byHandGo">Do it by hand instead</a>.</p>';
-    }
-    var guideWin = null;
-    function openGuide() {
-        var w = 420, h = Math.max(520, Math.min(820, (screen.availHeight || 900) - 120));
-        guideWin = window.open('guide.html', 'hrautoguide', 'popup,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - w - 20) + ',top=40');
-        if ($('guideMsg')) $('guideMsg').textContent = guideWin ? '✅ Open – keep it beside this page.' : 'Your browser blocked it – allow pop-ups for houserunner.app, then click again.';
-        try { if (guideWin) guideWin.focus(); } catch (e) { /* fine */ }
     }
     var NEW = [
         { id: 'start', title: 'Make your Google Sheet', render: function () {
@@ -750,7 +741,6 @@
                 bare(OLD.sheet.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, ''));
         }, wire: function () {
             if ($('watchAll')) $('watchAll').onclick = function (e) { e.preventDefault(); playOverview(); };
-            if ($('guideGo')) $('guideGo').onclick = openGuide;
             if ($('byHandGo')) $('byHandGo').onclick = function (e) { e.preventDefault(); S.byhand = true; save(); render(); };
             if ($('autoGo')) $('autoGo').onclick = function (e) { e.preventDefault(); S.byhand = false; BYHAND = false; save(); render(); };
             if ($('hrInstall') && window.HRInstall) HRInstall.mount($('hrInstall'), {
