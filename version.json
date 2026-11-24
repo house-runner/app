@@ -1,11 +1,9 @@
 {
-  "app": "2026.11.321",
+  "app": "2026.11.322",
   "script": "2026.11.133",
   "date": "2026-11-17",
   "notes": [
-    "Step window: the pictures and clips now always load fresh (your browser was still showing the older Deploy and Continue pictures).",
-    "The Make my copy and Make a copy clips stop before Google's blank loading page; the Extensions clip starts without the wait.",
-    "The step window opens shorter, so it stays clear of Apps Script's Deploy button at the top right; step 4 also says to drag it down if Deploy is hidden."
+    "Step window, step 11: now says to wait (the new tab can stay blank for up to a minute) until it shows ✅ Published!, then click ▶ Back to HouseRunner setup."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

@@ -51,13 +51,13 @@
         'button{font:inherit;font-weight:700;border-radius:10px;padding:11px 16px;cursor:pointer;border:1px solid transparent}.go{background:#3fa9f5;color:#fff;margin-left:auto;font-size:16.5px}.gh{background:transparent;color:#cbd6e2;border-color:#33465c}' +
         'button:disabled{opacity:.35;cursor:default}' +
         '.tabs{display:flex;flex-direction:column;gap:4px;background:#dfe3e8;border-radius:10px;padding:8px}.tab{min-width:0;background:#c7ccd3;color:#333;border-radius:8px;padding:7px 10px;font-size:13.5px;display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden}' +
-        '.tab.keep{background:#fff;font-weight:700}.tab i{margin-left:auto;font-style:normal;color:#b91c1c;font-weight:800}.tab.keep i{color:#15803d}.tabsb{background:#fff;border-radius:0 0 10px 10px;height:26px;border:1px solid #dfe3e8;border-top:0}' +
+        '.tab.keep{background:#fff;font-weight:700;white-space:normal}.tab .alt{font-weight:400;color:#15803d;font-size:12.5px}.tab i{margin-left:auto;font-style:normal;color:#b91c1c;font-weight:800}.tab.keep i{color:#15803d}.tabsb{background:#fff;border-radius:0 0 10px 10px;height:26px;border:1px solid #dfe3e8;border-top:0}' +
         'body.small h2{font-size:17px;margin:8px 0}body.small .media{max-height:200px}body.small .where,body.small .vl{display:none}body.small p{font-size:13px}body.small .hd{display:none}' +
         '.wait{display:block;margin:8px 0;padding:8px 10px;border-radius:9px;background:#3a2a0c;border:1px solid #a06a12;color:#ffe2a8}.wait b{color:#fff}' +
         '.done{margin-top:12px;padding:10px 12px;border-radius:10px;background:#123322;border:1px solid #2b7a4b;font-size:14.5px}';
 
     function media(m) {
-        if (m === 'tabs') return '<div class="tabs"><div class="tab keep">🏠 HouseRunner setup<i>✓ keep</i></div><div class="tab">📗 Copy of HouseRunner<i>✕</i></div>' +
+        if (m === 'tabs') return '<div class="tabs"><div class="tab keep">🏠 HouseRunner setup <span class="alt">or ✅ Carry on here</span><i>✓ keep</i></div><div class="tab">📗 Copy of HouseRunner<i>✕</i></div>' +
             '<div class="tab">📜 HouseRunner – Project Editor<i>✕</i></div><div class="tab">✅ HouseRunner – published<i>✕</i></div></div>';
         return /\.mp4$/.test(m) ? '<video class="media" src="' + media_(m) + '" autoplay muted loop playsinline></video>' : '<img class="media" alt="" src="' + media_(m) + '">';
     }

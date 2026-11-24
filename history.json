@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.321",
+    "date": "2026-11-17",
+    "notes": [
+      "Step window, step 11: now says to wait (the new tab can stay blank for up to a minute) until it shows ✅ Published!, then click ▶ Back to HouseRunner setup."
+    ]
+  },
+  {
     "version": "2026.11.320",
     "date": "2026-11-17",
     "notes": [
