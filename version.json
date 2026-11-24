@@ -1,9 +1,10 @@
 {
-  "app": "2026.11.323",
-  "script": "2026.11.133",
+  "app": "2026.11.324",
+  "script": "2026.11.134",
   "date": "2026-11-17",
   "notes": [
-    "Step window, last step: the tab to keep now shows both names it can have – “HouseRunner setup” or “✅ Carry on here”."
+    "Step window: the tab pictures and “where you are” labels now use the real icons your browser shows – HouseRunner, Google Sheets and Apps Script – with the tab names as they appear.",
+    "Setup's privacy page: “Your Google Sheet is connected” is now a green message above it."
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>HouseRunner – automatic setup (BETA)</title>
+    <link rel="icon" href="../../shared/brand/icon-192.png">
+    <script src="../../shared/busy.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #0c0e12; color: #e6edf3; font: 16px/1.5 "Segoe UI", Roboto, Arial, sans-serif; }
+        main { max-width: 680px; margin: 0 auto; padding: 28px 20px 60px; }
+        .brand { display: flex; align-items: center; gap: 10px; color: #9fb0c2; font-size: 14px; }
+        .brand img { width: 30px; height: 30px; border-radius: 8px; }
+        .beta { background: #f5a623; color: #111; font-weight: 800; font-size: 12px; padding: 2px 8px; border-radius: 6px; letter-spacing: .05em; }
+        h1 { font-size: 30px; margin: 14px 0 6px; }
+        .lead { color: #cbd6e2; margin: 0 0 20px; }
+        .card { background: #15181e; border: 1px solid #2a2f38; border-radius: 14px; padding: 18px 20px; margin: 0 0 16px; }
+        .card h2 { font-size: 19px; margin: 0 0 8px; }
+        .steps { list-style: none; padding: 0; margin: 0; }
+        .steps li { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid #1f2530; color: #9fb0c2; }
+        .steps li:last-child { border-bottom: 0; }
+        .steps li .i { width: 22px; text-align: center; flex: none; }
+        .steps li.now { color: #fff; font-weight: 600; }
+        .steps li.ok { color: #cbd6e2; }
+        .btn { display: inline-block; font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 12px 20px; cursor: pointer; text-decoration: none; background: #3fa9f5; color: #fff; }
+        .btn.ghost { background: transparent; color: #cbd6e2; border: 1px solid #33465c; }
+        .btn.good { background: #22c55e; color: #052e14; }
+        .btn:disabled { opacity: .4; cursor: default; }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+        .note { border-radius: 10px; padding: 10px 14px; margin: 12px 0 0; background: #162231; border: 1px solid #27405a; color: #cbd6e2; }
+        .note.warn { background: #3a2a0c; border-color: #a06a12; color: #ffe2a8; }
+        .note.bad { background: #3a1212; border-color: #a33; color: #ffd0d0; }
+        .note.ok { background: #123322; border-color: #2b7a4b; color: #c8f2d6; }
+        .mute { color: #8a9bb0; font-size: 14px; }
+        input { font: inherit; width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #33465c; background: #0f141b; color: #e6edf3; }
+        details { margin-top: 10px; } summary { cursor: pointer; color: #7cc4fa; }
+        pre { white-space: pre-wrap; word-break: break-all; font-size: 12px; background: #0f141b; padding: 10px; border-radius: 8px; color: #9fb0c2; max-height: 260px; overflow: auto; }
+        a { color: #7cc4fa; }
+    </style>
+</head>
+<body>
+<main>
+    <div class="brand"><img src="../../shared/brand/icon-192.png" alt=""> HouseRunner <span class="beta">BETA</span></div>
+    <h1>Automatic setup</h1>
+    <p class="lead">An experiment: HouseRunner makes your Google Sheet and switches it on for you – no copying, no Apps Script, no Deploy. It makes a <b>new</b> Sheet in your Google Drive and doesn’t touch any HouseRunner you already have.</p>
+    <div id="app"></div>
+    <p class="mute" style="margin-top:28px">This is a test version. If it gets stuck, the normal setup is at <a href="../../setup/">houserunner.app/setup</a>.</p>
+</main>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="install.js?v=1"></script>
+</body>
+</html>

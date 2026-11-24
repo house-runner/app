@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.133';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.134';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -814,7 +814,7 @@ function doGet(e) {
       autoRefresh_();
       if (p.action === 'binLookup') return binLookup_(p.postcode);
       if (p.action === 'binCouncil') { const c = councilFor_(p.postcode); return { ok: true, council: c.name, code: c.code, automatic: !!BIN_COUNCILS[c.code], message: BIN_COUNCILS[c.code] ? c.name + ' – connected automatically' : binUnsupported_(c) }; }
-      if (p.action === 'ping') return { ok: true, app: 'family-dashboard', version: SCRIPT_VERSION, layout: LAYOUT_VER, autoUpdate: autoUpdateOn_(), loader: LOADED ? LOADED.version : '' };
+      if (p.action === 'ping') return { ok: true, app: 'family-dashboard', version: SCRIPT_VERSION, layout: LAYOUT_VER, autoUpdate: autoUpdateOn_(), loader: LOADED ? LOADED.version : '', setupDone: (() => { try { return !!String(inst_('AccessCode') || ''); } catch (e) { return false; } })() };      // setupDone: the BETA installer waits for the Sheet to be set up
       if (p.action === 'claim') return withLock_(claim_);
       checkCode_(p.code);
       movedCheck_();
@@ -833,7 +833,7 @@ function doGet(e) {
   }
   // A plain visit – usually the Web app URL clicked straight after Deploy. That visit is what lets the Sheet learn its own
   // address (rememberUrl_ above: Google only tells a script its /exec address while it's being visited).
-  if (!p.admin) return publishedPage_();
+  if (!p.admin) return publishedPage_(p);
   return (LOADED ? HtmlService.createHtmlOutput(LOADED.html()) : HtmlService.createHtmlOutputFromFile('Admin'))
     .setTitle('HouseRunner – Admin')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
@@ -845,7 +845,8 @@ function doGet(e) {
  * only this Sheet's address: the setup page then collects the access code with the one-time "claim" (open for the first
  * couple of hours, and only until it's used), so the private link is never shown on this page.
  */
-function publishedPage_() {
+function publishedPage_(p) {
+  p = p || {};
   const page = (body, title) => HtmlService.createHtmlOutput('<div style="font:17px/1.5 Arial,sans-serif;max-width:600px;margin:50px auto;padding:0 20px;color:#222">' + body + '</div>')
     .setTitle(title || 'HouseRunner – published').addMetaTag('viewport', 'width=device-width, initial-scale=1');
   const P = PropertiesService.getScriptProperties();
@@ -864,6 +865,8 @@ function publishedPage_() {
   myIdTab_(true);
   tidyTabs_();
   const link = appsBase_() + 'setup/#api=' + encodeURIComponent(u) + '&from=sheet';
+  // Opened by the BETA automatic installer (houserunner.app/beta/install/): it carries on by itself, so no button here
+  if (p.hrbeta) return page('<h1 style="font-size:30px;margin:0 0 6px">✅ Published!</h1><p style="font-size:19px">Your HouseRunner Sheet is ready. <b>Close this tab</b> – the HouseRunner installer carries on by itself.</p><script>setTimeout(function(){try{window.top.close()}catch(e){}},1500)</script>');
   return page('<h1 style="font-size:30px;margin:0 0 6px">✅ Published!</h1>' +
     '<p style="font-size:19px;margin:0 0 22px">Your HouseRunner Sheet is ready. One more click:</p>' +
     '<p><a href="' + link + '" target="_blank" onclick="setTimeout(function(){document.getElementById(\'after\').style.display=\'block\';document.getElementById(\'go\').style.display=\'none\';},300)" id="go" ' +
@@ -882,6 +885,7 @@ function tidyTabs_() {
     ss.getSheets().forEach(sh => {
       if (sh.getName() === MYID_TAB) return;
       if (/^start here$/i.test(sh.getName().trim())) { try { ss.deleteSheet(sh); } catch (e) { /* fine */ } return; }
+      if (/^sheet1$/i.test(sh.getName()) && sh.getLastRow() === 0) { try { ss.deleteSheet(sh); } catch (e) { /* fine */ } return; }      // a brand-new Sheet's empty first tab
       if (!sh.isSheetHidden()) { try { sh.hideSheet(); } catch (e) { /* fine */ } }
     });
     ss.setActiveSheet(id);

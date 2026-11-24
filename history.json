@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.323",
+    "date": "2026-11-17",
+    "notes": [
+      "Step window: the tab pictures and “where you are” labels now use the real icons your browser shows – HouseRunner, Google Sheets and Apps Script – with the tab names as they appear.",
+      "Setup's privacy page: “Your Google Sheet is connected” is now a green message above it."
+    ]
+  },
+  {
     "version": "2026.11.322",
     "date": "2026-11-17",
     "notes": [
