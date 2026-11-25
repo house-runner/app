@@ -247,12 +247,15 @@
      *  The script's "Approved" page then brings this tab straight back to setup (#approved), which checks it and carries on. */
     function approve() { note('approve: going to Google'); stage('google2'); stage.now = 'google2'; save(); location.href = S.url + '?hrbeta=1'; }
     /** Does the published script answer, and has its first visit set the Sheet up? (Before approval, Google answers with a sign-in page, not HouseRunner.) */
+    var lastPing = '';
     function check(quiet) {
         if (!S.url) return Promise.resolve(false);
-        return fetch(S.url + '?action=ping&t=' + Date.now()).then(function (r) { return r.json(); }).then(function (d) {
+        return fetch(S.url + '?action=ping&t=' + Date.now()).then(function (r) {
+            return r.text().then(function (t) { try { return JSON.parse(t); } catch (e) { throw new Error('HTTP ' + r.status + ', not JSON: ' + t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160)); } });
+        }).then(function (d) {
             if (d && d.ok && d.app === 'family-dashboard' && d.setupDone !== false) { S.answered = true; save(); note('ping ok ' + (d.version || '')); return true; }
-            note('ping: not ready ' + JSON.stringify(d).slice(0, 120)); return false;
-        }, function () { if (!quiet) note('ping: no answer yet'); return false; });
+            lastPing = 'answered, but not ready: ' + JSON.stringify(d).slice(0, 200); note('ping: ' + lastPing); return false;
+        }, function (e) { lastPing = (e && e.message) || 'no answer (blocked or offline)'; note('ping: ' + lastPing); return false; });
     }
 
     /** Show it in el. opt: approved (just back from Google's approval), perms (the "why each permission" card), onReady(url), onReset(). */
@@ -275,7 +278,9 @@
                 check(true).then(function (ok) {
                     if (ok) { draw(); finish(); }
                     else if (n < 8) setTimeout(function () { tryIt(n + 1); }, 3000);
-                    else if (back) { stage.now = ''; draw('<div class="note warn">Your Sheet didn’t answer yet. Click <b>Approve HouseRunner App</b> again – if Google says it’s already approved, it carries straight on.</div>'); }
+                    else if (back) { stage.now = ''; draw('<div class="note warn">Your Sheet didn’t answer HouseRunner yet. Click <b>Approve HouseRunner App</b> again – if Google says it’s already approved, it carries straight on.' +
+                        '<div class="mute small" style="margin-top:6px">What it said: ' + esc(lastPing || 'nothing') + ' · <a href="' + esc(S.url) + '?action=ping" target="_blank" rel="noopener">see for yourself</a> · <a href="#" id="pingAgain">check again</a></div></div>');
+                        var pa = document.getElementById('pingAgain'); if (pa) pa.onclick = function (ev) { ev.preventDefault(); check(false).then(function (ok) { if (ok) { draw(); finish(); } else draw('<div class="note warn">Still no – it said: ' + esc(lastPing) + '</div>'); }); }; }
                 });
             })(0);
         });

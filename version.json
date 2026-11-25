@@ -1,9 +1,10 @@
 {
-  "app": "2026.11.337",
+  "app": "2026.11.338",
   "script": "2026.11.138",
   "date": "2026-11-17",
   "notes": [
-    "Setup: no pop-out window for the automatic route – each step's instructions, with pictures of Google's screens, now sit right under that step"
+    "Setup: every instruction, message and the permissions explanation now sit right under the current step",
+    "If Google only says the Apps Script switch is off when making the script, setup shows the same clear switch card and carries on by itself once it's on – no Try again button"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

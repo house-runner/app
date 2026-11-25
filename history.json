@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.337",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: every instruction, message and the permissions explanation now sit right under the current step",
+      "If Google only says the Apps Script switch is off when making the script, setup shows the same clear switch card and carries on by itself once it's on – no Try again button"
+    ]
+  },
+  {
     "version": "2026.11.336",
     "date": "2026-11-17",
     "notes": [
