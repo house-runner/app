@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.340",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: after Google's approval your new Sheet hands its access code straight back to setup, so connecting at the end no longer depends on a separate step that could fail",
+      "If connecting does stall, setup now says why instead of trying silently"
+    ]
+  },
+  {
     "version": "2026.11.339",
     "date": "2026-11-17",
     "notes": [

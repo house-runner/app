@@ -702,11 +702,29 @@
     var bare = function (h) { return String(h).replace(/^\s*<h1>[\s\S]*?<\/h1>/, ''); };     // a step's page without its title
     /** "Set it up for me": HouseRunner makes and publishes the Sheet itself (auto.js); each step's instructions and pictures sit under it */
     function autoView() {
-        return '<h2 style="margin-top:24px">⚡ HouseRunner makes your Sheet for you</h2>' +
+        return '<h2 style="margin-top:12px">⚡ HouseRunner makes it for you</h2>' +
             '<div id="hrInstall"></div>' +
             '<p class="mute small" style="margin-top:18px">Rather do it by hand (copy the Sheet and publish it yourself)? <a href="#" id="byHandGo">Do it by hand instead</a>.</p>';
     }
     var NEW = [
+        { id: 'intro', title: 'Welcome', render: function () {
+            return (S.licKey ? '<div class="note ok">🔑 Your licence key <b class="mono">' + esc(S.licKey) + '</b> came with the link from your email. Setup fills it in for you – nothing to type.</div>' : '') +
+                (phoneish() ? '<div class="note bad"><b>📱 This looks like a phone or tablet.</b> Setup needs a <b>computer</b> (Windows PC or Mac) – part of it is done in Google, which doesn’t work properly on a phone. ' +
+                    'Open your licence email on your computer and click the link there.</div>' : '') +
+                '<h1>Let’s set up HouseRunner</h1>' +
+                '<p class="lead">First you get your own HouseRunner Google Sheet – HouseRunner can make it for you. Then it brings you back here, already connected, for a few short steps. ' +
+                    '<span class="mute">About 20 minutes in all.</span></p>' +
+                '<p class="mute">Already have HouseRunner, and want this computer to manage it? <a href="../../?connect">Connect this computer to your family</a> instead.</p>' +
+                '<div class="card big"><h3>How HouseRunner works</h3>' +
+                    '<p>HouseRunner is copied into <b>a Google Sheet in your own Google account</b>, and runs from there.</p>' +
+                    '<ul class="need"><li>✅ <b>The advantage:</b> once it’s set up, <b>all your family’s information stays in your own Google account</b> – your calendar, rewards, notes and lists aren’t kept on anyone else’s computers.</li>' +
+                    '<li>⏳ <b>The catch:</b> it needs a few setup steps in Google first. <b>This wizard guides you through them now</b>, one at a time.</li></ul></div>' +
+                '<div class="note warn"><h3>What you need</h3><ul class="need">' +
+                    '<li><b>A Google (Gmail) account</b> – ideally the one your family calendar is in. No Google account yet? <a href="https://accounts.google.com/signup" target="_blank" rel="noopener">Create one free</a>.</li>' +
+                    '<li><b>A computer</b> for this part, and <b>your phone</b> for the Family Admin app at the end.</li></ul>' +
+                    '<p class="mute small">No licence key yet? That’s fine – you get a 14-day free trial and can add it later.</p></div>' +
+                '<p style="margin-top:22px"><button class="btn" id="introGo">Let’s start →</button></p>';
+        }, wire: function () { if ($('introGo')) $('introGo').onclick = function () { go(S.step + 1); }; } },
         { id: 'start', title: 'Make your Google Sheet', render: function () {
             if (connected()) return OLD.sheet.render();
             if (window.hrConnecting) return '<h1>⏳ Connecting to your new Sheet…</h1><p class="lead">Your Sheet says it’s published – this page is connecting to it now. Google can take up to a minute after publishing; it keeps trying by itself.</p>' +
@@ -727,17 +745,8 @@
                 (resuming ? '' : '<div class="card big"><h3>No new tab opened?</h3><p>' + (resuming ? 'If a copy was made, it’s in <a href="https://drive.google.com/drive/recent" target="_blank" rel="noopener">your Google Drive</a> as <b>Copy of HouseRunner BLANK</b>. If no copy was made (no new tab opened), make it now:' : 'Your browser may have blocked it. Click again:') + '</p>' +
                     '<a class="btn" id="copyGo" target="_blank" rel="noopener" href="https://docs.google.com/spreadsheets/d/' + encodeURIComponent(CFG.templateId || '') + '/copy">Make my copy</a></div>') +
                 '<p class="mute small">' + '<a href="#" id="showAll">Show all the instructions</a> · <a href="#" id="watchAll">▶ Watch the 2-minute overview video</a></p>';
-            return (S.licKey ? '<div class="note ok">🔑 Your licence key <b class="mono">' + esc(S.licKey) + '</b> came with the link from your email. Setup fills it in for you – nothing to type.</div>' : '') +
-                (phoneish() ? '<div class="note bad"><b>📱 This looks like a phone or tablet.</b> Setup needs a <b>computer</b> (Windows PC or Mac) – part of it is done in Google Sheets, which doesn’t work properly on a phone. ' +
-                    'Open your licence email on your computer and click the link there.</div>' : '') +
-                '<h1>Let’s set up HouseRunner</h1>' +
-                '<p class="lead">First you get your own HouseRunner Google Sheet – HouseRunner can make it for you. Then it brings you back here, already connected, for a few short steps. ' +
-                    '<span class="mute">About 20 minutes in all.</span></p>' +
-                '<p class="mute">Already have HouseRunner, and want this computer to manage it? <a href="../../?connect">Connect this computer to your family</a> instead.</p>' +
-                '<div class="note warn"><h3>What you need</h3><ul class="need">' +
-                    '<li><b>A Google (Gmail) account</b> – ideally the one your family calendar is in. No Google account yet? <a href="https://accounts.google.com/signup" target="_blank" rel="noopener">Create one free</a>.</li>' +
-                    '<li><b>A computer</b> for this part, and <b>your phone</b> for the Family Admin app at the end.</li></ul>' +
-                    '<p class="mute small">No licence key yet? That’s fine – you get a 14-day free trial and can add it later.</p></div>' +
+            return '<h1>Make your Google Sheet</h1>' +
+                '<p class="lead">Your own HouseRunner Sheet, in your Google account. Once it’s made and switched on, this page carries on by itself.</p>' +
                 (auto ? autoView() : '<p class="note">⚡ <b>Easier:</b> <a href="#" id="autoGo">let HouseRunner make your Sheet for you</a> – about 2 minutes, no copying or Apps Script.</p><h2 style="margin-top:22px">Doing it by hand</h2>' +
                 bare(OLD.sheet.render()).replace(/^\s*<p class="lead">[\s\S]*?<\/p>/, ''));
         }, wire: function () {
@@ -1017,6 +1026,7 @@
     }
     function render() {
         if (window.hrHanded) return;     // handed back to the first setup tab: this one just says so (loading in the background mustn't redraw it)
+        if (!SOLO && S.stepsV !== 2) { if (S.step) S.step++; S.stepsV = 2; }      // a Welcome step was added in front (2026.11.341)
         S.step = Math.max(0, Math.min(STEPS.length - 1, S.step || 0)); save();
         var st = STEPS[S.step];
         // a message from the last page ("press Next…") doesn't belong on this one
@@ -1041,7 +1051,7 @@
     function go(i) {
         for (var k = 0; k < i; k++) if (!canLeave(k)) {
             // Not connected yet: stay on "Make your Sheet" (the by-hand way only when asked for) – this page notices by itself when it's done
-            if ((STEPS[k].id === 'publish' || STEPS[k].id === 'start') && !S.byHand && !connected()) { S.step = k - 1; render(); toast('Not connected yet – follow the step window to the end (▶ Back to HouseRunner setup). This page carries on by itself once it says Published ✅.', true); return; }
+            if ((STEPS[k].id === 'publish' || STEPS[k].id === 'start') && !S.byHand && !connected()) { S.step = STEPS[k].id === 'start' ? k : k - 1; render(); toast('Not connected yet – follow the step window to the end (▶ Back to HouseRunner setup). This page carries on by itself once it says Published ✅.', true); return; }
             if (STEPS[k].id === 'start' && S.byHand) k = PUB;      // publishing by hand: stay on that page
             S.step = k; render(); toast(STEPS[k].blocked, true);
             var ub = $('url'); if (ub) { ub.scrollIntoView({ block: 'center' }); ub.focus(); }

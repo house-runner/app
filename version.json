@@ -1,10 +1,10 @@
 {
-  "app": "2026.11.340",
+  "app": "2026.11.341",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: after Google's approval, one last click 'Finish publishing' publishes your Sheet again so your screen and phones can reach it (Google keeps the first address behind a sign-in)",
-    "If Google still blocks it, setup shows how to publish it by hand in 2 minutes, with a box to paste the address"
+    "Setup: after Google's approval your new Sheet hands its access code straight back to setup, so connecting at the end no longer depends on a separate step that could fail",
+    "If connecting does stall, setup now says why instead of trying silently"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
