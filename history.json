@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.361",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: 'Set up App permissions' (capital A); after clicking it, setup says Google's window is open and to click again if nothing appeared"
+    ]
+  },
+  {
     "version": "2026.11.360",
     "date": "2026-11-17",
     "notes": [

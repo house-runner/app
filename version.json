@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.361",
+  "app": "2026.11.362",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: the first step is now called 'Sign in to Google and the Installer App'"
+    "Setup: 'Set up App permissions' (capital A); after clicking it, setup says Google's window is open and to click again if nothing appeared"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

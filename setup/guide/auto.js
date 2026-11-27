@@ -102,7 +102,7 @@
             return '<li class="' + cls + '"><span class="i">' + (i < k ? '✅' : i === k ? '▶' : '○') + '</span><span>' + s[1] + '</span></li>';
         }).join('') + '</ol>';
         if (!extra && justOn && k < 4) extra = '<div class="note ok">✅ <b>Apps Script API is switched on – thank you.</b> If the Apps Script settings tab is still open, close it. HouseRunner is carrying on…</div>';
-        var body = '';
+        var body = '', bodyB = '';
         if (!clientId()) body = devForm();
         else if (S.needSwitch && k <= 2) body = '';
         else if (k === 0 && !S.gEmail) body = '<div class="card big"><h3>Sign in to Google and the Installer App</h3><p>Sign in to the Google account you want HouseRunner in – ideally the one your family calendar is in. Already signed in? Google just checks which account, then asks you to sign in to HouseRunner.</p>' +
@@ -115,13 +115,16 @@
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
             '<p>' + showBtn('perms', 'Show me', 'one short video of the whole of this step') + '</p>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Set up App permissions and carry on' : 'Set up App permissions') + '</button><span class="mute small" id="goMsg"></span></div></div>';
-        else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> – your own copy – does in your account. This tab goes to Google, then comes back here.</p>' +
-            cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
-                ['Continue past “Google hasn’t verified this app”', 'h-testing.png', 'Expected – it’s your own copy. <b>Continue</b> is on the left'],
-                ['Agree the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
-                ['Wait, then back to setup', 'h-waitback.png', 'Wait for “Waiting for authorization…” (stuck? press <b>F5</b>), then click <b>▶ Back to HouseRunner setup</b>']]) +
-            '<p>' + showBtn('approve', 'Show me, step by step', 'a small window with a short clip and instructions for each step') + '</p>' +
-            '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
+        else if (k === 4) {      // one click, then Google's pages in two parts – shown under two headings
+            body = '<div class="card big"><h3>Open the HouseRunner App approval</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> – your own copy – does in your account. This tab goes to Google, then comes back here.</p>' +
+                cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
+                    ['Advanced, then Go to HouseRunner App (unsafe)', 'p-advanced.png', 'Google hasn’t verified it – expected, it’s your own copy. Click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>']]) +
+                '<p>' + showBtn('approve', 'Show me, step by step', 'a small window with a short clip and instructions for each step') + '</p>' +
+                '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
+            bodyB = '<div class="card big"><h3>Agree HouseRunner App permissions, then come back</h3><p class="mute">Straight after, in the same Google window:</p>' +
+                cols([['Agree the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
+                    ['Wait, then back to setup', 'h-waitback.png', 'Wait for “Waiting for authorization…” (stuck? press <b>F5</b>), then click <b>▶ Back to HouseRunner setup</b>']]) + '</div>';
+        }
         else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
         else body = '<p class="mute" style="margin:2px 0 6px">HouseRunner is doing this by itself – about 30 seconds. Don’t close this tab.</p>';
@@ -135,10 +138,12 @@
             // Making the Sheet, adding its script and publishing it happen by themselves: one step, with where it's up to beside it
             .concat([['Make your HouseRunner Sheet <span class="mute small">(automatic)</span>' + (k >= 1 && k <= 3 && !S.needSwitch ? ' <span class="hri-sub">⏳ ' + ['', 'Making the Sheet…', 'Adding the script…', 'Publishing…'][k] + '</span>' : ''),
                 k > 3 ? 'ok' : k >= 1 ? 'now' : '', k >= 1 && k <= 3]])
-            .concat(STEPS.slice(4).map(function (st, j) { var i = j + 4; return [st[1], i < k ? 'ok' : i === k ? 'now' : '', i === k]; }));
+            // Approving HouseRunner App: one click, then two parts in Google – two headings
+            .concat([['Open the HouseRunner App approval', k > 4 ? 'ok' : k === 4 ? 'now' : '', k === 4], ['Agree HouseRunner App permissions, then come back', k > 4 ? 'ok' : k === 4 ? 'now' : '', k === 4 ? 'B' : false]])
+            .concat(STEPS.slice(5).map(function (st, j) { var i = j + 5; return [st[1], i < k ? 'ok' : i === k ? 'now' : '', i === k]; }));
         list = '<ol class="hri-steps">' + rows.map(function (r) {
             return '<li class="' + r[1] + '"><span class="i">' + (r[1] === 'ok' ? '✅' : r[1] === 'now' ? '▶' : '○') + '</span><span>' + r[0] + '</span></li>' +
-                (r[2] ? '<li class="here">' + (extra || '') + body + '</li>' : '');
+                (r[2] === 'B' ? (bodyB ? '<li class="here">' + bodyB + '</li>' : '') : r[2] ? '<li class="here">' + (extra || '') + body + '</li>' : '');
         }).join('') + '</ol>';
         app.innerHTML = again + list + diag();
         wire();
