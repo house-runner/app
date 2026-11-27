@@ -15,6 +15,7 @@ body{background:#0f141b;color:#e6edf3;font:15px/1.42 "Segoe UI",Roboto,Arial,san
 .bd{flex:1;overflow:auto;padding:10px 14px}
 .where{color:#9fb0c3;font-size:13px;margin-bottom:4px}
 h2{font-size:18px;line-height:1.3;margin:2px 0 10px}
+.again{display:block;margin:-4px 0 12px;padding:8px 14px;border-radius:10px;border:1px solid #2b3647;background:transparent;color:#e6edf3;font:600 15px system-ui,sans-serif;cursor:pointer}
 .media{display:block;width:100%;max-height:56vh;object-fit:contain;border-radius:10px;border:1px solid #253041;background:#fff;margin:0 0 10px}
 p{margin:0 0 8px}.mute{color:#9fb0c3;font-size:13px}
 .done{background:#123322;border:1px solid #2b7a4b;color:#c8f2d6;border-radius:10px;padding:10px 12px;font-weight:600}
@@ -32,7 +33,7 @@ button:disabled{opacity:.4;cursor:default}
  * and "Done – next" moves it on where it can't tell (the clicks in Google's own windows).
  * Where a picture shows Google's screens, the account shown is marked "your own Google email": the person sees theirs. */
 (function () {
-    var V = '../../shared/brand/steps/', REV = '367';
+    var V = '../../shared/brand/steps/', REV = '371';
     var SETUP = '🏠 In the <b>HouseRunner setup</b> tab', GWIN = '🔐 In <b>Google’s window</b>', GTAB = '🔐 In <b>Google’s approval window</b>';
     // [stage, where, what to click, help, media (one, or several shown in turn)]
     var STEPS = [
@@ -58,10 +59,10 @@ button:disabled{opacity:.4;cursor:default}
     if (SET === 'perms') {
         document.title = 'Show me – Approve Installer App permissions';
         document.body.innerHTML = '<div class="hd"><b>Show me: Approve Installer App permissions</b><span class="n">one video</span></div><div class="bd">' +
-            '<video class="media" src="' + V + 'v-perms-all.mp4?v=' + REV + '" autoplay muted loop playsinline></video><ol style="margin:4px 0 8px;padding-left:22px">' +
+            '<video class="media" src="' + V + 'v-perms-all.mp4?v=' + REV + '" autoplay muted playsinline></video><ol style="margin:4px 0 8px;padding-left:22px">' +
             '<li><b>“Google hasn’t verified this app”</b> – expected, HouseRunner is new. Click <b>Continue</b> on the left, not “Back to safety”.</li>' +
             '<li><b>Select all</b>, scroll down to the bottom, click <b>Continue</b>. Google’s window closes and setup carries on.</li></ol>' +
-            '<p class="mute">The video plays round and round – close this window whenever you like.</p></div>' +
+            '<p class="mute">Close this window whenever you like.</p></div>' +
             '<div class="ft"><span></span><button class="go" id="cl">✕ Close</button></div>';
         document.getElementById('cl').onclick = function () { (window.top || window).close(); };
         return;
@@ -86,7 +87,7 @@ button:disabled{opacity:.4;cursor:default}
         if (st === 'done') { clearTimeout(closeT); closeT = setTimeout(function () { (window.top || window).close(); }, 12000); }
     }
     function media(m) {
-        if (/\.mp4$/.test(m)) return '<video class="media" src="' + V + m + '?v=' + REV + '" autoplay muted loop playsinline></video>';
+        if (/\.mp4$/.test(m)) return '<video class="media" src="' + V + m + '?v=' + REV + '" autoplay muted playsinline></video>';
         return '<img class="media" alt="" src="' + V + m + '?v=' + REV + '">';
     }
     function go(k) {
@@ -110,6 +111,14 @@ button:disabled{opacity:.4;cursor:default}
     go(FIRST[stageNow()] || 0);
     follow();
 })();
+
+/* Clips play once, then offer ↻ Play again */
+document.addEventListener('ended', function (e) {
+    var v = e.target; if (!v || v.tagName !== 'VIDEO' || v.nextSibling && v.nextSibling.className === 'again') return;
+    var b = document.createElement('button'); b.className = 'again'; b.type = 'button'; b.textContent = '↻ Play again';
+    b.onclick = function () { b.remove(); v.currentTime = 0; v.play(); };
+    v.parentNode.insertBefore(b, v.nextSibling);
+}, true);
 </script>
 </body>
 </html>

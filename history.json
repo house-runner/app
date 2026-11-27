@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.370",
+    "date": "2026-11-17",
+    "notes": [
+      "Installer steps: the Google screen pictures are smaller, so each step takes less height"
+    ]
+  },
+  {
     "version": "2026.11.369",
     "date": "2026-11-17",
     "notes": [
