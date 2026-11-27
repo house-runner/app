@@ -246,7 +246,7 @@ table.check tr.todo td { color: var(--mute); } table.check tr.todo td:nth-child(
 .save-note { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 60; background: #1b2029; border: 1px solid #3b82f6; color: #dbeafe; border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 600; box-shadow: 0 4px 18px #0006; display: none; }
 .save-note.on { display: block; } .save-note span { font-weight: 400; color: #9fb0c3; }
 /* Google's screens in columns, a numbered headline above each (auto.js cols()) */
-.hri-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 12px 0; }
+.hri-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 330px)); gap: 14px 22px; margin: 10px 0; }
 .hri-cols figure { margin: 0; display: flex; flex-direction: column; }
 .hri-cols .hc-h { display: flex; gap: 8px; align-items: flex-start; font-weight: 700; line-height: 1.3; min-height: 2.6em; margin-bottom: 6px; }
 .hri-cols .hc-h a { font-weight: 400; }

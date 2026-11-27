@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.369",
+    "date": "2026-11-17",
+    "notes": [
+      "Welcome page is shorter, and has one start button: the bottom-right button now says Let's start"
+    ]
+  },
+  {
     "version": "2026.11.368",
     "date": "2026-11-17",
     "notes": [

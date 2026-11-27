@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.369",
+  "app": "2026.11.370",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Welcome page: 'How HouseRunner works' now uses a green + and a red − and the second point is shorter"
+    "Welcome page is shorter, and has one start button: the bottom-right button now says Let's start"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
