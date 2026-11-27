@@ -265,3 +265,9 @@ table.check tr.todo td { color: var(--mute); } table.check tr.todo td:nth-child(
 .pm-s { position: absolute; left: 0; top: 1px; width: 26px; height: 26px; border-radius: 50%; color: #fff; font: 800 22px/26px Arial, sans-serif; text-align: center; }
 .pm-plus { background: #16a34a; }
 .pm-minus { background: #dc2626; }
+
+/* Welcome page: a little tighter, so the start button shows without scrolling */
+.intro-c { padding-top: 18px !important; padding-bottom: 16px !important; margin-bottom: 14px !important; }
+.intro-c h3 { margin: 0 0 8px; }
+.intro-c p { margin: 6px 0; }
+.intro-c .need li { margin: 4px 0; }

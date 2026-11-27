@@ -756,17 +756,17 @@
                 '<h1>Let’s set up HouseRunner</h1>' +
                 '<p class="lead">First you get your own HouseRunner Google Sheet – HouseRunner can make it for you. Then it brings you back here, already connected, for a few short steps. ' +
                     '<span class="mute">About 20 minutes in all.</span></p>' +
-                '<p class="mute">Already have HouseRunner, and want this computer to manage it? <a href="../../?connect">Connect this computer to your family</a> instead.</p>' +
-                '<div class="card big"><h3>How HouseRunner works</h3>' +
+                '<p class="mute small" style="margin-top:-6px">Already have HouseRunner, and want this computer to manage it? <a href="../../?connect">Connect this computer to your family</a> instead.</p>' +
+                '<div class="card big intro-c"><h3>How HouseRunner works</h3>' +
                     '<p>HouseRunner is copied into <b>a Google Sheet in your own Google account</b>, and runs from there.</p>' +
                     '<ul class="need pm"><li><span class="pm-s pm-plus">+</span><b>The advantage:</b> once it’s set up, <b>all your family’s information stays in your own Google account</b> – your calendar, rewards, notes and lists aren’t kept on anyone else’s computers.</li>' +
                     '<li><span class="pm-s pm-minus">−</span><b>The catch:</b> it needs a few setup steps in Google first. <b>This wizard guides you through them</b>, one at a time.</li></ul></div>' +
-                '<div class="note warn"><h3>What you need</h3><ul class="need">' +
+                '<div class="note warn intro-c"><h3>What you need</h3><ul class="need">' +
                     '<li><b>A Google (Gmail) account</b> – ideally the one your family calendar is in. No Google account yet? <a href="https://accounts.google.com/signup" target="_blank" rel="noopener">Create one free</a>.</li>' +
                     '<li><b>A computer</b> for this part, and <b>your phone</b> for the Family Admin app at the end.</li></ul>' +
                     '<p class="mute small">No licence key yet? That’s fine – you get a 14-day free trial and can add it later.</p></div>' +
-                '<p style="margin-top:22px"><button class="btn" id="introGo">Let’s start →</button></p>';
-        }, wire: function () { if ($('introGo')) $('introGo').onclick = function () { go(S.step + 1); }; } },
+                '';
+        } },
         { id: 'start', title: 'Make your Google Sheet', render: function () {
             if (connected()) return OLD.sheet.render();
             if (window.hrConnecting) return '<h1>⏳ Connecting to your new Sheet…</h1><p class="lead">Your Sheet says it’s published – this page is connecting to it now. Google can take up to a minute after publishing; it keeps trying by itself.</p>' +
@@ -1079,7 +1079,7 @@
         if (st.wire) st.wire();
         $('back').style.visibility = S.step ? 'visible' : 'hidden';
         $('next').style.visibility = S.step < STEPS.length - 1 ? 'visible' : 'hidden';
-        $('next').textContent = S.step === 0 && STEPS !== NEW ? 'Start →' : 'Next →';
+        $('next').textContent = S.step === 0 ? (STEPS === NEW ? 'Let’s start →' : 'Start →') : 'Next →';
         var ok = !st.ready || st.ready();
         $('next').classList.toggle('off', !ok);
         $('next').title = ok ? '' : st.blocked || '';

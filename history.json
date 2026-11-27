@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.368",
+    "date": "2026-11-17",
+    "notes": [
+      "Welcome page: 'How HouseRunner works' now uses a green + and a red − and the second point is shorter"
+    ]
+  },
+  {
     "version": "2026.11.367",
     "date": "2026-11-17",
     "notes": [
