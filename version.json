@@ -1,10 +1,10 @@
 {
-  "app": "2026.11.341",
+  "app": "2026.11.342",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: after Google's approval your new Sheet hands its access code straight back to setup, so connecting at the end no longer depends on a separate step that could fail",
-    "If connecting does stall, setup now says why instead of trying silently"
+    "Setup: a new Welcome step first – explains that HouseRunner is copied into a Google Sheet in your own Google account (so your family's information stays with you) and that this needs a few setup steps, which the wizard guides you through",
+    "Making your Sheet is now step 2, on a page of its own"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

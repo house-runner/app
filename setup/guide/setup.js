@@ -1044,7 +1044,7 @@
             : st.id === 'welcome' ? '' : 'Step ' + num(S.step) + ' of ' + (STEPS.length - (pubShown() ? 2 : 3));
         if (SOLO) { $('back').style.visibility = 'hidden'; $('next').style.visibility = 'visible'; $('next').classList.remove('off'); $('next').textContent = 'Done – back to Setup'; }
         renderSteps();
-        window.scrollTo(0, 0);
+        if (render.top !== S.step) { render.top = S.step; window.scrollTo(0, 0); }      // a new step starts at the top; changes on the same step keep your place
     }
     /** Steps that need something first (privacy accepted, connected) can't be skipped past. */
     function canLeave(i) { var st = STEPS[i]; return !st.ready || st.ready(); }
@@ -1233,6 +1233,7 @@
         function boot2() {
         render();
         var after = function () {
+            if (p.from === 'sheet') window.hrConnecting = false;      // connected (or given up): the right step is drawn just below
             var ids = STEPS.map(function (x) { return x.id; });
             if (goTo && ids.indexOf(goTo) >= 0 && connected()) { if (goTo === 'family' || goTo === 'calendar') { ADM = null; FAM = null; } S.step = S.privacy === P.version || SOLO ? ids.indexOf(goTo) : ids.indexOf(SOLO ? 'privacy' : 'welcome'); if (goTo === 'check') S.autoCheck = true; }
             else if (wantUpdate) S.step = ids.indexOf(SOLO ? 'check' : 'done');
@@ -1259,6 +1260,7 @@
             };
             return one();
         };
+        if (p.from === 'sheet' && p.api && !connected()) { window.hrConnecting = true; render(); }
         var pending = (p.api && (p.code || p.from === 'sheet')) ? (p.from === 'sheet' ? patient() : connect(true)) : Promise.resolve();
         // Read the Sheet (family, calendar) and the licence in the background, so the steps open straight away
         var ahead = function () { if (connected()) { if (!ADM) loadAdm(); licenceNow(); } };

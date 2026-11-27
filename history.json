@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.341",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: a new Welcome step first – explains that HouseRunner is copied into a Google Sheet in your own Google account (so your family's information stays with you) and that this needs a few setup steps, which the wizard guides you through",
+      "Making your Sheet is now step 2, on a page of its own"
+    ]
+  },
+  {
     "version": "2026.11.340",
     "date": "2026-11-17",
     "notes": [

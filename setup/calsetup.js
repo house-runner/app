@@ -324,7 +324,13 @@
                 if (!box.querySelector('#csBusy')) t.insertAdjacentHTML('afterend', '<span id="csBusy" class="cs-busy"> Saving to your Google Sheet – this takes a few seconds.</span>');
                 var back = function () { var b = box.querySelector('#csSaveCats'); if (b) { b.disabled = false; b.textContent = 'Save the colour coding'; } var w = box.querySelector('#csBusy'); if (w) w.remove(); };
                 var pr = H.act({ action: 'saveCalCats', groups: cats.groups, generals: cats.generals, peopleColours: pc, key: keyFromCats() }, 'Colour coding saved – the screen updates within a few minutes');
-                if (pr && pr.then) pr.then(back, back); else back();
+                var saved = function (d) {
+                    back();
+                    if (!d) return;
+                    var b = box.querySelector('#csSaveCats');
+                    if (b && !box.querySelector('#csSaved')) b.insertAdjacentHTML('afterend', '<span id="csSaved" class="cs-saved">✅ Saved – you can move on</span>');
+                };
+                if (pr && pr.then) pr.then(saved, back); else back();
             }
             else if ((t = e.target.closest('#csScan'))) tidy();
             else if ((t = e.target.closest('#csUndoList'))) undoList();
@@ -345,7 +351,12 @@
             // Each category and group is shown in its Google Calendar colour (the colour its events have in Google).
             all().forEach(function (c) { var g = CS.gcolours && CS.gcolours[c.g]; if (g) c.colour = g[1]; });
             var st = function (n) { return key.slots.indexOf(n) >= 0 ? 'show' : key.hide.indexOf(n) >= 0 ? 'hide' : 'other'; };
-            all().forEach(function (c) { c.show = st(c.name); c.line = !c.members && c.show === 'show' && key.lines.indexOf(c.name) >= 0; });
+            all().forEach(function (c) {
+                c.show = st(c.name);
+                if (c.members && c.show === 'other') c.show = 'show';      // a group (e.g. one made on the Family page) is always shown in its own colour – there's no "Show as Other" for groups
+                c.line = !c.members && c.show === 'show' && key.lines.indexOf(c.name) >= 0;
+            });
+            cats.groups.forEach(function (g) { if (!g.colour) g.colour = nextColour(); });
             people = CS.people.map(function (p) {
                 var g = cats.groups.filter(function (x) { return !x.fixed && x.members.indexOf(p.name) >= 0; })[0];
                 return { name: p.name, colour: p.colour, display: key.slots.indexOf(p.name) >= 0 ? 'me' : key.hide.indexOf(p.name) >= 0 ? 'hide' : g ? 'g' + cats.groups.indexOf(g) : 'family' };
