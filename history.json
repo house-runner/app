@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.347",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: added Google's 'Sign in to houserunner.app' page (click Continue) after choosing your account – in the instructions, pictures and Show me"
+    ]
+  },
+  {
     "version": "2026.11.346",
     "date": "2026-11-17",
     "notes": [

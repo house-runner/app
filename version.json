@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.347",
+  "app": "2026.11.348",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Show me: real clips of clicking Sign in with Google, the list ticking itself off, and Finish publishing"
+    "Setup: added Google's 'Sign in to houserunner.app' page (click Continue) after choosing your account – in the instructions, pictures and Show me"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
