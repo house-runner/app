@@ -1,12 +1,11 @@
 {
-  "app": "2026.11.343",
+  "app": "2026.11.344",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: coming back from Google now shows 'Connecting to your new Sheet…' until it's connected – no more jump back to the start",
-    "Setup: the page only scrolls to the top when you move to a new step – clicking tabs and buttons keeps your place",
-    "Calendar colour coding: family groups (e.g. one made on the Family page) now show in their own colour instead of grey",
-    "Calendar colour coding: a lasting '✅ Saved – you can move on' appears by the Save button once it's saved"
+    "Setup: steps that read your Sheet open straight away with the copy kept from last time, and update themselves if the Sheet has anything newer",
+    "Saving no longer holds you up – in setup you can press Next while the family saves (the calendar waits for it), and in the Configurator nothing locks while Google saves",
+    "A 'Saving… you can carry on – keep this page open' note shows while anything is on its way, the Save button turns to ✅ Saved when it's done, and closing the page before then asks first"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

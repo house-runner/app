@@ -1,5 +1,14 @@
 [
   {
+    "version": "2026.11.343",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: steps that read your Sheet open straight away with the copy kept from last time, and update themselves if the Sheet has anything newer",
+      "Saving no longer holds you up – in setup you can press Next while the family saves (the calendar waits for it), and in the Configurator nothing locks while Google saves",
+      "A 'Saving… you can carry on – keep this page open' note shows while anything is on its way, the Save button turns to ✅ Saved when it's done, and closing the page before then asks first"
+    ]
+  },
+  {
     "version": "2026.11.342",
     "date": "2026-11-17",
     "notes": [
