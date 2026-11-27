@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.363",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: clearer step names – Sign into Google and the Installer App; Approve Installer App permissions; Make your Family's HouseRunner Sheet (automatic); Sign into Google and the Main App; Approve Main App permissions; Complete publishing process, and continue"
+    ]
+  },
+  {
     "version": "2026.11.362",
     "date": "2026-11-17",
     "notes": [
