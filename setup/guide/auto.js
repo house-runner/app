@@ -110,11 +110,11 @@
                 ['Sign in to HouseRunner', 'h-signinto.png', 'Google calls it houserunner.app – click <b>Continue</b>']]) +
             '<div class="row"><button class="btn" id="gsign">Sign in to Google</button></div></div>';
         else if (k === 0) body = '<div class="note ok" style="margin:0 0 12px">✅ <b>Signed in to Google as ' + esc(S.gEmail) + '.</b> <span class="mute small">Not you? <a href="#" id="gOther">Use another account</a></span></div>' +
-            '<div class="card big"><h3>Set up app permissions</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.</p>' +
+            '<div class="card big"><h3>Set up App permissions</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.</p>' +
             cols([['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
             '<p>' + showBtn('perms', 'Show me', 'one short video of the whole of this step') + '</p>' +
-            '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Set up permissions and carry on' : 'Set up app permissions') + '</button></div></div>';
+            '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Set up App permissions and carry on' : 'Set up App permissions') + '</button><span class="mute small" id="goMsg"></span></div></div>';
         else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> – your own copy – does in your account. This tab goes to Google, then comes back here.</p>' +
             cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
                 ['Continue past “Google hasn’t verified this app”', 'h-testing.png', 'Expected – it’s your own copy. <b>Continue</b> is on the left'],
@@ -131,7 +131,7 @@
             ' but didn’t finish, so this starts afresh with a new one. <span class="mute">Rather pick up where you left off? <a href="#" id="again">Carry on with that Sheet instead</a>. Either way your earlier Sheet isn’t changed or deleted – it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
         // What to do now sits straight under the step it belongs to; the steps still to come follow below it
         var g = k > 0 || !!S.gEmail;          // signed in to Google (step 1 of 2 at the start)
-        var rows = [['Sign in to Google and the Installer App', g ? 'ok' : 'now', !g], ['Set up app permissions', k > 0 ? 'ok' : g ? 'now' : '', g && k === 0]]
+        var rows = [['Sign in to Google and the Installer App', g ? 'ok' : 'now', !g], ['Set up App permissions', k > 0 ? 'ok' : g ? 'now' : '', g && k === 0]]
             // Making the Sheet, adding its script and publishing it happen by themselves: one step, with where it's up to beside it
             .concat([['Make your HouseRunner Sheet <span class="mute small">(automatic)</span>' + (k >= 1 && k <= 3 && !S.needSwitch ? ' <span class="hri-sub">⏳ ' + ['', 'Making the Sheet…', 'Adding the script…', 'Publishing…'][k] + '</span>' : ''),
                 k > 3 ? 'ok' : k >= 1 ? 'now' : '', k >= 1 && k <= 3]])
@@ -165,7 +165,11 @@
         on('handGo', useHandUrl);
         on('toManual', function (e) { if (e) e.preventDefault(); S.manual = true; save(); draw(); });
         on('toAuto', function (e) { if (e) e.preventDefault(); S.manual = false; save(); draw(); });
-        on('go', function () { stage('signin'); signIn().then(afterSignIn).catch(fail); });
+        on('go', function () {
+            stage('signin'); note('permissions: asking Google');
+            var m = document.getElementById('goMsg'); if (m) m.innerHTML = ' ⏳ Google’s window is open – finish there. <b>Nothing appeared?</b> Click the button again.';
+            signIn().then(function () { note('permissions: granted'); return afterSignIn(); }).catch(fail);
+        });
         on('gsign', function () { stage('google'); googleSignIn().then(function (em) { S.gEmail = em; save(); note('signed in to Google'); draw(); }).catch(fail); });
         on('gOther', function (e) { if (e) e.preventDefault(); delete S.gEmail; googleSignIn.pick = true; save(); stage('start'); draw(); });
         on('approve', approve);

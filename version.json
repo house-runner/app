@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.360",
+  "app": "2026.11.361",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: 'Sign in to Google' now shows both of Google's screens – choose your account, then Sign in to HouseRunner; 'Set up app permissions' shows the other two"
+    "Setup: the first step is now called 'Sign in to Google and the Installer App'"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

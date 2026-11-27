@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.360",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: the first step is now called 'Sign in to Google and the Installer App'"
+    ]
+  },
+  {
     "version": "2026.11.359",
     "date": "2026-11-17",
     "notes": [
