@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.355",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: Google's screens are now shown as numbered columns with a short headline above each picture – for signing in and for approving your Sheet",
+      "'(see why)' on the permissions step opens a short explanation of what each permission is for"
+    ]
+  },
+  {
     "version": "2026.11.354",
     "date": "2026-11-17",
     "notes": [

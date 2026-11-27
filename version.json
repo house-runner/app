@@ -1,9 +1,10 @@
 {
-  "app": "2026.11.355",
+  "app": "2026.11.356",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: a bigger, clearer 'then scroll down to the bottom' in the Select all picture"
+    "Setup: Google's screens are now shown as numbered columns with a short headline above each picture – for signing in and for approving your Sheet",
+    "'(see why)' on the permissions step opens a short explanation of what each permission is for"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

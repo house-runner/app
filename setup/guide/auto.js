@@ -34,7 +34,7 @@
         return new Promise(function (res, rej) {
             if (!window.google || !google.accounts || !google.accounts.oauth2) return rej(new Error('Google sign-in hasn’t loaded – check your connection and reload the page.'));
             client = google.accounts.oauth2.initTokenClient({
-                client_id: clientId(), scope: SCOPES, prompt: prompt == null ? '' : prompt,
+                client_id: clientId(), scope: SCOPES, prompt: prompt == null ? '' : prompt, login_hint: S.gEmail || undefined, include_granted_scopes: true,
                 callback: function (r) {
                     if (r.error) return rej(new Error(r.error === 'access_denied' ? 'Google sign-in was cancelled.' : 'Google sign-in failed: ' + r.error));
                     if (!google.accounts.oauth2.hasGrantedAllScopes(r, 'https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/script.projects', 'https://www.googleapis.com/auth/script.deployments'))
@@ -44,6 +44,21 @@
                 error_callback: function (e) { rej(new Error(e && e.type === 'popup_closed' ? 'The Google window was closed before signing in.' : 'Google sign-in couldn’t open (' + (e && e.type || 'error') + '). Allow pop-ups for houserunner.app and try again.')); }
             });
             client.requestAccessToken();
+        });
+    }
+    /** Step 1: just sign in to Google (who you are) – quick, and nothing for HouseRunner to approve yet */
+    function googleSignIn() {
+        return new Promise(function (res, rej) {
+            if (!window.google || !google.accounts || !google.accounts.oauth2) return rej(new Error('Google sign-in hasn’t loaded – check your connection and reload the page.'));
+            google.accounts.oauth2.initTokenClient({
+                client_id: clientId(), scope: 'openid email', prompt: googleSignIn.pick ? 'select_account' : '',
+                callback: function (r) {
+                    if (r.error) return rej(new Error(r.error === 'access_denied' ? 'Google sign-in was cancelled.' : 'Google sign-in failed: ' + r.error));
+                    token = r.access_token; tokenAt = Date.now();
+                    api('GET', 'https://openidconnect.googleapis.com/v1/userinfo').then(function (u) { token = null; res(u.email); }, rej);
+                },
+                error_callback: function (e) { rej(new Error(e && e.type === 'popup_closed' ? 'The Google window was closed before signing in.' : 'Google sign-in couldn’t open (' + (e && e.type || 'error') + '). Allow pop-ups for houserunner.app and try again.')); }
+            }).requestAccessToken();
         });
     }
     function api(method, url, body) {
@@ -80,6 +95,7 @@
     function draw(extra) {
         if (!app || !document.body.contains(app)) return;
         var k = stepIndex();
+        if (k === 0 && S.gEmail && (stage.now === 'start' || stage.now === 'google' || !stage.now)) { stage('perms'); stage.now = 'perms'; }
         if (k === 5) stage(S.answered ? 'done' : 'finish'); else if (k === 4) { if (stage.now !== 'google2') stage('approve'); } else if (k > 0 && !S.needSwitch) stage('making');
         var list = '<ol class="hri-steps">' + STEPS.map(function (s, i) {
             var cls = i < k ? 'ok' : i === k ? 'now' : '';
@@ -89,14 +105,16 @@
         var body = '';
         if (!clientId()) body = devForm();
         else if (S.needSwitch && k <= 2) body = '';
-        else if (k === 0) body = '<div class="card big"><h3>Sign in with the Google account for your family dashboard</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.' +
-            (S.email ? ' <span class="mute">Last time you used ' + esc(S.email) + ' – use the same account to carry on with the same Sheet.</span>' : '') + '</p>' +
-            cols([['Log in to Google <span class="mute">(if asked)</span>', 'h-choose.png', 'Click your account – or sign in with your Google email and password'],
-                ['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
-                ['Sign in to HouseRunner', 'h-signinto.png', 'Google calls it houserunner.app – click <b>Continue</b>'],
+        else if (k === 0 && !S.gEmail) body = '<div class="card big"><h3>Sign in to Google</h3><p>Sign in to the Google account you want HouseRunner in – ideally the one your family calendar is in. Already signed in? Google just checks which account, and brings you straight back.</p>' +
+            cols([['Choose your account <span class="mute">(or log in)</span>', 'h-choose.png', 'Click your account – or sign in with your Google email and password. Not listed? <b>Use another account</b>']]) +
+            '<div class="row"><button class="btn" id="gsign">Sign in to Google</button></div></div>';
+        else if (k === 0) body = '<div class="note ok" style="margin:0 0 12px">✅ <b>Signed in to Google as ' + esc(S.gEmail) + '.</b> <span class="mute small">Not you? <a href="#" id="gOther">Use another account</a></span></div>' +
+            '<div class="card big"><h3>Set up app permissions</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.</p>' +
+            cols([['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
+                ['Sign in to HouseRunner', 'h-signinto.png', 'Google calls it houserunner.app – click <b>Continue</b> <span class="mute">(if shown)</span>'],
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
             '<p>' + SHOWME + '</p>' +
-            '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Sign in and carry on' : 'Sign in with Google') + '</button></div></div>';
+            '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Set up permissions and carry on' : 'Set up app permissions') + '</button></div></div>';
         else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> – your own copy – does in your account. This tab goes to Google, then comes back here.</p>' +
             cols([['Review permissions', 'h-review.png', 'Click <b>REVIEW PERMISSIONS</b>'],
                 ['Choose your account', 'h-choose.png', 'Then <b>Continue</b> past “unverified” if it’s shown – expected, it’s your own copy'],
@@ -107,16 +125,21 @@
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
-        else body = '<div class="card"><h3>⏳ ' + STEPS[k][1] + '…</h3><p class="mute">Working – this takes a few seconds. Don’t close this tab.</p></div>';
+        else body = '<p class="mute" style="margin:2px 0 6px">HouseRunner is doing this by itself – about 30 seconds. Don’t close this tab.</p>';
         // An earlier try that didn't finish: a new one starts by default; going back to it is one click (the old Sheet is kept either way)
         var P = prev(), again = P && !S.sheetId ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making a Sheet' +
             (P.started ? ' on ' + esc(new Date(P.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) : '') + (P.email ? ' as <b>' + esc(P.email) + '</b>' : '') +
             ' but didn’t finish, so this starts afresh with a new one. <span class="mute">Rather pick up where you left off? <a href="#" id="again">Carry on with that Sheet instead</a>. Either way your earlier Sheet isn’t changed or deleted – it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
         // What to do now sits straight under the step it belongs to; the steps still to come follow below it
-        list = '<ol class="hri-steps">' + STEPS.map(function (st, i) {
-            var cls = i < k ? 'ok' : i === k ? 'now' : '';
-            return '<li class="' + cls + '"><span class="i">' + (i < k ? '✅' : i === k ? '▶' : '○') + '</span><span>' + st[1] + '</span></li>' +
-                (i === k ? '<li class="here">' + (extra || '') + body + '</li>' : '');
+        var g = k > 0 || !!S.gEmail;          // signed in to Google (step 1 of 2 at the start)
+        var rows = [['Sign in to Google', g ? 'ok' : 'now', !g], ['Set up app permissions', k > 0 ? 'ok' : g ? 'now' : '', g && k === 0]]
+            // Making the Sheet, adding its script and publishing it happen by themselves: one step, with where it's up to beside it
+            .concat([['Make your HouseRunner Sheet <span class="mute small">(automatic)</span>' + (k >= 1 && k <= 3 && !S.needSwitch ? ' <span class="hri-sub">⏳ ' + ['', 'Making the Sheet…', 'Adding the script…', 'Publishing…'][k] + '</span>' : ''),
+                k > 3 ? 'ok' : k >= 1 ? 'now' : '', k >= 1 && k <= 3]])
+            .concat(STEPS.slice(4).map(function (st, j) { var i = j + 4; return [st[1], i < k ? 'ok' : i === k ? 'now' : '', i === k]; }));
+        list = '<ol class="hri-steps">' + rows.map(function (r) {
+            return '<li class="' + r[1] + '"><span class="i">' + (r[1] === 'ok' ? '✅' : r[1] === 'now' ? '▶' : '○') + '</span><span>' + r[0] + '</span></li>' +
+                (r[2] ? '<li class="here">' + (extra || '') + body + '</li>' : '');
         }).join('') + '</ol>';
         app.innerHTML = again + list + diag();
         wire();
@@ -144,6 +167,8 @@
         on('toManual', function (e) { if (e) e.preventDefault(); S.manual = true; save(); draw(); });
         on('toAuto', function (e) { if (e) e.preventDefault(); S.manual = false; save(); draw(); });
         on('go', function () { stage('signin'); signIn().then(afterSignIn).catch(fail); });
+        on('gsign', function () { stage('google'); googleSignIn().then(function (em) { S.gEmail = em; save(); note('signed in to Google'); draw(); }).catch(fail); });
+        on('gOther', function (e) { if (e) e.preventDefault(); delete S.gEmail; googleSignIn.pick = true; save(); stage('start'); draw(); });
         on('approve', approve);
         on('again', function (e) {
             if (e) e.preventDefault();
@@ -170,7 +195,7 @@
                 if (!confirm('You’re signed in as ' + u.email + ', but this setup was started as ' + S.email + '.\n\nOK = start again with ' + u.email + ' (a new Sheet).\nCancel = sign in again with ' + S.email + '.')) { token = null; draw(); return; }
                 S = {};
             }
-            S.email = u.email; if (!S.started) S.started = new Date().toISOString(); save();
+            S.email = u.email; S.gEmail = u.email; if (!S.started) S.started = new Date().toISOString(); save();
             if (S.contentDone) return build();          // the script is already made: the switch was on
             return apiOn().then(function (on) { if (on) return build(); askSwitch(); });
         });
