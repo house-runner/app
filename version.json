@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.362",
+  "app": "2026.11.363",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: 'Set up App permissions' (capital A); after clicking it, setup says Google's window is open and to click again if nothing appeared"
+    "Setup: approving your Sheet is now two headings – 'Open the HouseRunner App approval' (Review permissions; Advanced, then Go to HouseRunner App (unsafe)) and 'Agree HouseRunner App permissions, then come back'"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

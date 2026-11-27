@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.362",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: approving your Sheet is now two headings – 'Open the HouseRunner App approval' (Review permissions; Advanced, then Go to HouseRunner App (unsafe)) and 'Agree HouseRunner App permissions, then come back'"
+    ]
+  },
+  {
     "version": "2026.11.361",
     "date": "2026-11-17",
     "notes": [

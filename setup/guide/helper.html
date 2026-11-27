@@ -32,19 +32,19 @@ button:disabled{opacity:.4;cursor:default}
  * and "Done – next" moves it on where it can't tell (the clicks in Google's own windows).
  * Where a picture shows Google's screens, the account shown is marked "your own Google email": the person sees theirs. */
 (function () {
-    var V = '../../shared/brand/steps/', REV = '362';
+    var V = '../../shared/brand/steps/', REV = '363';
     var SETUP = '🏠 In the <b>HouseRunner setup</b> tab', GWIN = '🔐 In <b>Google’s window</b>', GTAB = '🔐 <b>Google</b>, in the HouseRunner setup tab';
     // [stage, where, what to click, help, media (one, or several shown in turn)]
     var STEPS = [
         ['start', SETUP, 'Click <b>Sign in to Google</b>', 'Use the Google account you want the dashboard in – ideally the one with your family calendar. Already signed in? Google just checks which account and brings you straight back.', 'i-gsign.png'],
         ['google', GWIN, '“Choose an account”: click <b>yours</b>', 'Google opens a small window. Your own name and email show where the picture says <i>your name</i> and <i>your own Google email</i>. <b>Not signed in to Google on this computer yet?</b> It asks for your Google email and password first. Account not listed? Click <b>Use another account</b>.', 'h-choose.png'],
         ['google', GWIN, '“Sign in to houserunner.app”: click <b>Continue</b>', 'Google checks it’s you – your own Google email shows where the picture says so. Click <b>Continue</b> on the right.', 'h-signinto.png'],
-        ['perms', SETUP, 'Click <b>Set up App permissions</b>', 'A green ✅ shows which Google account you’re signed in to. Now Google asks you to let the HouseRunner Installer make your Sheet.', 'i-perms.png'],
+        ['perms', SETUP, 'Click <b>Approve Installer App permissions</b>', 'A green ✅ shows which Google account you’re signed in to. Now Google asks you to let the HouseRunner Installer make your Sheet.', 'i-perms.png'],
         ['signin', GWIN, '“Google hasn’t verified this app”: click <b>Continue</b>', 'That’s expected – HouseRunner is new. Click the blue word <b>Continue</b> on the left, <b>not</b> “Back to safety”. <span class="mute">(If it shows <b>Advanced</b> instead, click that, then <b>Go to HouseRunner Installer (unsafe)</b>.)</span>', 'h-testing.png'],
         ['signin', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'Tick <b>Select all</b> so all three are ticked – one Sheet, its script, and publishing it.', 'h-consent-inst2.png'],
         ['api', SETUP, 'Only if asked: switch on <b>Google Apps Script API</b>', 'Click <b>Open my Apps Script settings</b>. In that new tab: click <b>Google Apps Script API</b>, switch it <b>On</b>, then close that tab – setup carries on by itself. <span class="mute">(A simplified picture.)</span>', 'i-apiswitch.png'],
         ['making', SETUP, '⏳ Wait – HouseRunner makes your Sheet by itself', 'About 30 seconds. Beside the step it shows where it’s up to – making the Sheet, adding the script, publishing. Don’t close the tab.', 'i-making.png'],
-        ['approve', SETUP, 'Click <b>Approve HouseRunner App</b>', 'Now your own Sheet asks for its permissions. This tab goes to Google, then comes back.', 'i-approve.png'],
+        ['approve', SETUP, 'Click <b>Sign into the Main App</b>', 'Now your own Sheet asks for its permissions. This tab goes to Google, then comes back.', 'i-approve.png'],
         ['google2', GTAB, 'Click <b>REVIEW PERMISSIONS</b>', 'Google says “HouseRunner App (Unverified) needs your permission” – that’s your own private copy.', 'h-review.mp4'],
         ['google2', GWIN, '<b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>', 'Expected – it’s your own private copy.', 'p-advanced.png'],
         ['google2', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'A yellow box saying the app isn’t verified yet is expected – it’s your own private copy. Every permission is needed; setup explains each one.', ['h-consent.png', 'p-selectall.png']],
@@ -54,10 +54,10 @@ button:disabled{opacity:.4;cursor:default}
         ['done', SETUP, '✅ That’s the Google part done', '<div class="done">Setup connects to your new Sheet and carries on by itself. This window closes in a moment.</div>', 'i-done.png']
     ];
     var SET = (/[?&]set=(\w+)/.exec(location.search) || [])[1] || '';
-    // "Set up App permissions": one video of the whole step, numbered 1–4, with the words beside it
+    // "Approve Installer App permissions": one video of the whole step, numbered 1–4, with the words beside it
     if (SET === 'perms') {
-        document.title = 'Show me – Set up App permissions';
-        document.body.innerHTML = '<div class="hd"><b>Show me: Set up App permissions</b><span class="n">one video</span></div><div class="bd">' +
+        document.title = 'Show me – Approve Installer App permissions';
+        document.body.innerHTML = '<div class="hd"><b>Show me: Approve Installer App permissions</b><span class="n">one video</span></div><div class="bd">' +
             '<video class="media" src="' + V + 'v-perms-all.mp4?v=' + REV + '" autoplay muted loop playsinline></video><ol style="margin:4px 0 8px;padding-left:22px">' +
             '<li><b>“Google hasn’t verified this app”</b> – expected, HouseRunner is new. Click <b>Continue</b> on the left, not “Back to safety”.</li>' +
             '<li><b>Select all</b>, scroll down to the bottom, click <b>Continue</b>. Google’s window closes and setup carries on.</li></ol>' +
@@ -93,7 +93,7 @@ button:disabled{opacity:.4;cursor:default}
         i = Math.max(0, Math.min(STEPS.length - 1, k));
         var s = STEPS[i], last = i === STEPS.length - 1, list = [].concat(s[4]);
         document.body.innerHTML =
-            '<div class="hd"><b>' + (SET === 'approve' ? 'Show me: approving your Sheet' : 'Show me') + '</b><span class="n">' + (i + 1) + ' of ' + STEPS.length + '</span></div>' +
+            '<div class="hd"><b>' + (SET === 'approve' ? 'Show me: the Main App' : 'Show me') + '</b><span class="n">' + (i + 1) + ' of ' + STEPS.length + '</span></div>' +
             '<div class="bar"><i style="width:' + Math.round((i + 1) / STEPS.length * 100) + '%"></i></div>' +
             '<div class="bd"><div class="where">' + s[1] + '</div><h2>' + s[2] + '</h2><div id="m">' + media(list[0]) + '</div><p>' + s[3] + '</p>' +
             '<p class="mute">This window moves on by itself where it can tell.</p></div>' +
