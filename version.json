@@ -1,10 +1,9 @@
 {
-  "app": "2026.11.338",
+  "app": "2026.11.339",
   "script": "2026.11.138",
   "date": "2026-11-17",
   "notes": [
-    "Setup: every instruction, message and the permissions explanation now sit right under the current step",
-    "If Google only says the Apps Script switch is off when making the script, setup shows the same clear switch card and carries on by itself once it's on – no Try again button"
+    "Setup: if your new Sheet doesn't answer after approval, setup now shows what it said, with a link to check it yourself and a 'check again' link"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

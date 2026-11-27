@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.338",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: if your new Sheet doesn't answer after approval, setup now shows what it said, with a link to check it yourself and a 'check again' link"
+    ]
+  },
+  {
     "version": "2026.11.337",
     "date": "2026-11-17",
     "notes": [

@@ -65,10 +65,10 @@
         ['script', 'Add the HouseRunner script to it'],
         ['publish', 'Publish it'],
         ['approve', 'Approve HouseRunner App’s permissions'],
-        ['ready', 'Check it answers, then carry on with setup']
+        ['ready', 'Finish publishing, then carry on with setup']
     ];
     function stepIndex() {
-        if (S.answered) return 5;
+        if (S.answered || S.approved) return 5;
         if (S.url) return 4;          // approval needs no sign-in here, so coming back to this page carries on
         if (!token) return 0;
         if (!S.sheetId) return 1;
@@ -98,6 +98,7 @@
             '<ol class="mute"><li>Google may open its approval in a <b>small window of its own</b> – it closes itself when you’re done.</li><li>Choose your account if asked.</li><li>Google says it hasn’t verified the app: click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b> – it’s your own private copy.</li><li>Tick <b>Select all</b>, then <b>Continue</b>.</li><li>Google shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b> if it doesn’t bring you back by itself. <span class="mute">Stuck on “Waiting for authorization…”? Press <b>F5</b>.</span></li></ol>' +
             '<div class="hri-pics"><figure><img src="../../shared/brand/steps/p-advanced.png?v=335" alt=""><figcaption>Advanced, then Go to … (unsafe)</figcaption></figure><figure><img src="../../shared/brand/steps/p-selectall.png?v=335" alt=""><figcaption>Select all, then Continue</figcaption></figure></div>' +
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
+        else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
         else body = '<div class="card"><h3>⏳ ' + STEPS[k][1] + '…</h3><p class="mute">Working – this takes a few seconds. Don’t close this tab.</p></div>';
         // An earlier try that didn't finish: a new one starts by default; going back to it is one click (the old Sheet is kept either way)
@@ -130,6 +131,10 @@
     function wire() {
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
         on('cidSave', function () { var v = document.getElementById('cid').value.trim(); if (!/\.apps\.googleusercontent\.com$/.test(v)) { alert('That doesn’t look like a Google client ID.'); return; } localStorage.setItem(CKEY, v); draw(); });
+        on('republish', republish);
+        on('handGo', useHandUrl);
+        on('toManual', function (e) { if (e) e.preventDefault(); S.manual = true; save(); draw(); });
+        on('toAuto', function (e) { if (e) e.preventDefault(); S.manual = false; save(); draw(); });
         on('go', function () { stage('signin'); signIn().then(afterSignIn).catch(fail); });
         on('approve', approve);
         on('again', function (e) {
@@ -241,6 +246,62 @@
         if (still) { document.title = '✅ Done – come back to HouseRunner'; setTimeout(function () { document.title = t0; }, 20000); }
         draw();
     }
+    /* ---------------------------------------------------------------- publishing again, once approved
+     * Google keeps the address made before approval behind a sign-in (it lists it as archived), so your screens and phones
+     * couldn't reach it. Published again now that the script is approved, it's open to them, as when it's done by hand. */
+    function finishCard() {
+        return '<div class="card big"><h3>One last click: finish publishing</h3>' +
+            '<p>Google has approved your Sheet. Now HouseRunner publishes it once more, so your screen and phones can reach it – Google only allows that after approval. A Google window may flash up and close by itself.</p>' +
+            '<div class="row"><button class="btn" id="republish">Finish publishing</button><span class="mute" id="repMsg"></span></div>' +
+            '<p class="mute small" style="margin-top:12px">Stuck? <a href="#" id="toManual">Publish it by hand instead</a> – 2 minutes in Apps Script.</p></div>';
+    }
+    function republish() {
+        var m = document.getElementById('repMsg'); if (m) m.textContent = '⏳ Publishing…';
+        signIn('').then(function () {
+            note('publishing again after approval');
+            return api('POST', 'https://script.googleapis.com/v1/projects/' + S.scriptId + '/versions', { description: 'HouseRunner (after approval)' });
+        }).then(function (v) {
+            return api('POST', 'https://script.googleapis.com/v1/projects/' + S.scriptId + '/deployments', { versionNumber: v.versionNumber, manifestFileName: 'appsscript', description: 'HouseRunner' });
+        }).then(function (d) {
+            var u = webUrl(d); if (!u) throw new Error('Google didn’t give a web address for it');
+            S.url = u; save(); note('new address ' + u.slice(0, 60) + '…');
+            if (m) m.textContent = '⏳ Checking it answers…';
+            var n = 0;
+            (function again() {
+                check(true).then(function (ok) {
+                    if (ok) { draw(); finish(); return; }
+                    if (++n < 6) { setTimeout(again, 2500); return; }
+                    S.manual = true; save(); draw('<div class="note warn">Google still won’t let your screens reach it that way, so let’s do this last bit by hand – it takes 2 minutes. <span class="mute small">(It said: ' + esc(lastPing) + ')</span></div>');
+                });
+            })();
+        }).catch(function (e) {
+            note('publishing again failed: ' + (e && e.message));
+            S.manual = true; save(); draw('<div class="note warn">That didn’t work (' + esc(e && e.message || 'no answer') + '), so let’s do this last bit by hand – it takes 2 minutes.</div>');
+        });
+    }
+    function manualCard() {
+        var ed = 'https://script.google.com/d/' + encodeURIComponent(S.scriptId || '') + '/edit';
+        return '<div class="card big"><h3>Publish it by hand (2 minutes)</h3>' +
+            '<ol><li><a href="' + ed + '" target="_blank" rel="noopener"><b>Open your Sheet’s Apps Script</b></a> – a new tab.</li>' +
+            '<li>Click the blue <b>Deploy</b> button (top right), then <b>New deployment</b>.</li>' +
+            '<li>Click the ⚙ cog next to “Select type” and choose <b>Web app</b>.</li>' +
+            '<li>Check <b>Execute as: Me</b> and set <b>Who has access: Anyone</b>. Click <b>Deploy</b>.</li>' +
+            '<li>Google shows the <b>Web app URL</b> – click <b>Copy</b>, then <b>Done</b>.</li>' +
+            '<li>Close that tab, come back here and paste it below.</li></ol>' +
+            '<img src="../../shared/brand/steps/p-deploy.png?v=339" alt="" style="max-width:420px;width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:4px 0 12px">' +
+            '<div class="row"><input id="handUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" style="flex:1;min-width:260px"><button class="btn" id="handGo">Use this address</button></div>' +
+            '<p class="mute small" id="handMsg"></p>' +
+            '<p class="mute small"><a href="#" id="toAuto">← Try “Finish publishing” again</a></p></div>';
+    }
+    function useHandUrl() {
+        var v = (document.getElementById('handUrl').value || '').trim().replace(/\?.*$/, ''), m = document.getElementById('handMsg');
+        if (!/^https:\/\/script\.google\.com\/(a\/[^/]+\/)?macros\/s\/[\w-]{20,}\/exec$/.test(v)) { m.textContent = 'That doesn’t look like the Web app URL – it starts https://script.google.com/macros/s/ and ends /exec.'; return; }
+        S.url = v; save(); m.textContent = '⏳ Checking it answers…';
+        check(false).then(function (ok) {
+            if (ok) { draw(); finish(); }
+            else m.textContent = 'It didn’t answer yet (' + lastPing + '). Check “Who has access” says Anyone, then try again.';
+        });
+    }
     function webUrl(d) { var e = (d.entryPoints || []).filter(function (x) { return x.webApp && x.webApp.url; })[0]; return e ? e.webApp.url : ''; }
 
     /** Approval happens in this same tab (a separate window couldn't be closed for you once Google had shown its pages in it).
@@ -270,17 +331,15 @@
             // Finished before (and handed over then): nothing to carry on with – a new setup on this computer starts clean
             if (S.answered && !back) { forget(); S = {}; stage('start'); }
             else if (S.sheetId && !back && !OPT.resume) { try { localStorage.setItem(PKEY, JSON.stringify(S)); localStorage.removeItem(KEY); } catch (e) { /* fine */ } S = {}; stage('start'); note('earlier unfinished try put aside'); }
-            if (back) { note('back from Google approval'); stage('checking'); }
+            if (back) { note('back from Google approval'); stage('checking'); if (S.url && !S.answered) { S.approved = true; save(); } }
             draw(back && !S.answered ? '<div class="note">⏳ Checking your Sheet answers…</div>' : '');
             if (S.answered) { finish(); return; }
             // Back from Google's approval (or reopened part-way): check the Sheet answers – a few tries, as Google can take a moment
             if (S.url) (function tryIt(n) {
                 check(true).then(function (ok) {
                     if (ok) { draw(); finish(); }
-                    else if (n < 8) setTimeout(function () { tryIt(n + 1); }, 3000);
-                    else if (back) { stage.now = ''; draw('<div class="note warn">Your Sheet didn’t answer HouseRunner yet. Click <b>Approve HouseRunner App</b> again – if Google says it’s already approved, it carries straight on.' +
-                        '<div class="mute small" style="margin-top:6px">What it said: ' + esc(lastPing || 'nothing') + ' · <a href="' + esc(S.url) + '?action=ping" target="_blank" rel="noopener">see for yourself</a> · <a href="#" id="pingAgain">check again</a></div></div>');
-                        var pa = document.getElementById('pingAgain'); if (pa) pa.onclick = function (ev) { ev.preventDefault(); check(false).then(function (ok) { if (ok) { draw(); finish(); } else draw('<div class="note warn">Still no – it said: ' + esc(lastPing) + '</div>'); }); }; }
+                    else if (n < (S.approved ? 2 : 8)) setTimeout(function () { tryIt(n + 1); }, 2500);
+                    else draw();          // approved: the step shows "Finish publishing"
                 });
             })(0);
         });
