@@ -258,22 +258,34 @@
         if (b) b.onclick = function () {
             setWin = window.open('https://script.google.com/home/usersettings', 'hrsettings');
             var m = document.getElementById('setMsg');
-            if (m) m.innerHTML = setWin ? '⏳ Opened in a new tab – switch it <b>On</b>, close that tab, and come back here.' : 'Your browser blocked the new tab – allow pop-ups for houserunner.app, then click again.';
+            if (setWin) waitNote('opened');
+            if (m) m.innerHTML = setWin ? '' : 'Your browser blocked the new tab – allow pop-ups for houserunner.app, then click again.';
         };
-        var t0 = document.title;
+        var t0 = document.title, checks = 0;
         clearTimeout(setT);
-        (function watch() {
-            setT = setTimeout(function () {
-                if (!token || !S.needSwitch) return;
-                apiOn().then(function (on) {
-                    if (!on) { watch(); return; }
-                    build(true).then(function () { switchedOn(t0); }, function (e) {
-                        if (isSwitchOff(e)) { watch(); return; }      // the quick check said yes too soon: keep watching
-                        switchedOn(t0); fail(e);
-                    });
+        /* A clear "waiting to detect" box while the settings tab is open – and the moment this tab is looked at again, it checks straight away */
+        function waitNote(why) {
+            var c = document.getElementById('setGo'); if (!c) return;
+            var w = document.getElementById('swWait');
+            if (!w) { c.closest('.row').insertAdjacentHTML('afterend', '<div class="note" id="swWait" style="margin:12px 0;font-size:17px"></div>'); w = document.getElementById('swWait'); }
+            w.innerHTML = why === 'checking' ? '🔎 <b>Checking the switch now…</b>' :
+                '⏳ <b>Waiting to detect the switch…</b> Switch <b>Google Apps Script API</b> on in the other tab, close that tab, and come back – this page checks every few seconds' + (checks ? ' <span class="mute small">(checked ' + checks + '×, not on yet)</span>' : '') + '.';
+        }
+        var looked = function () { if (document.visibilityState === 'visible' && S.needSwitch && document.getElementById('swWait')) { waitNote('checking'); clearTimeout(setT); check1(); } };
+        document.addEventListener('visibilitychange', looked); window.addEventListener('focus', looked);
+        function check1() {
+            if (!token || !S.needSwitch) return;
+            apiOn().then(function (on) {
+                checks++;
+                if (!on) { if (document.getElementById('swWait')) waitNote(); watch(); return; }
+                build(true).then(function () { switchedOn(t0); }, function (e) {
+                    if (isSwitchOff(e)) { if (document.getElementById('swWait')) waitNote(); watch(); return; }      // the quick check said yes too soon: keep watching
+                    switchedOn(t0); fail(e);
                 });
-            }, 3000);
-        })();
+            });
+        }
+        function watch() { clearTimeout(setT); setT = setTimeout(check1, 3000); }
+        watch();
     }
     function isSwitchOff(e) { return !!(e && e.status === 403 && /Apps Script API/i.test(e.message || '')); }
     var justOn = false;

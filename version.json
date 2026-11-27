@@ -1,9 +1,10 @@
 {
-  "app": "2026.11.365",
+  "app": "2026.11.366",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: signing into the Main App and approving its permissions are one step again – Google does them in one go"
+    "Setup: the Apps Script switch step now has a red 'Then close that Apps Script tab' warning, and a real clip of the switch",
+    "Show me: clips and pictures updated from the latest recording and the new step names"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
