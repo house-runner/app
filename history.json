@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.11.367",
+    "date": "2026-11-17",
+    "notes": [
+      "Show me floats on top of other windows (Chrome and Edge), so it no longer hides behind Google's windows",
+      "Approving the Main App now opens in its own window; the setup tab stays put and carries on by itself once Google says Approved – no more landing back at the start",
+      "The waiting step now says clearly it can take a minute or two – only press F5 after 2 minutes",
+      "Show me ends with 'Approved – close this pop-up', with a Close button"
+    ]
+  },
+  {
     "version": "2026.11.366",
     "date": "2026-11-17",
     "notes": [

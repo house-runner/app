@@ -759,8 +759,8 @@
                 '<p class="mute">Already have HouseRunner, and want this computer to manage it? <a href="../../?connect">Connect this computer to your family</a> instead.</p>' +
                 '<div class="card big"><h3>How HouseRunner works</h3>' +
                     '<p>HouseRunner is copied into <b>a Google Sheet in your own Google account</b>, and runs from there.</p>' +
-                    '<ul class="need"><li>✅ <b>The advantage:</b> once it’s set up, <b>all your family’s information stays in your own Google account</b> – your calendar, rewards, notes and lists aren’t kept on anyone else’s computers.</li>' +
-                    '<li>⏳ <b>The catch:</b> it needs a few setup steps in Google first. <b>This wizard guides you through them now</b>, one at a time.</li></ul></div>' +
+                    '<ul class="need pm"><li><span class="pm-s pm-plus">+</span><b>The advantage:</b> once it’s set up, <b>all your family’s information stays in your own Google account</b> – your calendar, rewards, notes and lists aren’t kept on anyone else’s computers.</li>' +
+                    '<li><span class="pm-s pm-minus">−</span><b>The catch:</b> it needs a few setup steps in Google first. <b>This wizard guides you through them</b>, one at a time.</li></ul></div>' +
                 '<div class="note warn"><h3>What you need</h3><ul class="need">' +
                     '<li><b>A Google (Gmail) account</b> – ideally the one your family calendar is in. No Google account yet? <a href="https://accounts.google.com/signup" target="_blank" rel="noopener">Create one free</a>.</li>' +
                     '<li><b>A computer</b> for this part, and <b>your phone</b> for the Family Admin app at the end.</li></ul>' +

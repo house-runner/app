@@ -258,3 +258,10 @@ table.check tr.todo td { color: var(--mute); } table.check tr.todo td:nth-child(
 .hri-mbox .card { border: 0; padding: 0; margin: 0; background: none; }
 .hri-sub { font-weight: 400; color: #93c5fd; margin-left: 8px; font-size: 14px; }
 .hri-cols figure:only-child { max-width: 380px; }
+
+/* How HouseRunner works: a green + and a red − instead of bullets */
+.need.pm { list-style: none; padding-left: 0; }
+.need.pm li { position: relative; padding-left: 40px; }
+.pm-s { position: absolute; left: 0; top: 1px; width: 26px; height: 26px; border-radius: 50%; color: #fff; font: 800 22px/26px Arial, sans-serif; text-align: center; }
+.pm-plus { background: #16a34a; }
+.pm-minus { background: #dc2626; }
