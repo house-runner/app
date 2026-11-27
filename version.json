@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.352",
+  "app": "2026.11.353",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: sign-in steps in Google's real order – choose your account, 'not verified yet' (Continue), 'Sign in to houserunner.app' (Continue), then Select all"
+    "Setup: the Select all picture now shows the Continue button just below it, so it reads as one step"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

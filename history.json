@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.352",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: the Select all picture now shows the Continue button just below it, so it reads as one step"
+    ]
+  },
+  {
     "version": "2026.11.351",
     "date": "2026-11-17",
     "notes": [
