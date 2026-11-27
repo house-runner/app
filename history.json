@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.345",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: added Google's 'Google hasn't verified this app' page after choosing your account – click Continue on the left, not 'Back to safety' – to the instructions, pictures and Show me window"
+    ]
+  },
+  {
     "version": "2026.11.344",
     "date": "2026-11-17",
     "notes": [
