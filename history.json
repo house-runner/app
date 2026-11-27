@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.351",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: sign-in steps in Google's real order – choose your account, 'not verified yet' (Continue), 'Sign in to houserunner.app' (Continue), then Select all"
+    ]
+  },
+  {
     "version": "2026.11.350",
     "date": "2026-11-17",
     "notes": [
