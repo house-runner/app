@@ -862,7 +862,7 @@ function publishedPage_(p) {
     try { if (myUrl_()) { myIdTab_(true); tidyTabs_(); } } catch (e) { /* the setup page does this too */ }
     // The access code goes back with it (in the address's # part, which never leaves the browser), so setup needn't "claim" it separately
     let code = ''; try { code = String(inst_('AccessCode') || ''); if (code) P.setProperty('claimed', String(Date.now())); } catch (e) { /* setup claims it instead */ }
-    const back = appsBase_() + 'setup/guide/#approved' + (code ? '&code=' + encodeURIComponent(code) : '');
+    const back = appsBase_() + 'setup/guide/approved.html#approved' + (code ? '&code=' + encodeURIComponent(code) : '');
     return page('<div style="background:#dcfce7;border:1px solid #16a34a;border-radius:14px;padding:18px 22px;color:#14532d"><h1 style="font-size:26px;margin:0 0 6px">✅ Approved – your Sheet is switched on</h1><p style="margin:0">Taking you back to HouseRunner setup…</p></div>' +
       '<p style="margin-top:22px"><a id="back" href="' + back + '" target="_top" style="display:inline-block;background:#2563eb;color:#fff;font-weight:700;font-size:19px;padding:13px 24px;border-radius:12px;text-decoration:none">▶ Back to HouseRunner setup</a></p>' +
       '<script>setTimeout(function(){try{window.top.location.href=' + JSON.stringify(back) + '}catch(e){}},1200)</script>');

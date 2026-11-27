@@ -115,11 +115,11 @@
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
             '<p>' + showBtn('perms', 'Show me', 'one short video of the whole of this step') + '</p>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Approve Installer App permissions and carry on' : 'Approve Installer App permissions') + '</button><span class="mute small" id="goMsg"></span></div></div>';
-        else if (k === 4) body = '<div class="card big"><h3>Sign into Google and the Main App, then approve its permissions</h3><p>Your Sheet is made and published. Now approve the <b>Main App</b> – your own copy of HouseRunner, which Google calls “HouseRunner App”. One click: this tab goes through Google’s pages below, then comes back here.</p>' +
+        else if (k === 4) body = '<div class="card big"><h3>Sign into Google and the Main App, then approve its permissions</h3><p>Your Sheet is made and published. Now approve the <b>Main App</b> – your own copy of HouseRunner, which Google calls “HouseRunner App”. One click: Google’s approval opens in its own window – go through the pages below there; this tab carries on by itself when it’s approved.</p>' +
             cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
                 ['Advanced, then Go to HouseRunner App (unsafe)', 'p-advanced.png', 'Expected – it’s your own copy. Click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>'],
                 ['Approve the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
-                ['Wait, then back to setup', 'h-waitback.png', 'Wait for “Waiting for authorization…” (stuck? press <b>F5</b>), then click <b>▶ Back to HouseRunner setup</b>']]) +
+                ['Wait – can take a minute or two – then back to setup', 'h-waitback.png', '“Waiting for authorization…” <b>can take a minute or two</b> – only press <b>F5</b> if nothing happens after 2 minutes. Then click <b>▶ Back to HouseRunner setup</b>']]) +
             '<p>' + showBtn('approve', 'Show me, step by step', 'a small window with a short clip and instructions for each step') + '</p>' +
             '<div class="row"><button class="btn" id="approve">Sign into the Main App</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
@@ -355,11 +355,28 @@
         });
     }
     /** 🎬 Show me: a small window beside this one with a clip or picture of each click (helper.html); it follows along by itself */
+    /** 🎬 Show me: a small window with a clip or picture of each click (helper.html), following along by itself.
+     *  Where the browser can (Chrome, Edge) it floats on top of everything, so it never hides behind Google's windows;
+     *  elsewhere it's an ordinary small window. */
+    var pip = null;
     function showMe(set) {
-        var w = 400, h = Math.max(520, Math.min(760, (screen.availHeight || 900) - 140));
-        if (set === 'perms') { w = 680; h = Math.min(h, 720); }
-        var win = window.open('helper.html' + (set ? '?set=' + set : ''), 'hrhelper' + (set || ''), 'popup,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - w - 16) + ',top=60');
-        if (!win) toastish('Your browser blocked the small window – allow pop-ups for houserunner.app, then click again.'); else try { win.focus(); } catch (e) { /* fine */ }
+        var w = set === 'perms' ? 640 : 400, h = Math.max(520, Math.min(set === 'perms' ? 700 : 760, (screen.availHeight || 900) - 140));
+        var url = 'helper.html' + (set ? '?set=' + set : '');
+        if (window.documentPictureInPicture) {
+            try { if (pip && !pip.closed) pip.close(); } catch (e) { /* fine */ }
+            documentPictureInPicture.requestWindow({ width: w, height: h }).then(function (pw) {
+                pip = pw;
+                pw.document.body.style.cssText = 'margin:0;background:#0f141b';
+                var f = pw.document.createElement('iframe'); f.src = new URL(url, location.href).href;
+                f.style.cssText = 'border:0;width:100vw;height:100vh;display:block'; pw.document.body.appendChild(f);
+            }, function () { plain(); });
+            return;
+        }
+        plain();
+        function plain() {
+            var win = window.open(url, 'hrhelper' + (set || ''), 'popup,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - w - 16) + ',top=60');
+            if (!win) toastish('Your browser blocked the small window – allow pop-ups for houserunner.app, then click again.'); else try { win.focus(); } catch (e) { /* fine */ }
+        }
     }
     function toastish(t) { var n = document.createElement('div'); n.className = 'note warn'; n.textContent = t; app.insertBefore(n, app.firstChild); setTimeout(function () { n.remove(); }, 8000); }
     var SHOWME = '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>';
@@ -367,7 +384,7 @@
     /** Google's screens, in order: a numbered headline above each picture */
     function cols(list) {
         return '<div class="hri-cols">' + list.map(function (c, n) {
-            return '<figure><div class="hc-h"><span class="hc-n">' + (n + 1) + '</span><span>' + c[0] + '</span></div><img src="../../shared/brand/steps/' + c[1] + '?v=355" alt=""><figcaption>' + c[2] + '</figcaption></figure>';
+            return '<figure><div class="hc-h"><span class="hc-n">' + (n + 1) + '</span><span>' + c[0] + '</span></div><img src="../../shared/brand/steps/' + c[1] + '?v=367" alt=""><figcaption>' + c[2] + '</figcaption></figure>';
         }).join('') + '</div>';
     }
     /** "(see why)": what each permission is for, in a box over the page */
@@ -389,7 +406,23 @@
 
     /** Approval happens in this same tab (a separate window couldn't be closed for you once Google had shown its pages in it).
      *  The script's "Approved" page then brings this tab straight back to setup (#approved), which checks it and carries on. */
-    function approve() { note('approve: going to Google'); stage('google2'); stage.now = 'google2'; save(); location.href = S.url + '?hrbeta=1'; }
+    function approve() {
+        note('approve: going to Google'); stage('google2'); stage.now = 'google2'; S.approving = Date.now(); save();
+        var w = Math.min(720, (screen.availWidth || 1200) - 460), h = Math.min(820, (screen.availHeight || 900) - 80);
+        var win = window.open(S.url + '?hrbeta=1', 'hrapprove', 'popup,width=' + w + ',height=' + h + ',left=40,top=40');
+        if (!win) { location.href = S.url + '?hrbeta=1'; return; }      // pop-ups blocked: this tab goes instead, and comes back as before
+        draw('<div class="note" style="font-size:17px">⏳ <b>Google’s approval is open in its own window.</b> Work through it there – this tab carries on by itself when it’s approved. <span class="mute small">Can’t see it? It may be behind this window.</span></div>');
+    }
+    /* The approval window's last page (approved.html) says so here, with the access code */
+    window.addEventListener('storage', function (e) {
+        if (e.key !== 'hrinstall.approved' || !e.newValue || !app) return;
+        var d = {}; try { d = JSON.parse(e.newValue); } catch (x) { return; }
+        if (!S.url || S.answered) return;                                   // not this tab's install – let the window carry on to setup itself
+        try { localStorage.setItem('hrinstall.ack', String(d.at)); } catch (x) { /* fine */ }
+        note('approved (from the approval window)'); stage('checking');
+        if (d.code) S.code = d.code; S.approved = true; save();
+        draw('<div class="note ok">✅ <b>Approved.</b> One last click below.</div>');
+    });
     /** Does the published script answer, and has its first visit set the Sheet up? (Before approval, Google answers with a sign-in page, not HouseRunner.) */
     var lastPing = '';
     function check(quiet) {

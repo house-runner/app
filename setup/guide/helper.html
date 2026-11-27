@@ -32,8 +32,8 @@ button:disabled{opacity:.4;cursor:default}
  * and "Done – next" moves it on where it can't tell (the clicks in Google's own windows).
  * Where a picture shows Google's screens, the account shown is marked "your own Google email": the person sees theirs. */
 (function () {
-    var V = '../../shared/brand/steps/', REV = '366';
-    var SETUP = '🏠 In the <b>HouseRunner setup</b> tab', GWIN = '🔐 In <b>Google’s window</b>', GTAB = '🔐 <b>Google</b>, in the HouseRunner setup tab';
+    var V = '../../shared/brand/steps/', REV = '367';
+    var SETUP = '🏠 In the <b>HouseRunner setup</b> tab', GWIN = '🔐 In <b>Google’s window</b>', GTAB = '🔐 In <b>Google’s approval window</b>';
     // [stage, where, what to click, help, media (one, or several shown in turn)]
     var STEPS = [
         ['start', SETUP, 'Click <b>Sign in to Google</b>', 'Use the Google account you want the dashboard in – ideally the one with your family calendar. Already signed in? Google just checks which account and brings you straight back.', 'h-signin.mp4'],
@@ -63,7 +63,7 @@ button:disabled{opacity:.4;cursor:default}
             '<li><b>Select all</b>, scroll down to the bottom, click <b>Continue</b>. Google’s window closes and setup carries on.</li></ol>' +
             '<p class="mute">The video plays round and round – close this window whenever you like.</p></div>' +
             '<div class="ft"><span></span><button class="go" id="cl">✕ Close</button></div>';
-        document.getElementById('cl').onclick = function () { window.close(); };
+        document.getElementById('cl').onclick = function () { (window.top || window).close(); };
         return;
     }
     // "Approve HouseRunner App's permissions": step by step, a short clip and the words for each
@@ -71,19 +71,19 @@ button:disabled{opacity:.4;cursor:default}
         ['google2', GTAB, 'Click <b>REVIEW PERMISSIONS</b>', 'Google says “HouseRunner App (Unverified) needs your permission”. That’s your own private copy of HouseRunner – click the blue <b>REVIEW PERMISSIONS</b>.', 'h-review.mp4'],
         ['google2', GWIN, '<b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>', 'Google says it hasn’t verified the app – expected, it’s your own private copy of HouseRunner. Click <b>Advanced</b> (bottom left), then the link <b>Go to HouseRunner App (unsafe)</b>. <span class="mute">(If Google asks which account first, click yours.)</span>', 'v-a-unsafe.mp4'],
         ['google2', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'A yellow box says the app isn’t verified yet – expected. Every permission is needed (setup’s “see why” explains each one). Then scroll to the bottom and click <b>Continue</b>.', 'v-a-consent.mp4'],
-        ['google2', GTAB, 'Wait, then click <b>▶ Back to HouseRunner setup</b>', 'Google shows “Waiting for authorization…” for a few seconds – <b>stuck?</b> Press <b>F5</b>. Then it shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b>.', 'v-a-wait.mp4'],
-        ['done', SETUP, '✅ Approved', '<div class="done">Back in setup: one last click, <b>Finish publishing</b>. This window closes in a moment.</div>', 'i-finish.png']
+        ['google2', GWIN, 'Wait – it can take a minute or two – then click <b>▶ Back to HouseRunner setup</b>', 'Google shows “Waiting for authorization…”. <b>This can take a minute or two – just wait.</b> Only if nothing happens after 2 minutes, press <b>F5</b>. Then it shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b>.', 'v-a-wait.mp4'],
+        ['finish', SETUP, '✅ Approved – close this pop-up', '<div class="done">That’s the Main App approved. <b>Close this pop-up</b> and go back to the <b>HouseRunner setup</b> tab – click <b>Finish publishing</b> there.</div><p><button class="go" type="button" onclick="(window.top || window).close()">✕ Close this pop-up</button></p>', 'i-finish.png']
     ];
     var FIRST = {}; STEPS.forEach(function (s, k) { if (!(s[0] in FIRST)) FIRST[s[0]] = k; });
-    FIRST.checking = SET === 'approve' ? 3 : FIRST.google2 + 3;      // back from Google, checking the Sheet: the last of Google's steps
-    if (SET === 'approve') { FIRST.approve = 0; FIRST.finish = 4; }
+    FIRST.checking = SET === 'approve' ? 4 : FIRST.google2 + 3;      // back from Google, checking the Sheet: the last of Google's steps
+    if (SET === 'approve') { FIRST.approve = 0; FIRST.finish = 4; FIRST.done = 4; FIRST.checking = 4; }
     var i = 0, cyc = 0, closeT = 0;
     function stageNow() { try { return localStorage.getItem('hrinstall.stage') || 'start'; } catch (e) { return 'start'; } }
     function follow() {
         var st = stageNow(), k = FIRST[st];
         if (k == null) return;
         if (k > i || st === 'api' || st === 'start') go(k);      // moves on by itself (and back only for the Apps Script switch)
-        if (st === 'done') { clearTimeout(closeT); closeT = setTimeout(function () { window.close(); }, 12000); }
+        if (st === 'done') { clearTimeout(closeT); closeT = setTimeout(function () { (window.top || window).close(); }, 12000); }
     }
     function media(m) {
         if (/\.mp4$/.test(m)) return '<video class="media" src="' + V + m + '?v=' + REV + '" autoplay muted loop playsinline></video>';
@@ -100,7 +100,7 @@ button:disabled{opacity:.4;cursor:default}
             '<div class="ft"><button class="gh" id="bk"' + (i ? '' : ' disabled') + '>← Back</button>' +
             (last ? '<button class="go" id="cl">✕ Close</button>' : '<button class="go" id="nx">Done – next →</button>') + '</div>';
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
-        on('bk', function () { go(i - 1); }); on('nx', function () { go(i + 1); }); on('cl', function () { window.close(); });
+        on('bk', function () { go(i - 1); }); on('nx', function () { go(i + 1); }); on('cl', function () { (window.top || window).close(); });
         document.title = (i + 1) + ' – Show me – HouseRunner';
         clearInterval(cyc);
         if (list.length > 1) { var n = 0; cyc = setInterval(function () { n = (n + 1) % list.length; var m = document.getElementById('m'); if (m) m.innerHTML = media(list[n]); }, 2800); }

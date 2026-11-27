@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.366",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: after opening the Apps Script settings, a clear '⏳ Waiting to detect the switch…' box shows, and it checks straight away when you come back to the setup tab"
+    ]
+  },
+  {
     "version": "2026.11.365",
     "date": "2026-11-17",
     "notes": [

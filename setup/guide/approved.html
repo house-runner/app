@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Approved – HouseRunner</title>
+<style>body{font:17px/1.5 Arial,sans-serif;max-width:560px;margin:60px auto;padding:0 20px;color:#222}.ok{background:#dcfce7;border:1px solid #16a34a;border-radius:14px;padding:18px 22px;color:#14532d}h1{font-size:24px;margin:0 0 6px}</style></head>
+<body><div class="ok"><h1>✅ Approved</h1><p id="m">Passing this back to HouseRunner setup…</p></div>
+<script>
+/* The Sheet's "Approved" page sends people here (in the approval window). Tell the HouseRunner setup tab – with the
+   Sheet's access code – then close this window. No setup tab answering (it was opened in this same tab)? Go to setup. */
+(function () {
+    var h = location.hash, code = decodeURIComponent((h.match(/[#&]code=([^&]+)/) || [])[1] || ''), at = Date.now();
+    try { history.replaceState(null, '', location.pathname); } catch (e) { /* fine */ }
+    try { localStorage.setItem('hrinstall.approved', JSON.stringify({ at: at, code: code })); } catch (e) { /* fine */ }
+    setTimeout(function () {
+        var ack = ''; try { ack = localStorage.getItem('hrinstall.ack'); } catch (e) { /* fine */ }
+        if (ack === String(at)) {
+            window.close();
+            setTimeout(function () { document.getElementById('m').innerHTML = '<b>You can close this window</b> – HouseRunner setup has carried on in its own tab.'; }, 300);
+        } else location.replace('./#approved' + (code ? '&code=' + encodeURIComponent(code) : ''));
+    }, 900);
+})();
+</script></body></html>

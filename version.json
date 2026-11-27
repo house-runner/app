@@ -1,10 +1,9 @@
 {
-  "app": "2026.11.366",
+  "app": "2026.11.367",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: the Apps Script switch step now has a red 'Then close that Apps Script tab' warning, and a real clip of the switch",
-    "Show me: clips and pictures updated from the latest recording and the new step names"
+    "Setup: after opening the Apps Script settings, a clear '⏳ Waiting to detect the switch…' box shows, and it checks straight away when you come back to the setup tab"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
