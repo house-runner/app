@@ -91,12 +91,19 @@
         else if (S.needSwitch && k <= 2) body = '';
         else if (k === 0) body = '<div class="card big"><h3>Sign in with the Google account for your family dashboard</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.' +
             (S.email ? ' <span class="mute">Last time you used ' + esc(S.email) + ' – use the same account to carry on with the same Sheet.</span>' : '') + '</p>' +
-            '<ol class="mute"><li>A Google window opens, <b>“Choose an account”</b>: click your account. <span class="small">(Not signed in to Google on this computer yet? It asks for your Google email and password first. Account not listed? Click <b>Use another account</b>.)</span></li><li>Google says <b>“Google hasn’t verified this app”</b> – that’s expected, HouseRunner is new. Click <b>Continue</b> (the blue word on the left – not “Back to safety”). <span class="small">(If it shows <b>Advanced</b> instead, click that, then <b>Go to HouseRunner Installer (unsafe)</b>.)</span></li><li>Google says <b>“Sign in to houserunner.app”</b> with your email: click <b>Continue</b>.</li><li>Tick <b>Select all</b>, scroll down and click <b>Continue</b>.</li></ol>' +
-            '<div class="hri-pics"><figure><img src="../../shared/brand/steps/h-choose.png?v=353" alt=""><figcaption>Choose an account: click yours</figcaption></figure><figure><img src="../../shared/brand/steps/h-testing.png?v=353" alt=""><figcaption>Not verified yet: Continue, on the left</figcaption></figure><figure><img src="../../shared/brand/steps/h-signinto.png?v=353" alt=""><figcaption>Sign in to houserunner.app: Continue</figcaption></figure><figure><img src="../../shared/brand/steps/h-consent-inst2.png?v=354" alt=""><figcaption>Tick Select all, scroll down, click Continue</figcaption></figure></div>' + '<p>' + '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>' + '</p>' +
+            cols([['Log in to Google <span class="mute">(if asked)</span>', 'h-choose.png', 'Click your account – or sign in with your Google email and password'],
+                ['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
+                ['Sign in to HouseRunner', 'h-signinto.png', 'Google calls it houserunner.app – click <b>Continue</b>'],
+                ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
+            '<p>' + SHOWME + '</p>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Sign in and carry on' : 'Sign in with Google') + '</button></div></div>';
-        else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> does in your account – your calendar, sending your setup emails and so on (why each is needed is below). This tab goes to Google, then comes back here.</p>' +
-            '<ol class="mute"><li>Google says <b>HouseRunner App (Unverified) needs your permission</b>: click <b>REVIEW PERMISSIONS</b>.</li><li>A Google window opens: choose <b>your</b> account.</li><li>Google warns it hasn’t been verified – expected: it’s your own private copy. If it shows <b>“Google hasn’t verified this app”</b>, click <b>Continue</b> on the left. <span class="small">(Or: <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>.)</span></li><li>Tick <b>Select all</b>, scroll down, click <b>Continue</b>.</li><li>“Waiting for authorization…” for a few seconds – <b>stuck?</b> Press <b>F5</b>.</li><li>Google shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b>.</li></ol>' +
-            '<div class="hri-pics"><figure><img src="../../shared/brand/steps/h-review.png?v=353" alt=""><figcaption>REVIEW PERMISSIONS</figcaption></figure><figure><img src="../../shared/brand/steps/h-consent.png?v=353" alt=""><figcaption>Select all, then Continue</figcaption></figure></div>' + '<p>' + '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>' + '</p>' +
+        else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> – your own copy – does in your account. This tab goes to Google, then comes back here.</p>' +
+            cols([['Review permissions', 'h-review.png', 'Click <b>REVIEW PERMISSIONS</b>'],
+                ['Choose your account', 'h-choose.png', 'Then <b>Continue</b> past “unverified” if it’s shown – expected, it’s your own copy'],
+                ['Agree the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
+                ['Wait a few seconds', 'h-waiting.png', 'Stuck on “Waiting for authorization…”? Press <b>F5</b>'],
+                ['Back to HouseRunner setup', 'h-approved.png', 'Click <b>▶ Back to HouseRunner setup</b>']]) +
+            '<p>' + SHOWME + '</p>' +
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
@@ -105,7 +112,6 @@
         var P = prev(), again = P && !S.sheetId ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making a Sheet' +
             (P.started ? ' on ' + esc(new Date(P.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) : '') + (P.email ? ' as <b>' + esc(P.email) + '</b>' : '') +
             ' but didn’t finish, so this starts afresh with a new one. <span class="mute">Rather pick up where you left off? <a href="#" id="again">Carry on with that Sheet instead</a>. Either way your earlier Sheet isn’t changed or deleted – it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
-        if (k === 4) body += OPT.perms || '';      // why each permission is needed, right where Google asks for them
         // What to do now sits straight under the step it belongs to; the steps still to come follow below it
         list = '<ol class="hri-steps">' + STEPS.map(function (st, i) {
             var cls = i < k ? 'ok' : i === k ? 'now' : '';
@@ -131,6 +137,7 @@
     function wire() {
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
         Array.prototype.forEach.call(app.querySelectorAll('[data-showme]'), function (b) { b.onclick = showMe; });
+        Array.prototype.forEach.call(app.querySelectorAll('[data-why]'), function (b) { b.onclick = function (e) { e.preventDefault(); why(b.getAttribute('data-why')); }; });
         on('cidSave', function () { var v = document.getElementById('cid').value.trim(); if (!/\.apps\.googleusercontent\.com$/.test(v)) { alert('That doesn’t look like a Google client ID.'); return; } localStorage.setItem(CKEY, v); draw(); });
         on('republish', republish);
         on('handGo', useHandUrl);
@@ -311,6 +318,28 @@
         if (!win) toastish('Your browser blocked the small window – allow pop-ups for houserunner.app, then click again.'); else try { win.focus(); } catch (e) { /* fine */ }
     }
     function toastish(t) { var n = document.createElement('div'); n.className = 'note warn'; n.textContent = t; app.insertBefore(n, app.firstChild); setTimeout(function () { n.remove(); }, 8000); }
+    var SHOWME = '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>';
+    /** Google's screens, in order: a numbered headline above each picture */
+    function cols(list) {
+        return '<div class="hri-cols">' + list.map(function (c, n) {
+            return '<figure><div class="hc-h"><span class="hc-n">' + (n + 1) + '</span><span>' + c[0] + '</span></div><img src="../../shared/brand/steps/' + c[1] + '?v=355" alt=""><figcaption>' + c[2] + '</figcaption></figure>';
+        }).join('') + '</div>';
+    }
+    /** "(see why)": what each permission is for, in a box over the page */
+    var WHY_INST = '<h3>Why the installer asks for these</h3><p class="mute">Google lists them on its permissions page. They’re only used while HouseRunner makes your Sheet:</p><ul>' +
+        '<li><b>See, edit, create and delete only the specific Google Drive files you use with this app</b> – to make your one new HouseRunner Sheet. It can’t see any of your other files.</li>' +
+        '<li><b>Create and update Google Apps Script projects</b> – to put HouseRunner’s script into that Sheet.</li>' +
+        '<li><b>Create and update Google Apps Script deployments</b> – to publish it, so your screen and phones can reach it.</li>' +
+        '<li><b>Your email address</b> – so setup knows which Google account your Sheet is in.</li></ul>' +
+        '<p class="mute">Afterwards you can remove the installer’s access at myaccount.google.com/connections – your dashboard keeps working, because your Sheet has its own approval.</p>';
+    function why(kind) {
+        var o = document.createElement('div'); o.className = 'hri-modal';
+        o.innerHTML = '<div class="hri-mbox">' + (kind === 'app' ? (OPT.perms || '') : WHY_INST) + '<p><button class="btn" type="button">Close</button></p></div>';
+        var shut = function () { o.remove(); document.removeEventListener('keydown', esc1); };
+        var esc1 = function (e) { if (e.key === 'Escape') shut(); };
+        o.onclick = function (e) { if (e.target === o || e.target.closest('button')) shut(); };
+        document.addEventListener('keydown', esc1); document.body.appendChild(o);
+    }
     function webUrl(d) { var e = (d.entryPoints || []).filter(function (x) { return x.webApp && x.webApp.url; })[0]; return e ? e.webApp.url : ''; }
 
     /** Approval happens in this same tab (a separate window couldn't be closed for you once Google had shown its pages in it).
