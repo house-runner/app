@@ -115,7 +115,7 @@
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
             flow('perms', 'a short video of this step', '<button class="btn" id="go">' + (S.sheetId ? 'Approve Installer App permissions and carry on' : 'Approve Installer App permissions') + '</button>') +
             '<div class="row"><span class="mute small" id="goMsg"></span></div></div>';
-        else if (k === 4) body = '<div class="card big"><h3>Sign into Google and the Main App, then approve its permissions</h3><p>Your Sheet is made and published. Now approve the <b>Main App</b> – your own copy of HouseRunner, which Google calls “HouseRunner App”. One click: Google’s approval opens in its own window – go through the pages below there; this tab carries on by itself when it’s approved.</p>' +
+        else if (k === 4) body = '<div class="card big"><h3>Sign into Google and the Main App, then approve its permissions</h3><p>Your Sheet is made and published. Now approve the <b>Main App</b> – your own copy of HouseRunner, which Google calls “HouseRunner App”. One click: this tab goes through Google’s pages below, then comes back here.</p>' +
             cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
                 ['Advanced, then Go to HouseRunner App (unsafe)', 'p-advanced.png', 'Expected – it’s your own copy. Click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>'],
                 ['Approve the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
@@ -373,7 +373,7 @@
     }
     /** Google's screens, in order: a numbered headline above each picture */
     function cols(list) {
-        return '<div class="hri-cols">' + list.map(function (c, n) {
+        return '<div class="hri-cols' + (list.length > 3 ? ' four' : '') + '">' + list.map(function (c, n) {
             return '<figure><div class="hc-h"><span class="hc-n">' + (n + 1) + '</span><span>' + c[0] + '</span></div><img src="../../shared/brand/steps/' + c[1] + '?v=367" alt=""><figcaption>' + c[2] + '</figcaption></figure>';
         }).join('') + '</div>';
     }

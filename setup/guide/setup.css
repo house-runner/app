@@ -285,3 +285,6 @@ table.check tr.todo td { color: var(--mute); } table.check tr.todo td:nth-child(
 .hr-flow .fl-t, .fl-qr .fl-t { font-size: 13px; color: var(--mute); line-height: 1.35; margin-top: 4px; }
 .hr-flow .fl-arrow { font: 900 28px/48px Arial, sans-serif; color: #facc15; letter-spacing: -4px; }
 .hr-flow .fl-main .btn { white-space: nowrap; }
+
+/* The Main App's four Google screens: always side by side */
+.hri-cols.four { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }

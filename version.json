@@ -1,10 +1,10 @@
 {
-  "app": "2026.11.373",
+  "app": "2026.11.374",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Installer steps: ① Open Show me (strongly recommended) >>> ② the blue button, side by side; the blue button stays dimmed until Show me is open",
-    "The waiting picture shows Google's 'Waiting for authorization…' much bigger, with HouseRunner's advice clearly in a separate label stuck on top"
+    "No more pop-up windows: each installer step shows a QR code – scan it with your phone for a step-by-step guide with videos, then click the blue button (① scan >>> ② click)",
+    "Signing into the Main App and approving it happens in the setup tab again, not a separate window"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
