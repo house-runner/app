@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.356",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: signing in is now its own first step – 'Sign in to Google' – with a green ✅ showing your account; then 'Set up app permissions'",
+      "Making the Sheet, adding its script and publishing it are now one step, 'Make your HouseRunner Sheet (automatic)', showing where it's up to beside it"
+    ]
+  },
+  {
     "version": "2026.11.355",
     "date": "2026-11-17",
     "notes": [

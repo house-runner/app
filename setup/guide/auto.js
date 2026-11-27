@@ -113,15 +113,14 @@
             cols([['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
                 ['Sign in to HouseRunner', 'h-signinto.png', 'Google calls it houserunner.app – click <b>Continue</b> <span class="mute">(if shown)</span>'],
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
-            '<p>' + SHOWME + '</p>' +
+            '<p>' + showBtn('perms', 'Show me', 'one short video of the whole of this step') + '</p>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Set up permissions and carry on' : 'Set up app permissions') + '</button></div></div>';
         else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> – your own copy – does in your account. This tab goes to Google, then comes back here.</p>' +
             cols([['Review permissions', 'h-review.png', 'Click <b>REVIEW PERMISSIONS</b>'],
                 ['Choose your account', 'h-choose.png', 'Then <b>Continue</b> past “unverified” if it’s shown – expected, it’s your own copy'],
-                ['Agree the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
-                ['Wait a few seconds', 'h-waiting.png', 'Stuck on “Waiting for authorization…”? Press <b>F5</b>'],
-                ['Back to HouseRunner setup', 'h-approved.png', 'Click <b>▶ Back to HouseRunner setup</b>']]) +
-            '<p>' + SHOWME + '</p>' +
+                ['Agree the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
+                ['Wait, then back to setup', 'h-waitback.png', 'Wait for “Waiting for authorization…” (stuck? press <b>F5</b>), then click <b>▶ Back to HouseRunner setup</b>']]) +
+            '<p>' + showBtn('approve', 'Show me, step by step', 'a small window with a short clip and instructions for each step') + '</p>' +
             '<div class="row"><button class="btn" id="approve">Approve HouseRunner App</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
@@ -159,7 +158,7 @@
     function forget() { try { localStorage.setItem('hrinstall.last', JSON.stringify({ email: S.email, sheetId: S.sheetId, at: new Date().toISOString() })); localStorage.removeItem(KEY); } catch (e) { /* fine */ } }
     function wire() {
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
-        Array.prototype.forEach.call(app.querySelectorAll('[data-showme]'), function (b) { b.onclick = showMe; });
+        Array.prototype.forEach.call(app.querySelectorAll('[data-showme]'), function (b) { b.onclick = function () { showMe(b.getAttribute('data-showme')); }; });
         Array.prototype.forEach.call(app.querySelectorAll('[data-why]'), function (b) { b.onclick = function (e) { e.preventDefault(); why(b.getAttribute('data-why')); }; });
         on('cidSave', function () { var v = document.getElementById('cid').value.trim(); if (!/\.apps\.googleusercontent\.com$/.test(v)) { alert('That doesn’t look like a Google client ID.'); return; } localStorage.setItem(CKEY, v); draw(); });
         on('republish', republish);
@@ -337,13 +336,15 @@
         });
     }
     /** 🎬 Show me: a small window beside this one with a clip or picture of each click (helper.html); it follows along by itself */
-    function showMe() {
+    function showMe(set) {
         var w = 400, h = Math.max(520, Math.min(760, (screen.availHeight || 900) - 140));
-        var win = window.open('helper.html', 'hrhelper', 'popup,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - w - 16) + ',top=60');
+        if (set === 'perms') { w = 680; h = Math.min(h, 720); }
+        var win = window.open('helper.html' + (set ? '?set=' + set : ''), 'hrhelper' + (set || ''), 'popup,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - w - 16) + ',top=60');
         if (!win) toastish('Your browser blocked the small window – allow pop-ups for houserunner.app, then click again.'); else try { win.focus(); } catch (e) { /* fine */ }
     }
     function toastish(t) { var n = document.createElement('div'); n.className = 'note warn'; n.textContent = t; app.insertBefore(n, app.firstChild); setTimeout(function () { n.remove(); }, 8000); }
     var SHOWME = '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>';
+    function showBtn(set, label, what) { return '<button class="btn ghost sm" data-showme="' + set + '" type="button">🎬 ' + label + '</button> <span class="mute small">– ' + what + '</span>'; }
     /** Google's screens, in order: a numbered headline above each picture */
     function cols(list) {
         return '<div class="hri-cols">' + list.map(function (c, n) {

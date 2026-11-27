@@ -1,10 +1,10 @@
 {
-  "app": "2026.11.356",
+  "app": "2026.11.357",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: Google's screens are now shown as numbered columns with a short headline above each picture – for signing in and for approving your Sheet",
-    "'(see why)' on the permissions step opens a short explanation of what each permission is for"
+    "Setup: signing in is now its own first step – 'Sign in to Google' – with a green ✅ showing your account; then 'Set up app permissions'",
+    "Making the Sheet, adding its script and publishing it are now one step, 'Make your HouseRunner Sheet (automatic)', showing where it's up to beside it"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
