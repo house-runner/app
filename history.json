@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.358",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: approving your Sheet now follows Google's real order – Review permissions, 'Google hasn't verified this app' (Continue), Select all and Continue, then wait and go back to setup"
+    ]
+  },
+  {
     "version": "2026.11.357",
     "date": "2026-11-17",
     "notes": [

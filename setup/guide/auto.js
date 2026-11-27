@@ -105,13 +105,13 @@
         var body = '';
         if (!clientId()) body = devForm();
         else if (S.needSwitch && k <= 2) body = '';
-        else if (k === 0 && !S.gEmail) body = '<div class="card big"><h3>Sign in to Google</h3><p>Sign in to the Google account you want HouseRunner in – ideally the one your family calendar is in. Already signed in? Google just checks which account, and brings you straight back.</p>' +
-            cols([['Choose your account <span class="mute">(or log in)</span>', 'h-choose.png', 'Click your account – or sign in with your Google email and password. Not listed? <b>Use another account</b>']]) +
+        else if (k === 0 && !S.gEmail) body = '<div class="card big"><h3>Sign in to Google</h3><p>Sign in to the Google account you want HouseRunner in – ideally the one your family calendar is in. Already signed in? Google just checks which account, then asks you to sign in to HouseRunner.</p>' +
+            cols([['Choose your account <span class="mute">(or log in)</span>', 'h-choose.png', 'Click your account – or sign in with your Google email and password. Not listed? <b>Use another account</b>'],
+                ['Sign in to HouseRunner', 'h-signinto.png', 'Google calls it houserunner.app – click <b>Continue</b>']]) +
             '<div class="row"><button class="btn" id="gsign">Sign in to Google</button></div></div>';
         else if (k === 0) body = '<div class="note ok" style="margin:0 0 12px">✅ <b>Signed in to Google as ' + esc(S.gEmail) + '.</b> <span class="mute small">Not you? <a href="#" id="gOther">Use another account</a></span></div>' +
             '<div class="card big"><h3>Set up app permissions</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.</p>' +
             cols([['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
-                ['Sign in to HouseRunner', 'h-signinto.png', 'Google calls it houserunner.app – click <b>Continue</b> <span class="mute">(if shown)</span>'],
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
             '<p>' + showBtn('perms', 'Show me', 'one short video of the whole of this step') + '</p>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Set up permissions and carry on' : 'Set up app permissions') + '</button></div></div>';

@@ -1,11 +1,9 @@
 {
-  "app": "2026.11.358",
+  "app": "2026.11.359",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: approving your Sheet now has four steps – the last is 'Wait, then back to setup'",
-    "Show me on 'Set up app permissions' plays one short video of the whole step, numbered 1–4, with the words beside it",
-    "Show me on 'Approve HouseRunner App' goes step by step, with a short clip and instructions for each"
+    "Setup: approving your Sheet now follows Google's real order – Review permissions, 'Google hasn't verified this app' (Continue), Select all and Continue, then wait and go back to setup"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
