@@ -123,15 +123,20 @@
         }, 0);
     }, true);
     function lock(part, btn, mine) {
-        if (!part || !part.isConnected || part.hasAttribute('inert')) return;
-        part.setAttribute('inert', ''); part.classList.add('is-saving');
+        if (!part || !part.isConnected || locks.some(function (l) { return l.btn === btn; })) return;
+        part.classList.add('is-saving');      // not locked: you can carry on (and save again) while Google takes its time – saves go one after another
         var was = btn.innerHTML; btn.innerHTML = '⏳ Saving…'; btn.classList.add('saving');
         locks.push({ part: part, btn: btn, was: was, mine: mine });
     }
     function unlock(failed) {
         locks.forEach(function (l) {
-            l.part.removeAttribute('inert'); l.part.classList.remove('is-saving');
-            l.btn.innerHTML = l.was; l.btn.classList.remove('saving');
+            l.part.classList.remove('is-saving');
+            l.btn.classList.remove('saving');
+            var btn = l.btn;
+            if (!btn.isConnected) btn = Array.prototype.filter.call(document.querySelectorAll('#body button, #sheet button'), function (x) { return x.innerHTML === l.was || x.innerHTML === '⏳ Saving…' && false; })[0] || btn;   // the page was redrawn meanwhile: the same button, new copy
+            if (failed || !btn.isConnected) { btn.innerHTML = l.was; return; }
+            btn.innerHTML = '✅ Saved'; btn.classList.add('saved-ok');
+            setTimeout(function () { if (btn.isConnected) { btn.innerHTML = l.was; btn.classList.remove('saved-ok'); } }, 2500);
             if (failed) edits = edits.concat(l.mine.filter(function (n) { return n.isConnected; }));
         });
         locks = [];
@@ -142,8 +147,8 @@
     // Changes go to the Google script one after another. A tap while one is still on its way waits its turn –
     // it's never dropped (dropping it used to close the form as if it had been saved).
     var queue = Promise.resolve(), pending = 0;
-    // While a change is on its way to Google: an hourglass, a "Saving…" note, and nothing else can be changed until
-    // it's saved (shown only if it takes more than a moment, so quick ones don't flicker).
+    // While a change is on its way to Google: a "Saving… you can carry on" note (shown only if it takes more than a moment,
+    // so quick ones don't flicker). Nothing is locked; leaving the page while something is still saving asks first.
     var actingT = null;
     function acting(on) {
         clearTimeout(actingT);

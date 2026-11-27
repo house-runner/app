@@ -57,8 +57,11 @@
         };
         var p = queue.then(run, run);
         queue = p.catch(function () { /* the next one still goes */ });
+        onWay++; p.then(function () { onWay--; }, function () { onWay--; });
         return p.catch(function (e) { dot('err'); FD.toast(e.message, true); throw e; });
     }
+    var onWay = 0;      // changes still on their way to the Sheet: leaving the page asks first (where the browser allows)
+    window.addEventListener('beforeunload', function (e) { if (onWay > 0) { e.preventDefault(); e.returnValue = ''; } });
     function dot(k) { var s = $('faDot'); if (s) s.className = 'fa-dot ' + k; }
 
     /* ------------------------------------------------------------------ frame */

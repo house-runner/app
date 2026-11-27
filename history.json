@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.11.342",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: coming back from Google now shows 'Connecting to your new Sheet…' until it's connected – no more jump back to the start",
+      "Setup: the page only scrolls to the top when you move to a new step – clicking tabs and buttons keeps your place",
+      "Calendar colour coding: family groups (e.g. one made on the Family page) now show in their own colour instead of grey",
+      "Calendar colour coding: a lasting '✅ Saved – you can move on' appears by the Save button once it's saved"
+    ]
+  },
+  {
     "version": "2026.11.341",
     "date": "2026-11-17",
     "notes": [

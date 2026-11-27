@@ -79,17 +79,48 @@
     /** The licence check, read once in advance (it asks the licence server, so it's the slowest). */
     var LICP = null;
     function licenceNow() { if (!LICP) { LICP = post({ action: 'licence' }); LICP.catch(function () { LICP = null; }); } return LICP; }
+    /* ---- Your Sheet's details, kept on this computer too: a step that needs them opens straight away with the copy from last
+     * time, while the Sheet is asked in the background; if it has anything newer the step is redrawn (unless you're part-way
+     * through changing it). */
+    var ADM_KEY = 'fdsetup.adm';
+    function keptAdm() { try { var k = JSON.parse(localStorage.getItem(ADM_KEY) || 'null'); return k && k.url === S.url && k.d ? k.d : null; } catch (e) { return null; } }
+    function keepAdm(d) { try { localStorage.setItem(ADM_KEY, JSON.stringify({ url: S.url, at: Date.now(), d: d })); } catch (e) { /* too big – it's just a copy */ } }
+    var admChecked = false;
     function loadAdm() {
-        if (admBusy) return; admBusy = true;
+        if (!ADM) { admChecked = false; var k = keptAdm(); if (k) { ADM = k; setTimeout(render, 0); } }      // nothing in hand: show the copy from last time, and ask the Sheet
+        if (admBusy || admChecked) return; admBusy = true;
         setTimeout(function () {
-            // Read once, in the background when the wizard opens – only redrawn if this page is waiting for it (or shows the family's name)
-            post({ action: 'admin' }).then(function (d) { admBusy = false; ADM = d; if ($('admLoad') || STEPS[S.step].id === 'welcome') render(); },
-                function (e) { admBusy = false; var b = $('admLoad'); if (b) b.innerHTML = okLine(false, e.message); });
+            var before = JSON.stringify(ADM || null);
+            post({ action: 'admin' }).then(function (d) {
+                admBusy = false; admChecked = true;
+                if (inflight) return;      // a change of yours is still on its way: what's on screen is newer than what the Sheet just said
+                ADM = d;
+                var id = STEPS[S.step] && STEPS[S.step].id, busyHere = (id === 'family' && FAM) || (id === 'calendar' && window.hrCalTouched);
+                if ($('admLoad') || id === 'welcome' || (before !== JSON.stringify(d) && !busyHere)) render();
+            }, function (e) { admBusy = false; var b = $('admLoad'); if (b) b.innerHTML = okLine(false, e.message); });
         }, 0);
     }
+    /* ---- Saving goes on in the background: you can carry on (even to the next step) while Google takes its time.
+     * The page says what's still on its way, and warns before it's closed until everything has been saved. */
+    var inflight = 0, READS = { admin: 1, layout: 1, ping: 1, claim: 1, licence: 1, versions: 1, screens: 1, page: 1 };
+    function saving(n) {
+        inflight += n;
+        var el = $('saveNote');
+        if (!el) { el = document.createElement('div'); el.id = 'saveNote'; el.className = 'save-note'; document.body.appendChild(el); }
+        el.innerHTML = inflight > 0 ? '⏳ Saving to your Google Sheet… <span>you can carry on – just keep this page open</span>' : '';
+        el.classList.toggle('on', inflight > 0);
+    }
+    window.addEventListener('beforeunload', function (e) { if (inflight > 0) { e.preventDefault(); e.returnValue = ''; } });
     function post(body) {
         body.code = S.code;
-        return call(S.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+        var write = !READS[body.action];
+        if (write) saving(1);
+        var pr = call(S.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }).then(function (d) {
+            if (d && d.pages && d.widgets) keepAdm(d);      // all of the Sheet's details came back: keep them for next time
+            return d;
+        });
+        if (write) pr.then(function () { saving(-1); }, function () { saving(-1); });
+        return pr;
     }
 
     /* ------------------------------------------------------------ helpers for pages */
@@ -445,32 +476,42 @@
                 var seen = {}, dup = ''; list.forEach(function (p) { var k = p.name.trim().toLowerCase(); if (seen[k] && !dup) dup = p.name.trim(); seen[k] = 1; });
                 if (dup) { $('famStatus').innerHTML = okLine(false, 'Two people are called “' + esc(dup) + '” – give one a different name (a surname initial is fine)'); return; }
                 if (!home) { $('famStatus').innerHTML = okLine(false, 'Add your home address or postcode – just the postcode or your town is enough'); $('home').focus(); return; }
-                var b = this; b.disabled = true; S.home = home; save();
-                $('famStatus').innerHTML = '<div class="status">⏳ Saving the family – up to half a minute…</div>'; b.textContent = '⏳ Saving…';
+                var b = this; S.home = home; save();
+                b.disabled = true; b.textContent = '⏳ Saving…';
+                $('famStatus').innerHTML = '<div class="status">⏳ Saving the family to your Sheet in the background – <b>you can press Next</b> and carry on. It takes up to half a minute.</div>';
                 var ctry = $('fwCountry').value, cinfo = FD_COUNTRIES.filter(function (x) { return x[0] === ctry; })[0];
-                S.country = ctry; S.tz = $('fwTz').value; S.week = $('fwWeek').value; S.order = $('fwOrder').value; save();
+                S.country = ctry; S.tz = $('fwTz').value; S.week = $('fwWeek').value; S.order = $('fwOrder').value; S.familySaving = true; save(); renderSteps();
+                var here = function () { return STEPS[S.step] && STEPS[S.step].id === 'family'; };
                 post({ action: 'saveInstall', values: { HomeAddress: home, Country: ctry, TimeZone: S.tz, WeekStart: S.week, DateOrder: S.order, Currency: cinfo ? cinfo[2].trim() : '£' } }).then(function () {
-                    return post({ action: 'saveFamilyPeople', people: list, familyName: $('fwName').value.trim() });
+                    return post({ action: 'saveFamilyPeople', people: list, familyName: $('fwName') ? $('fwName').value.trim() : (FAM && FAM.name) || '' });
                 }).then(function (d) {
-                    ADM = d; FAM = null; S.familyDone = true; try { localStorage.removeItem('hr.famDraft'); } catch (x) { /* fine */ } var tt0 = $('toast'); if (tt0) { clearTimeout(toast.h); tt0.className = 'toast'; } save(); render();
+                    ADM = d; FAM = null; S.familyDone = true; S.familySaving = false; try { localStorage.removeItem('hr.famDraft'); } catch (x) { /* fine */ } var tt0 = $('toast'); if (tt0) { clearTimeout(toast.h); tt0.className = 'toast'; } save();
+                    if (!here()) { toast('✅ Your family is saved'); render(); return; }      // moved on meanwhile: the calendar step (if open) was waiting for it
+                    render();
                     $('famStatus').innerHTML = okLine(true, (STEPS === NEW ? 'Saved – press Next.' : 'Saved. Press Next to set up the calendar.'));
                     var pc = ctry === 'GB' && /\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i.exec(home);     // bin days: can this council be read automatically?
                     if (pc) get('binCouncil', { postcode: pc[1] }).then(function (x) {
                         if (x.automatic && $('famStatus')) $('famStatus').insertAdjacentHTML('beforeend', okLine(true, 'Good news for bin days: ' + x.message + ' – add the Bins widget at houserunner.app → Screens whenever you like.'));
                     }, function () { /* older Google script – the Check step will say */ });
-                }).catch(function (e) { b.disabled = false; b.textContent = 'Save the family'; $('famStatus').innerHTML = okLine(false, e.message); });
+                }).catch(function (e) {
+                    S.familySaving = false; save();
+                    if (!here()) { toast('Your family didn’t save: ' + e.message + ' – go back to “Your family” and press Save again', true); render(); return; }
+                    b.disabled = false; b.textContent = 'Save the family'; $('famStatus').innerHTML = okLine(false, e.message);
+                });
             };
         } },
         { id: 'calendar', title: 'Your calendar', render: function () {
             if (!connected()) return '<h1>5. Your calendar</h1>' + needConnect();
-            if (!ADM) { loadAdm(); return '<h1>5. Your calendar</h1><div class="card" id="admLoad"><div class="status">Reading your Sheet…</div></div>'; }
+            loadAdm();
+            if (S.familySaving) return '<h1>5. Your calendar</h1><div class="card" id="famWait"><div class="status">⏳ Your family is still saving to your Sheet – the calendar uses it, so this opens as soon as it’s saved…</div></div>';
+            if (!ADM) return '<h1>5. Your calendar</h1><div class="card" id="admLoad"><div class="status">Reading your Sheet…</div></div>';
             return '<h1>5. Your calendar</h1>' +
                 '<p class="lead">How the dashboard colours your Google Calendar. Every event goes in a <b>category</b> – a group of people (Family is everyone), a person, or a general one like Holiday – ' +
                     'and each category has one of Google Calendar’s colours, so events you add in Google Calendar land in the right place. This is the same as houserunner.app → Screens → your calendar page. ' +
                     '<span class="mute">(About 5 minutes.)</span></p>' +
                 '<div id="calBox" class="cs-box"></div>';
         }, wire: function () {
-            if (!connected() || !ADM || !window.FDCalSetup) return;
+            if (!connected() || !ADM || !window.FDCalSetup || !$('calBox')) return;
             var cal = (ADM.pages || []).filter(function (p) { return p.type === 'calendar'; })[0];
             window.FD = window.FD || { post: function (b) { return post(b); } };
             var hooks = { data: function () { return ADM; }, toast: function (m, bad) { toast(m, bad); },
@@ -479,6 +520,7 @@
                         function (e) { toast(e.message, true); });
                 } };
             var draw = function () { window.FDCalSetup.render($('calBox'), cal ? cal.id : '', hooks); renderSteps(); };
+            window.hrCalTouched = false; $('calBox').addEventListener('input', function () { window.hrCalTouched = true; }); $('calBox').addEventListener('change', function () { window.hrCalTouched = true; });
             draw();
         } },
         { id: 'devices', title: 'Connect a display', render: function () {
@@ -790,7 +832,7 @@
            blocked: 'Tick the box to accept the privacy notice first' },
         OLD.licence,
         { id: 'family', title: 'Your family', render: OLD.family.render, wire: OLD.family.wire,
-           ready: function () { return !connected() || !!S.familyDone || S.mode === 'amend'; }, blocked: 'Save the family first – the green “Save the family” button' },
+           ready: function () { return !connected() || !!S.familyDone || !!S.familySaving || S.mode === 'amend'; }, blocked: 'Save the family first – the green “Save the family” button' },
         OLD.calendar,
         { id: 'connect', title: 'Connect your screen and phones', render: function () {
             if (!connected()) return '<h1>Connect your screen and phones</h1>' + needConnect();
@@ -1026,6 +1068,7 @@
     }
     function render() {
         if (window.hrHanded) return;     // handed back to the first setup tab: this one just says so (loading in the background mustn't redraw it)
+        if (!render.booted) { render.booted = true; S.familySaving = false; }      // the first drawing after opening the page: a family save can't still be on its way
         if (!SOLO && S.stepsV !== 2) { if (S.step) S.step++; S.stepsV = 2; }      // a Welcome step was added in front (2026.11.341)
         S.step = Math.max(0, Math.min(STEPS.length - 1, S.step || 0)); save();
         var st = STEPS[S.step];

@@ -1,10 +1,12 @@
 {
-  "app": "2026.11.342",
+  "app": "2026.11.343",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: a new Welcome step first – explains that HouseRunner is copied into a Google Sheet in your own Google account (so your family's information stays with you) and that this needs a few setup steps, which the wizard guides you through",
-    "Making your Sheet is now step 2, on a page of its own"
+    "Setup: coming back from Google now shows 'Connecting to your new Sheet…' until it's connected – no more jump back to the start",
+    "Setup: the page only scrolls to the top when you move to a new step – clicking tabs and buttons keeps your place",
+    "Calendar colour coding: family groups (e.g. one made on the Family page) now show in their own colour instead of grey",
+    "Calendar colour coding: a lasting '✅ Saved – you can move on' appears by the Save button once it's saved"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
