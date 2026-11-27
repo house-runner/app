@@ -1,11 +1,11 @@
 {
-  "app": "2026.11.344",
+  "app": "2026.11.345",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: steps that read your Sheet open straight away with the copy kept from last time, and update themselves if the Sheet has anything newer",
-    "Saving no longer holds you up – in setup you can press Next while the family saves (the calendar waits for it), and in the Configurator nothing locks while Google saves",
-    "A 'Saving… you can carry on – keep this page open' note shows while anything is on its way, the Save button turns to ✅ Saved when it's done, and closing the page before then asks first"
+    "Setup: the instructions now match Google's screens as they really look – including 'REVIEW PERMISSIONS' and the unverified-app warning on the permissions page",
+    "New 🎬 Show me: a small window beside setup with a short clip or picture of each click; it moves on by itself as you go",
+    "Pictures of Google's screens mark where you'll see your own name and Google email"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

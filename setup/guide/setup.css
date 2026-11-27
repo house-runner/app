@@ -239,7 +239,7 @@ table.check tr.todo td { color: var(--mute); } table.check tr.todo td:nth-child(
 .hri-steps > li.here { display: block; border-bottom: 0; padding: 4px 0 14px 34px; color: var(--text); font-weight: 400; }
 .hri-steps li.here .card { margin: 4px 0 0; }
 .hri-pics { display: flex; gap: 12px; flex-wrap: wrap; margin: 4px 0 8px; }
-.hri-pics figure { margin: 0; flex: 1 1 200px; max-width: 280px; }
+.hri-pics figure { margin: 0; flex: 1 1 170px; max-width: 240px; }
 .hri-pics img { width: 100%; border-radius: 8px; border: 1px solid var(--line); background: #fff; display: block; }
 .hri-pics figcaption { font-size: 12px; color: var(--mute); margin-top: 4px; }
 /* Saving in the background (setup.js saving()) */
