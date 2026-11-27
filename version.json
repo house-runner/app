@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.346",
+  "app": "2026.11.347",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: added Google's 'Google hasn't verified this app' page after choosing your account – click Continue on the left, not 'Back to safety' – to the instructions, pictures and Show me window"
+    "Show me: real clips of clicking Sign in with Google, the list ticking itself off, and Finish publishing"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
