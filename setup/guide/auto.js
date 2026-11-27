@@ -114,15 +114,13 @@
             '<div class="card big"><h3>Approve Installer App permissions</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.</p>' +
             cols([['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
-            flow('perms', 'a short clip of each click', '<button class="btn" id="go">' + (S.sheetId ? 'Approve Installer App permissions and carry on' : 'Approve Installer App permissions') + '</button>') +
-            '<div class="row"><span class="mute small" id="goMsg"></span></div></div>';
+            '<div class="row">' + '<button class="btn" id="go">' + (S.sheetId ? 'Approve Installer App permissions and carry on' : 'Approve Installer App permissions') + '</button>' + '<span class="mute small" id="goMsg"></span></div></div>';
         else if (k === 4) body = '<div class="card big"><h3>Sign into Google and the Main App, then approve its permissions</h3><p>Your Sheet is made and published. Now approve the <b>Main App</b> – your own copy of HouseRunner, which Google calls “HouseRunner App”. One click: this tab goes through Google’s pages below, then comes back here.</p>' +
             cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
                 ['Advanced, then Go to HouseRunner App (unsafe)', 'p-advanced.png', 'Expected – it’s your own copy. Click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>'],
                 ['Approve the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
                 ['Wait – can take a minute or two – then back to setup', 'h-waitback.png', '“Waiting for authorization…” <b>can take a minute or two</b> – only press <b>F5</b> if nothing happens after 2 minutes. Then click <b>▶ Back to HouseRunner setup</b>']]) +
-            flow('approve', 'a short clip of each click', '<button class="btn" id="approve">Sign into the Main App</button>') +
-            '<div class="row"><span class="mute" id="watch"></span></div></div>';
+            '<div class="row"><button class="btn" id="approve">Sign into the Main App</button><span class="mute" id="watch"></span></div></div>';
         else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
         else body = '<p class="mute" style="margin:2px 0 6px">HouseRunner is doing this by itself – about 30 seconds. Don’t close this tab.</p>';
@@ -147,7 +145,7 @@
             .concat([['Sign into Google and the Main App, then approve its permissions', k > 4 ? 'ok' : k === 4 ? 'now' : '', k === 4]])
             .concat(STEPS.slice(5).map(function (st, j) { var i = j + 5; return [st[1], i < k ? 'ok' : i === k ? 'now' : '', i === k]; }));
         list = '<ol class="hri-steps">' + rows.map(function (r) {
-            return '<li class="' + r[1] + '"><span class="i">' + (r[1] === 'ok' ? '✅' : r[1] === 'now' ? '▶' : '○') + '</span><span>' + r[0] + '</span></li>' +
+            return '<li class="' + r[1] + '"><span class="i"><b class="sn">' + (rows.indexOf(r) + 1) + '</b></span><span>' + r[0] + (r[1] === 'ok' ? ' <span class="mute small">✓ done</span>' : '') + '</span></li>' +
                 (r[2] === 'B' ? (bodyB ? '<li class="here">' + bodyB + '</li>' : '') : r[2] ? '<li class="here">' + (extra || '') + body + '</li>' : '');
         }).join('') + '</ol>';
         app.innerHTML = done + again + list + diag();
@@ -262,7 +260,7 @@
             '<div class="note bad" style="margin:0 0 12px;font-size:17px">⚠️ <b>Then close that Apps Script tab</b> (click the ✕ on its tab at the top of the window) and <b>come back to this “HouseRunner setup” tab</b> – setup carries on from here.</div>' +
             '<video src="../../shared/brand/steps/v-switch.mp4?v=365" autoplay muted loop playsinline style="background:#fff;max-width:520px;width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 12px"></video>' +
             '<div class="row"><button class="btn" id="setGo">Open my Apps Script settings (new tab)</button><span class="mute" id="setMsg"></span></div>' +
-            '<p class="mute small">This page watches for the switch and carries on by itself as soon as it’s on.</p><p></p>' + qrMini('', 'api') + '<p></div>');
+            '<p class="mute small">This page watches for the switch and carries on by itself as soon as it’s on.</p></p>' + '<p></div>');
         var b = document.getElementById('setGo');
         if (b) b.onclick = function () {
             setWin = window.open('https://script.google.com/home/usersettings', 'hrsettings');
@@ -314,7 +312,7 @@
             '<p>Google has approved your Sheet. Now HouseRunner publishes it once more, so your screen and phones can reach it – Google only allows that after approval. A Google window may flash up and close by itself.</p>' +
             '<div class="row"><button class="btn" id="republish">Finish publishing</button><span class="mute" id="repMsg"></span></div>' +
             '<p class="mute small" style="margin-top:12px">Stuck? <a href="#" id="toManual">Publish it by hand instead</a> – 2 minutes in Apps Script.</p>' +
-            qrMini('', 'finish') + '</div>';
+            '</div>';
     }
     function republish() {
         var m = document.getElementById('repMsg'); if (m) m.textContent = '⏳ Publishing…';
@@ -364,27 +362,10 @@
         });
     }
     function toastish(t) { var n = document.createElement('div'); n.className = 'note warn'; n.textContent = t; app.insertBefore(n, app.firstChild); setTimeout(function () { n.remove(); }, 8000); }
-    /** 📱 A step-by-step guide on the phone (helper.html: a clip and instructions for each step), reached by QR code –
-     *  followed alongside this screen, so nothing pops up over Google's pages. */
-    function guideUrl(set, at) { return new URL('helper.html' + (set || at ? '?' : '') + (set ? 'set=' + set : '') + (set && at ? '&' : '') + (at ? 'at=' + at : ''), location.href).href; }
-    function qrSvg(text) {
-        if (!window.qrcode) return '';
-        var q = window.qrcode(0, 'L'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
-    }
-    function qrMini(set, at) {
-        return '<div class="fl-qr sm"><div class="qrb">' + qrSvg(guideUrl(set, at)) + '</div><div><b>📱 Step by step on your phone</b><div class="fl-t">Scan with your phone’s camera for a short video of each click.</div></div></div>';
-    }
-    /** ① the phone guide (strongly recommended)  >>>  ② the step's blue button */
-    function flow(set, what, main) {
-        return '<div class="hr-flow"><div class="fl-s"><span class="fl-n">1</span><div class="fl-qr"><div class="qrb">' + qrSvg(guideUrl(set)) + '</div>' +
-            '<div><b>📱 Scan this with your phone first</b><div class="fl-t"><b>Strongly recommended</b> – ' + what + ' on your phone.</div></div></div></div>' +
-            '<div class="fl-arrow" aria-hidden="true">&gt;&gt;&gt;</div>' +
-            '<div class="fl-s fl-main"><span class="fl-n">2</span>' + main + '<div class="fl-t">Then click this</div></div></div>';
-    }
     /** Google's screens, in order: a numbered headline above each picture */
     function cols(list) {
         return '<div class="hri-cols' + (list.length > 3 ? ' four' : '') + '">' + list.map(function (c, n) {
-            return '<figure><div class="hc-h"><span class="hc-n">' + (n + 1) + '</span><span>' + c[0] + '</span></div><img src="../../shared/brand/steps/' + c[1] + '?v=367" alt=""><figcaption>' + c[2] + '</figcaption></figure>';
+            return '<figure><div class="hc-h"><span class="hc-n">' + 'ABCDEFG'.charAt(n) + '</span><span>' + c[0] + '</span></div><img src="../../shared/brand/steps/' + c[1] + '?v=367" alt=""><figcaption>' + c[2] + '</figcaption></figure>';
         }).join('') + '</div>';
     }
     /** "(see why)": what each permission is for, in a box over the page */

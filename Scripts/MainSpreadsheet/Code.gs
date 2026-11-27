@@ -17,7 +17,7 @@
 
 // The family's time zone (Configurator → System → Locations & home). Kept in the script's properties so every run can read it cheaply.
 const TZ = (function () { try { return PropertiesService.getScriptProperties().getProperty('tz') || 'Europe/London'; } catch (e) { return 'Europe/London'; } })();
-const SCRIPT_VERSION = '2026.11.139';      // compared with version.json on GitHub to tell families when to update
+const SCRIPT_VERSION = '2026.11.140';      // compared with version.json on GitHub to tell families when to update
 const APPS_DEFAULT = 'https://houserunner.app/';
 /** The apps address: the old GitHub address (before November 2026) counts as the default, so every family moves to houserunner.app. */
 function appsAddr_() { const a = String(inst_('AppsAddress') || ''); return !a || /russm1981\.github\.io\/family-apps/i.test(a) ? APPS_DEFAULT : a; }
@@ -1326,6 +1326,10 @@ function setTodo_(boy, item, done) {
 /* ---------------------------------------------------------------- admin */
 
 function getAdmin_() {
+  const mine = !RMEMO; if (mine) RMEMO = {};
+  try { return getAdminBuild_(); } finally { if (mine) RMEMO = null; }
+}
+function getAdminBuild_() {
   const L = layout_();
   const lists = {};
   L.widgets.filter(w => w.type === 'list' || w.type === 'todo').forEach(w => {
@@ -1469,7 +1473,16 @@ function sheet_(key) {
   return sh;
 }
 
+/** While the admin payload is built (reads only), each tab is read once: inst_ alone used to re-read the
+ *  Installation tab for every setting – dozens of reads. Copies are handed out, so callers can't change the saved read. */
+let RMEMO = null;
 function rows_(key) {
+  if (RMEMO && RMEMO[key]) return RMEMO[key].map(o => Object.assign({}, o));
+  const out = rowsRead_(key);
+  if (RMEMO) RMEMO[key] = out.map(o => Object.assign({}, o));
+  return out;
+}
+function rowsRead_(key) {
   const sh = sheet_(key);
   const data = sh.getDataRange().getValues();
   const head = data.shift() || [];
@@ -2179,7 +2192,7 @@ function movePage_(id, dir) {
   return layoutOnly_();
 }
 
-function saveInstall_(values) {
+function saveInstall_(values, noRead) {
   if (!values || typeof values !== 'object') throw new Error('Nothing to save');
   Object.keys(values).forEach(k => {
     if (k === 'AccessCode') throw new Error('The access code can only be changed in the Sheet');
@@ -2199,7 +2212,7 @@ function saveInstall_(values) {
     if (v !== String(inst_(k))) setInst_(k, v);
   });
   bumpVersions_();
-  return getAdmin_();
+  return noRead ? null : getAdmin_();
 }
 
 /** Tidy the Order column of pages/widgets to 1, 2, 3… (per page for widgets). */
@@ -3396,6 +3409,7 @@ function writeCats_(people, groups, generals) {
 }
 /** The Family page: who's in the family, their colours, and who takes part in rewards. Groups and categories stay as they are. */
 function saveFamilyPeople_(b) {
+  if (b.install) saveInstall_(b.install, true);
   const M = calModel_(), L = FAMILY_LIMITS, used = {};
   M.cats.forEach(c => { used[norm_(c.name)] = 'category'; });
   const people = (b.people || []).filter(p => p && String(p.name || '').trim());

@@ -1,10 +1,11 @@
 {
-  "app": "2026.11.376",
-  "script": "2026.11.139",
+  "app": "2026.11.377",
+  "script": "2026.11.140",
   "date": "2026-11-17",
   "notes": [
-    "Both phone guides now go step by step with a Next button – the Installer App permissions guide has its own clip for each click",
-    "The Main App guide ends with 'Back to HouseRunner setup': if setup didn't come back by itself, go back and follow the instructions there"
+    "After Finish publishing, setup no longer drops back to 'Welcome back… starts afresh': a finished Sheet is never treated as an unfinished try",
+    "If setup can't connect to the new Sheet straight away, the start of step 2 offers 'Connect to my new Sheet' (with what went wrong) instead of a new start",
+    "The installer's log now survives the hand-over, under Details for Russ"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

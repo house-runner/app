@@ -1,5 +1,14 @@
 [
   {
+    "version": "2026.11.376",
+    "date": "2026-11-17",
+    "notes": [
+      "After Finish publishing, setup no longer drops back to 'Welcome back… starts afresh': a finished Sheet is never treated as an unfinished try",
+      "If setup can't connect to the new Sheet straight away, the start of step 2 offers 'Connect to my new Sheet' (with what went wrong) instead of a new start",
+      "The installer's log now survives the hand-over, under Details for Russ"
+    ]
+  },
+  {
     "version": "2026.11.375",
     "date": "2026-11-17",
     "notes": [

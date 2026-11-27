@@ -482,9 +482,12 @@
                 var ctry = $('fwCountry').value, cinfo = FD_COUNTRIES.filter(function (x) { return x[0] === ctry; })[0];
                 S.country = ctry; S.tz = $('fwTz').value; S.week = $('fwWeek').value; S.order = $('fwOrder').value; S.familySaving = true; save(); renderSteps();
                 var here = function () { return STEPS[S.step] && STEPS[S.step].id === 'family'; };
-                post({ action: 'saveInstall', values: { HomeAddress: home, Country: ctry, TimeZone: S.tz, WeekStart: S.week, DateOrder: S.order, Currency: cinfo ? cinfo[2].trim() : '£' } }).then(function () {
-                    return post({ action: 'saveFamilyPeople', people: list, familyName: $('fwName') ? $('fwName').value.trim() : (FAM && FAM.name) || '' });
-                }).then(function (d) {
+                var vals = { HomeAddress: home, Country: ctry, TimeZone: S.tz, WeekStart: S.week, DateOrder: S.order, Currency: cinfo ? cinfo[2].trim() : '£' };
+                var fname = $('fwName') ? $('fwName').value.trim() : (FAM && FAM.name) || '';
+                // Newer Sheets take the settings and the people in one request (and read the Sheet back once)
+                var oneGo = String(S.scriptVersion || '').split('.').map(Number).reduce(function (n, x) { return n * 1000 + (x || 0); }, 0) >= 2026011140;
+                (oneGo ? post({ action: 'saveFamilyPeople', people: list, familyName: fname, install: vals })
+                    : post({ action: 'saveInstall', values: vals }).then(function () { return post({ action: 'saveFamilyPeople', people: list, familyName: fname }); })).then(function (d) {
                     ADM = d; FAM = null; S.familyDone = true; S.familySaving = false; try { localStorage.removeItem('hr.famDraft'); } catch (x) { /* fine */ } var tt0 = $('toast'); if (tt0) { clearTimeout(toast.h); tt0.className = 'toast'; } save();
                     if (!here()) { toast('✅ Your family is saved'); render(); return; }      // moved on meanwhile: the calendar step (if open) was waiting for it
                     render();
@@ -503,7 +506,13 @@
         { id: 'calendar', title: 'Your calendar', render: function () {
             if (!connected()) return '<h1>5. Your calendar</h1>' + needConnect();
             loadAdm();
-            if (S.familySaving) return '<h1>5. Your calendar</h1><div class="card" id="famWait"><div class="status">⏳ Your family is still saving to your Sheet – the calendar uses it, so this opens as soon as it’s saved…</div></div>';
+            if (S.familySaving) {
+                clearInterval(render.famT); var t0 = render.famT0 || (render.famT0 = Date.now());
+                render.famT = setInterval(function () { var e = $('famSecs'); if (!e || !S.familySaving) { clearInterval(render.famT); return; } e.textContent = Math.round((Date.now() - t0) / 1000) + 's'; }, 1000);
+                return '<h1>5. Your calendar</h1><div class="card" id="famWait"><div class="status">⏳ Your family is still saving to your Sheet – the calendar uses it, so this opens by itself as soon as it’s saved. <span class="mute">(<span id="famSecs">0s</span>)</span></div>' +
+                    '<p class="mute small">Google Sheets usually takes 5–20 seconds. Please don’t refresh the page – that can lose the save.</p></div>';
+            }
+            render.famT0 = 0;
             if (!ADM) return '<h1>5. Your calendar</h1><div class="card" id="admLoad"><div class="status">Reading your Sheet…</div></div>';
             return '<h1>5. Your calendar</h1>' +
                 '<p class="lead">How the dashboard colours your Google Calendar. Every event goes in a <b>category</b> – a group of people (Family is everyone), a person, or a general one like Holiday – ' +
@@ -744,7 +753,11 @@
     var bare = function (h) { return String(h).replace(/^\s*<h1>[\s\S]*?<\/h1>/, ''); };     // a step's page without its title
     /** "Set it up for me": HouseRunner makes and publishes the Sheet itself (auto.js); each step's instructions and pictures sit under it */
     function autoView() {
+        var gq = '';
+        if (window.qrcode) { var q = window.qrcode(0, 'L'); q.addData(new URL('helper.html', location.href).href); q.make(); gq = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); }
         return '<h2 style="margin-top:12px">⚡ HouseRunner makes it for you</h2>' +
+            (gq ? '<div class="hr-guide"><div class="qrb">' + gq + '</div><div><b style="font-size:17px">📱 Scan this with your phone first</b>' +
+                '<div class="mute" style="margin-top:4px"><b>Strongly recommended.</b> A step-by-step guide to this whole page – a short clip of every click, numbered like the steps below (1, 2, 3… and A, B, C…). Keep it beside you as you go.</div></div></div>' : '') +
             '<div id="hrInstall"></div>' +
             '<p class="mute small" style="margin-top:18px">Rather do it by hand (copy the Sheet and publish it yourself)? <a href="#" id="byHandGo">Do it by hand instead</a>.</p>';
     }

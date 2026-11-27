@@ -15,6 +15,7 @@ body{background:#0f141b;color:#e6edf3;font:15px/1.42 "Segoe UI",Roboto,Arial,san
 .bd{flex:1;overflow:auto;padding:10px 14px}
 .where{color:#9fb0c3;font-size:13px;margin-bottom:4px}
 h2{font-size:18px;line-height:1.3;margin:2px 0 10px}
+.num{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 7px;margin-right:6px;border-radius:15px;background:#2563eb;color:#fff;font-size:15px;font-weight:800;vertical-align:2px}
 .again{display:block;margin:-4px 0 12px;padding:8px 14px;border-radius:10px;border:1px solid #2b3647;background:transparent;color:#e6edf3;font:600 15px system-ui,sans-serif;cursor:pointer}
 .media{display:block;width:100%;max-height:56vh;object-fit:contain;border-radius:10px;border:1px solid #253041;background:#fff;margin:0 0 10px}
 p{margin:0 0 8px}.mute{color:#9fb0c3;font-size:13px}
@@ -31,47 +32,33 @@ button:disabled{opacity:.4;cursor:default}
  * words for each click in "HouseRunner makes it for you", to follow alongside the computer. ?set= picks the guide, ?at= where it starts.
  * Where a picture shows Google's screens, the account shown is marked "your own Google email": the person sees theirs. */
 (function () {
-    var V = '../../shared/brand/steps/', REV = '375';
+    var V = '../../shared/brand/steps/', REV = '377';
     var SETUP = '🏠 In the <b>HouseRunner setup</b> tab', GWIN = '🔐 In <b>Google’s window</b>', GTAB = '🔐 <b>Google</b>, in the HouseRunner setup tab';
-    // [stage, where, what to click, help, media (one, or several shown in turn)]
+    // The whole of "Make your Google Sheet", numbered as on the page: 1–5 for its steps, A, B, C… for the Google screens within one.
+    // [stage, where, what to click, help, media, number]
     var STEPS = [
-        ['start', SETUP, 'Click <b>Sign in to Google</b>', 'Use the Google account you want the dashboard in – ideally the one with your family calendar. Already signed in? Google just checks which account and brings you straight back.', 'h-signin.mp4'],
-        ['google', GWIN, '“Choose an account”: click <b>yours</b>', 'Google opens a small window. Your own name and email show where the picture says <i>your name</i> and <i>your own Google email</i>. <b>Not signed in to Google on this computer yet?</b> It asks for your Google email and password first. Account not listed? Click <b>Use another account</b>.', 'h-choose.png'],
-        ['google', GWIN, '“Sign in to houserunner.app”: click <b>Continue</b>', 'Google checks it’s you – your own Google email shows where the picture says so. Click <b>Continue</b> on the right.', 'h-signinto.png'],
-        ['perms', SETUP, 'Click <b>Approve Installer App permissions</b>', 'A green ✅ shows which Google account you’re signed in to. Now Google asks you to let the HouseRunner Installer make your Sheet.', 'i-perms.png'],
-        ['signin', GWIN, '“Google hasn’t verified this app”: click <b>Continue</b>', 'That’s expected – HouseRunner is new. Click the blue word <b>Continue</b> on the left, <b>not</b> “Back to safety”. <span class="mute">(If it shows <b>Advanced</b> instead, click that, then <b>Go to HouseRunner Installer (unsafe)</b>.)</span>', 'h-testing.png'],
-        ['signin', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'Tick <b>Select all</b> so all three are ticked – one Sheet, its script, and publishing it.', 'h-consent-inst2.png'],
-        ['api', '⚙️ In the <b>Apps Script settings</b> tab', 'Only if asked: switch on <b>Google Apps Script API</b>', 'In HouseRunner setup click <b>Open my Apps Script settings</b>. In that new tab click <b>Google Apps Script API</b>, then the switch at the <b>far right</b> so it turns <b>On</b>. <b style="color:#fca5a5">Then close that tab</b> and come back to HouseRunner setup – it carries on by itself.', 'v-switch.mp4'],
-        ['making', SETUP, '⏳ Wait – HouseRunner makes your Sheet by itself', 'About 30 seconds. Beside the step it shows where it’s up to – making the Sheet, adding the script, publishing. Don’t close the tab.', 'i-making.png'],
-        ['approve', SETUP, 'Click <b>Sign into the Main App</b>', 'Now your own Sheet asks for its permissions. This tab goes to Google, then comes back.', 'i-approve.png'],
-        ['google2', GTAB, 'Click <b>REVIEW PERMISSIONS</b>', 'Google says “HouseRunner App (Unverified) needs your permission” – that’s your own private copy.', 'h-review.mp4'],
-        ['google2', GWIN, '<b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>', 'Expected – it’s your own private copy.', 'p-advanced.png'],
-        ['google2', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'A yellow box saying the app isn’t verified yet is expected – it’s your own private copy. Every permission is needed; setup explains each one.', ['h-consent.png', 'p-selectall.png']],
-        ['google2', GTAB, 'Wait for Google', 'It shows “Waiting for authorization…” for a few seconds. <b>Stuck there?</b> Press <b>F5</b> to reload.', 'h-waiting.png'],
-        ['google2', GTAB, 'Click <b>▶ Back to HouseRunner setup</b>', 'Google shows <b>✅ Approved – your Sheet is switched on</b>.', 'h-approved.mp4'],
-        ['finish', SETUP, 'Click <b>Finish publishing</b>', 'One last click so your screen and phones can reach your Sheet. A Google window may flash up and close by itself.', 'h-finish.mp4'],
-        ['done', SETUP, '✅ That’s the Google part done', '<div class="done">Setup on your computer connects to your new Sheet and carries on by itself.</div>', 'i-done.png']
+        ['start', SETUP, 'Click <b>Sign in to Google</b>', 'Use the Google account you want HouseRunner in – ideally the one with your family calendar.', 'i-gsign.png', '1'],
+        ['google', GWIN, 'Choose your account', 'Click <b>your</b> account – your own name and email show where the clip says <i>your name</i>. Not signed in on this computer yet? Google asks for your email and password first. Not listed? <b>Use another account</b>.', 'v-s-choose.mp4', '1A'],
+        ['google', GWIN, 'Sign in to HouseRunner: click <b>Continue</b>', 'Google calls it houserunner.app. Click <b>Continue</b> on the right.', 'v-s-signinto.mp4', '1B'],
+        ['perms', SETUP, 'Click <b>Approve Installer App permissions</b>', 'A green ✅ shows which Google account you’re signed in to.', 'i-perms.png', '2'],
+        ['signin', GWIN, 'Continue past the “unverified” screen', 'Expected – HouseRunner is new. Click <b>Continue</b> on the <b>left</b>, not “Back to safety”.', 'v-p-testing.mp4', '2A'],
+        ['signin', GWIN, 'Agree the permissions it needs', 'Tick <b>Select all</b>, scroll to the bottom and click <b>Continue</b>. Every permission is needed – setup’s “see why” explains each one.', 'v-p-consent.mp4', '2B'],
+        ['making', SETUP, '⏳ Wait – HouseRunner makes your Sheet by itself', 'About 30 seconds. Beside the step it shows where it’s up to. Don’t close the tab.', 'i-making.png', '3'],
+        ['api', '⚙️ In the <b>Apps Script settings</b> tab', 'Only if setup asks: switch on <b>Google Apps Script API</b>', 'Click <b>Open my Apps Script settings</b> in setup. In the new tab click <b>Google Apps Script API</b>, then the switch at the <b>far right</b> so it turns <b>On</b>. <b style="color:#fca5a5">Then close that tab</b> and go back to setup – it carries on by itself.', 'v-switch.mp4', '3'],
+        ['approve', SETUP, 'Click <b>Sign into the Main App</b>', 'Now your own Sheet – the Main App – asks for its permissions. This tab goes to Google, then comes back.', 'i-approve.png', '4'],
+        ['google2', GTAB, 'Review permissions', 'Google says “HouseRunner App (Unverified) needs your permission” – your own private copy. Click the blue <b>REVIEW PERMISSIONS</b>.', 'h-review.mp4', '4A'],
+        ['google2', GTAB, '<b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>', 'Expected – it’s your own private copy. Click <b>Advanced</b> (bottom left), then the link <b>Go to HouseRunner App (unsafe)</b>. If Google asks which account, choose yours.', 'v-a-unsafe.mp4', '4B'],
+        ['google2', GTAB, 'Approve the permissions your Sheet needs', 'A yellow box says the app isn’t verified yet – expected. Tick <b>Select all</b>, scroll to the bottom, click <b>Continue</b>.', 'v-a-consent.mp4', '4C'],
+        ['google2', GTAB, 'Wait – it can take a minute or two – then back to setup', 'Google shows “Waiting for authorization…”. <b>Just wait</b> – only if nothing happens after 2 minutes, press <b>F5</b>. Then it shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b> if it doesn’t go back by itself.', 'v-a-wait.mp4', '4D'],
+        ['finish', SETUP, 'Click <b>Finish publishing</b>', 'One last click so your screen and phones can reach your Sheet. A Google window may flash up and close by itself.', 'h-finish.mp4', '5'],
+        ['done', SETUP, '✅ That’s your Google Sheet made', '<div class="done">Setup on your computer connects to your new Sheet and carries on by itself – follow the instructions there.</div>', 'i-done.png', '✓']
     ];
     var SET = (/[?&]set=(\w+)/.exec(location.search) || [])[1] || '';
-    var BACK = '<div class="done">Google’s window closes and setup on your computer carries on by itself. <b>If it doesn’t</b>, go back to the <b>HouseRunner setup</b> tab yourself – then keep following the instructions there.</div>';
-    // "Approve Installer App permissions": one video of the whole step, numbered 1–4, with the words beside it
-    if (SET === 'perms') STEPS = [
-        ['perms', GWIN, '“Google hasn’t verified this app”: click <b>Continue</b>', 'Expected – HouseRunner is new. Click <b>Continue</b> on the <b>left</b>, not “Back to safety”.', 'v-p-testing.mp4'],
-        ['perms', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'Every permission is needed (setup’s “see why” explains each one). Scroll to the bottom and click <b>Continue</b>.', 'v-p-consent.mp4'],
-        ['making', SETUP, '↩ Back to HouseRunner setup', BACK, '']
-    ];
-    // "Approve HouseRunner App's permissions": step by step, a short clip and the words for each
-    if (SET === 'approve') STEPS = [
-        ['google2', GTAB, 'Click <b>REVIEW PERMISSIONS</b>', 'Google says “HouseRunner App (Unverified) needs your permission”. That’s your own private copy of HouseRunner – click the blue <b>REVIEW PERMISSIONS</b>.', 'h-review.mp4'],
-        ['google2', GWIN, '<b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>', 'Google says it hasn’t verified the app – expected, it’s your own private copy of HouseRunner. Click <b>Advanced</b> (bottom left), then the link <b>Go to HouseRunner App (unsafe)</b>. <span class="mute">(If Google asks which account first, click yours.)</span>', 'v-a-unsafe.mp4'],
-        ['google2', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'A yellow box says the app isn’t verified yet – expected. Every permission is needed (setup’s “see why” explains each one). Then scroll to the bottom and click <b>Continue</b>.', 'v-a-consent.mp4'],
-        ['google2', GWIN, 'Wait – it can take a minute or two – then click <b>▶ Back to HouseRunner setup</b>', 'Google shows “Waiting for authorization…”. <b>This can take a minute or two – just wait.</b> Only if nothing happens after 2 minutes, press <b>F5</b>. Then it shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b>.', 'v-a-wait.mp4'],
-        ['finish', SETUP, '↩ Back to HouseRunner setup', BACK.replace('Google’s window closes and setup', 'Google takes you back, and setup').replace('carries on by itself', 'carries on – one more click there, to finish publishing'), '']
-    ];
     var FIRST = {}; STEPS.forEach(function (s, k) { if (!(s[0] in FIRST)) FIRST[s[0]] = k; });
-    FIRST.checking = SET === 'approve' ? 4 : FIRST.google2 + 3;      // back from Google, checking the Sheet: the last of Google's steps
-    if (SET === 'perms') { FIRST.perms = 0; FIRST.checking = FIRST.done = 2; }
-    if (SET === 'approve') { FIRST.approve = 0; FIRST.finish = 4; FIRST.done = 4; FIRST.checking = 4; }
+    FIRST.checking = FIRST.finish;
+    // Older QR codes: the Installer's permissions, or the Main App's approval
+    if (SET === 'perms') FIRST.start = FIRST.perms;
+    if (SET === 'approve') FIRST.start = FIRST.approve;
     var i = 0, cyc = 0, closeT = 0;
     function stageNow() { try { return localStorage.getItem('hrinstall.stage') || 'start'; } catch (e) { return 'start'; } }
     function follow() {
@@ -87,9 +74,9 @@ button:disabled{opacity:.4;cursor:default}
         i = Math.max(0, Math.min(STEPS.length - 1, k));
         var s = STEPS[i], last = i === STEPS.length - 1, list = [].concat(s[4]);
         document.body.innerHTML =
-            '<div class="hd"><b>' + (SET === 'approve' ? 'The Main App, step by step' : SET === 'perms' ? 'Installer App permissions, step by step' : 'HouseRunner setup, step by step') + '</b><span class="n">' + (i + 1) + ' of ' + STEPS.length + '</span></div>' +
+            '<div class="hd"><b>' + 'Make your Google Sheet – step by step' + '</b><span class="n">' + (i + 1) + ' of ' + STEPS.length + '</span></div>' +
             '<div class="bar"><i style="width:' + Math.round((i + 1) / STEPS.length * 100) + '%"></i></div>' +
-            '<div class="bd"><div class="where">' + s[1] + '</div><h2>' + s[2] + '</h2><div id="m">' + media(list[0]) + '</div><p>' + s[3] + '</p>' +
+            '<div class="bd"><div class="where">' + s[1] + '</div><h2><span class="num">' + s[5] + '</span> ' + s[2] + '</h2><div id="m">' + media(list[0]) + '</div><p>' + s[3] + '</p>' +
             '<p class="mute">Tap <b>Next</b> as you go.</p></div>' +
             '<div class="ft"><button class="gh" id="bk"' + (i ? '' : ' disabled') + '>← Back</button>' +
             (last ? '<button class="gh" id="st">↺ From the start</button>' : '<button class="go" id="nx">Next →</button>') + '</div>';

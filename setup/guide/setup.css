@@ -288,3 +288,12 @@ table.check tr.todo td { color: var(--mute); } table.check tr.todo td:nth-child(
 
 /* The Main App's four Google screens: always side by side */
 .hri-cols.four { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+
+/* Make your Google Sheet: steps 1–5 (green once done), Google's screens A, B, C… within a step */
+.hri-steps .sn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); font-size: 13px; color: var(--mute); }
+.hri-steps li.now .sn { background: #2563eb; border-color: #2563eb; color: #fff; }
+.hri-steps li.ok .sn { background: #16a34a; border-color: #16a34a; color: #fff; }
+.hri-cols .hc-n { background: #475569; }
+.hr-guide { display: flex; gap: 16px; align-items: center; border: 3px solid #facc15; border-radius: 14px; padding: 10px 16px 10px 10px; margin: 6px 0 16px; max-width: 640px; }
+.hr-guide .qrb { flex: none; width: 120px; height: 120px; background: #fff; border-radius: 8px; padding: 4px; }
+.hr-guide .qrb svg { width: 100%; height: 100%; display: block; }
