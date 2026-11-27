@@ -13,15 +13,16 @@
     var SCOPES = 'openid email https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/script.projects https://www.googleapis.com/auth/script.deployments';
     var KEY = 'hrbeta.install.v1', CKEY = 'hrbeta.clientId';
     var FILES = '../files/', CONFIG = '../../install/config.json';
-    var S = load(), token = null, tokenAt = 0, client = null, log = [];
+    var S = load(), token = null, tokenAt = 0, client = null, log = (function () { try { return JSON.parse(localStorage.getItem('hrinstall.log')) || []; } catch (e) { return []; } })(), gone = false;
     var app = null, OPT = {}, started = false, cfgP = null;
     /** Where the step window is up to – it reads this (and follows changes) by itself */
     function stage(k) { try { if (localStorage.getItem('hrinstall.stage') !== k) localStorage.setItem('hrinstall.stage', k); } catch (e) { /* fine */ } }
 
     function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
-    function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* fine */ } }
+    function save() { if (gone) return; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* fine */ } }
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-    function note(msg) { log.push(new Date().toISOString().slice(11, 19) + ' ' + msg); if (log.length > 80) log.shift(); }
+    function note(msg) { log.push(new Date().toISOString().slice(11, 19) + ' ' + msg); if (log.length > 80) log.shift(); try { localStorage.setItem('hrinstall.log', JSON.stringify(log)); } catch (e) { /* fine */ } }
+    window.hrInstallNote = note;     // setup.js adds what happens when it connects
 
     /* ---------------------------------------------------------------- the public Google client ID (not a secret) */
     function clientId() { return (window.HR_BETA_CLIENT || '').trim() || localStorage.getItem(CKEY) || ''; }
@@ -126,7 +127,14 @@
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
         else body = '<p class="mute" style="margin:2px 0 6px">HouseRunner is doing this by itself – about 30 seconds. Don’t close this tab.</p>';
         // An earlier try that didn't finish: a new one starts by default; going back to it is one click (the old Sheet is kept either way)
-        var P = prev(), again = P && !S.sheetId ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making a Sheet' +
+        // Finished a Sheet a little while ago, but setup didn't manage to connect to it: offer exactly that, not a new start
+        var L = !S.sheetId ? last() : null, conErr = ''; try { conErr = localStorage.getItem('hrinstall.connErr') || ''; } catch (e) { /* fine */ }
+        var done = L ? '<div class="note ok" id="lastCard" style="margin:0 0 14px">✅ <b>Your Sheet is already made, published and approved</b>' + (L.email ? ' (in <b>' + esc(L.email) + '</b>)' : '') +
+            ' – setup just needs to connect to it.' + (conErr ? ' <span class="mute small">Last time it said: ' + esc(conErr) + '</span>' : '') +
+            '<div class="row" style="margin-top:10px"><button class="btn" id="useLast">Connect to my new Sheet</button></div>' +
+            '<p class="mute small" style="margin:8px 0 0">Rather make another one? Carry on below.</p></div>' : '';
+        var P = prev(); if (P && L && P.sheetId === L.sheetId) P = null;
+        var again = P && !S.sheetId ? '<div class="note" id="againCard" style="margin:0 0 14px">↩ <b>Welcome back.</b> You started making a Sheet' +
             (P.started ? ' on ' + esc(new Date(P.started).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) : '') + (P.email ? ' as <b>' + esc(P.email) + '</b>' : '') +
             ' but didn’t finish, so this starts afresh with a new one. <span class="mute">Rather pick up where you left off? <a href="#" id="again">Carry on with that Sheet instead</a>. Either way your earlier Sheet isn’t changed or deleted – it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
         // What to do now sits straight under the step it belongs to; the steps still to come follow below it
@@ -142,7 +150,7 @@
             return '<li class="' + r[1] + '"><span class="i">' + (r[1] === 'ok' ? '✅' : r[1] === 'now' ? '▶' : '○') + '</span><span>' + r[0] + '</span></li>' +
                 (r[2] === 'B' ? (bodyB ? '<li class="here">' + bodyB + '</li>' : '') : r[2] ? '<li class="here">' + (extra || '') + body + '</li>' : '');
         }).join('') + '</ol>';
-        app.innerHTML = again + list + diag();
+        app.innerHTML = done + again + list + diag();
         wire();
     }
     function devForm() {
@@ -157,7 +165,8 @@
     var PKEY = 'hrinstall.prev';
     function prev() { try { return JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch (e) { return null; } }
     /** Done and handed over to setup: nothing more to carry on with, so the next new setup on this computer starts clean */
-    function forget() { try { localStorage.setItem('hrinstall.last', JSON.stringify({ email: S.email, sheetId: S.sheetId, at: new Date().toISOString() })); localStorage.removeItem(KEY); } catch (e) { /* fine */ } }
+    function forget() { note('handed over to setup'); try { localStorage.setItem('hrinstall.last', JSON.stringify({ email: S.email, sheetId: S.sheetId, url: S.url, code: S.code, at: Date.now() })); localStorage.removeItem(KEY); } catch (e) { /* fine */ } gone = true; }
+    function last() { try { var L = JSON.parse(localStorage.getItem('hrinstall.last') || 'null'); return L && L.url && Date.now() - L.at < 6 * 3600000 ? L : null; } catch (e) { return null; } }
     function wire() {
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
         Array.prototype.forEach.call(app.querySelectorAll('[data-why]'), function (b) { b.onclick = function (e) { e.preventDefault(); why(b.getAttribute('data-why')); }; });
@@ -174,6 +183,7 @@
         on('gsign', function () { stage('google'); googleSignIn().then(function (em) { S.gEmail = em; save(); note('signed in to Google'); draw(); }).catch(fail); });
         on('gOther', function (e) { if (e) e.preventDefault(); delete S.gEmail; googleSignIn.pick = true; save(); stage('start'); draw(); });
         on('approve', approve);
+        on('useLast', function () { var L = last(); if (!L) return; note('connecting to the finished Sheet again'); if (OPT.onReady) OPT.onReady(L.url, L.code); });
         on('again', function (e) {
             if (e) e.preventDefault();
             var P = prev(); if (!P) return;
@@ -430,6 +440,7 @@
             var back = !!OPT.approved;
             // Finished before (and handed over then): nothing to carry on with – a new setup on this computer starts clean
             if (S.answered && !back) { forget(); S = {}; stage('start'); }
+            else if (S.sheetId && !back && !OPT.resume && last() && last().sheetId === S.sheetId) { note('stale copy of a finished install dropped'); try { localStorage.removeItem(KEY); } catch (e) { /* fine */ } S = {}; }
             else if (S.sheetId && !back && !OPT.resume) { try { localStorage.setItem(PKEY, JSON.stringify(S)); localStorage.removeItem(KEY); } catch (e) { /* fine */ } S = {}; stage('start'); note('earlier unfinished try put aside'); }
             if (back) { note('back from Google approval'); stage('checking'); if (OPT.approvedCode) S.code = OPT.approvedCode; if (S.url && !S.answered) S.approved = true; save(); }
             draw(back && !S.answered ? '<div class="note">⏳ Checking your Sheet answers…</div>' : '');

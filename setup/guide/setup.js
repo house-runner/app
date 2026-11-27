@@ -931,6 +931,7 @@
             return S.code ? null : get('claim').then(function (d) { S.code = d.code; save(); });
         }).then(function () { return get('layout'); }).then(function (L) {
             S.connected = true; S.needCode = false;
+            try { localStorage.removeItem('hrinstall.connErr'); localStorage.removeItem('hrinstall.last'); } catch (x) { /* fine */ }
             if (L.privacyAccepted === P.version) S.privacy = P.version;   // already accepted on the screen or a phone
             save();   // saved first, so the other tab reads "connected" when the message reaches it
             try { new BroadcastChannel('hr-setup').postMessage('connected'); } catch (e) { /* the storage event does it */ }
@@ -941,6 +942,7 @@
             return true;
         }).catch(function (e) {
             S.connected = false; S.lastConnErr = e.message;
+            try { localStorage.setItem('hrinstall.connErr', e.message); if (window.hrInstallNote) hrInstallNote('setup: connecting failed – ' + e.message); } catch (x) { /* fine */ }
             if (/access code/i.test(e.message)) { S.needCode = true; }
             save();
             if (st) st.innerHTML = okLine(false, e.message); else if (!quiet) toast(e.message, true);

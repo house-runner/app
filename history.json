@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.375",
+    "date": "2026-11-17",
+    "notes": [
+      "Both phone guides now go step by step with a Next button – the Installer App permissions guide has its own clip for each click",
+      "The Main App guide ends with 'Back to HouseRunner setup': if setup didn't come back by itself, go back and follow the instructions there"
+    ]
+  },
+  {
     "version": "2026.11.374",
     "date": "2026-11-17",
     "notes": [

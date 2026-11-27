@@ -1,9 +1,10 @@
 {
-  "app": "2026.11.375",
+  "app": "2026.11.376",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Main App step: its four Google screens sit side by side again, and the wording says Google's pages open in this tab"
+    "Both phone guides now go step by step with a Next button – the Installer App permissions guide has its own clip for each click",
+    "The Main App guide ends with 'Back to HouseRunner setup': if setup didn't come back by itself, go back and follow the instructions there"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
