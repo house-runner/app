@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.350",
+  "app": "2026.11.351",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: the sign-in pictures now show the installer's own Continue button at the bottom of Google's page"
+    "Setup: sign-in now starts with Google's real 'Choose an account' page, and says what happens if you're not signed in to Google yet"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

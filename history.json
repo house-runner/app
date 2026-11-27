@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.350",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: sign-in now starts with Google's real 'Choose an account' page, and says what happens if you're not signed in to Google yet"
+    ]
+  },
+  {
     "version": "2026.11.349",
     "date": "2026-11-17",
     "notes": [
