@@ -271,3 +271,17 @@ table.check tr.todo td { color: var(--mute); } table.check tr.todo td:nth-child(
 .intro-c h3 { margin: 0 0 8px; }
 .intro-c p { margin: 6px 0; }
 .intro-c .need li { margin: 4px 0; }
+
+/* ① Open Show me  >>>  ② the blue button */
+.hr-flow { display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; margin: 16px 0 4px; }
+.hr-flow .fl-s { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; position: relative; padding-left: 36px; max-width: 300px; }
+.hr-flow .fl-n { position: absolute; left: 0; top: 10px; width: 26px; height: 26px; border-radius: 50%; background: #2563eb; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.hr-flow .fl-show { border: 3px solid #facc15 !important; font-size: 17px; padding: 11px 18px; animation: flPulse 1.6s ease-in-out infinite; }
+.hr-flow.seen .fl-show { animation: none; border-color: var(--line) !important; }
+@keyframes flPulse { 50% { box-shadow: 0 0 0 6px rgba(250,204,21,.25); } }
+.hr-flow .fl-t { font-size: 13px; color: var(--mute); line-height: 1.35; }
+.hr-flow .fl-arrow { font: 900 28px/48px Arial, sans-serif; color: #facc15; letter-spacing: -4px; padding-top: 2px; }
+.hr-flow .fl-main .btn { opacity: .5; }
+.hr-flow.seen .fl-main .btn, .hr-flow .fl-main .btn:hover { opacity: 1; }
+.hr-flow .fl-main { max-width: none; }
+.hr-flow .fl-main .btn { white-space: nowrap; }

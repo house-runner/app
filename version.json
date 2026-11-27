@@ -1,9 +1,10 @@
 {
-  "app": "2026.11.371",
+  "app": "2026.11.372",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Installer steps: the Google screen pictures are smaller, so each step takes less height"
+    "Show me for the Installer App permissions is a new, realistic clip: a pointer clicks Continue, ticks Select all (all the boxes tick), scrolls down and clicks Continue",
+    "Show me clips play once, with a Play again button, instead of looping"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

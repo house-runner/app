@@ -113,15 +113,15 @@
             '<div class="card big"><h3>Approve Installer App permissions</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.</p>' +
             cols([['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
-            '<p>' + showBtn('perms', 'Show me', 'one short video of the whole of this step') + '</p>' +
-            '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Approve Installer App permissions and carry on' : 'Approve Installer App permissions') + '</button><span class="mute small" id="goMsg"></span></div></div>';
+            flow('perms', 'a short video of this step', '<button class="btn" id="go">' + (S.sheetId ? 'Approve Installer App permissions and carry on' : 'Approve Installer App permissions') + '</button>') +
+            '<div class="row"><span class="mute small" id="goMsg"></span></div></div>';
         else if (k === 4) body = '<div class="card big"><h3>Sign into Google and the Main App, then approve its permissions</h3><p>Your Sheet is made and published. Now approve the <b>Main App</b> – your own copy of HouseRunner, which Google calls “HouseRunner App”. One click: Google’s approval opens in its own window – go through the pages below there; this tab carries on by itself when it’s approved.</p>' +
             cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
                 ['Advanced, then Go to HouseRunner App (unsafe)', 'p-advanced.png', 'Expected – it’s your own copy. Click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>'],
                 ['Approve the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
                 ['Wait – can take a minute or two – then back to setup', 'h-waitback.png', '“Waiting for authorization…” <b>can take a minute or two</b> – only press <b>F5</b> if nothing happens after 2 minutes. Then click <b>▶ Back to HouseRunner setup</b>']]) +
-            '<p>' + showBtn('approve', 'Show me, step by step', 'a small window with a short clip and instructions for each step') + '</p>' +
-            '<div class="row"><button class="btn" id="approve">Sign into the Main App</button><span class="mute" id="watch"></span></div></div>';
+            flow('approve', 'a short clip and instructions for each step', '<button class="btn" id="approve">Sign into the Main App</button>') +
+            '<div class="row"><span class="mute" id="watch"></span></div></div>';
         else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
         else body = '<p class="mute" style="margin:2px 0 6px">HouseRunner is doing this by itself – about 30 seconds. Don’t close this tab.</p>';
@@ -160,7 +160,10 @@
     function forget() { try { localStorage.setItem('hrinstall.last', JSON.stringify({ email: S.email, sheetId: S.sheetId, at: new Date().toISOString() })); localStorage.removeItem(KEY); } catch (e) { /* fine */ } }
     function wire() {
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
-        Array.prototype.forEach.call(app.querySelectorAll('[data-showme]'), function (b) { b.onclick = function () { showMe(b.getAttribute('data-showme')); }; });
+        Array.prototype.forEach.call(app.querySelectorAll('[data-showme]'), function (b) { b.onclick = function () {
+            var set = b.getAttribute('data-showme'); showMe(set); opened[set] = true;
+            var f = b.closest('.hr-flow'); if (f) { f.classList.add('seen'); var t = f.querySelector('.fl-main .fl-t'); if (t) t.textContent = 'Then click this'; }
+        }; });
         Array.prototype.forEach.call(app.querySelectorAll('[data-why]'), function (b) { b.onclick = function (e) { e.preventDefault(); why(b.getAttribute('data-why')); }; });
         on('cidSave', function () { var v = document.getElementById('cid').value.trim(); if (!/\.apps\.googleusercontent\.com$/.test(v)) { alert('That doesn’t look like a Google client ID.'); return; } localStorage.setItem(CKEY, v); draw(); });
         on('republish', republish);
@@ -380,6 +383,14 @@
     }
     function toastish(t) { var n = document.createElement('div'); n.className = 'note warn'; n.textContent = t; app.insertBefore(n, app.firstChild); setTimeout(function () { n.remove(); }, 8000); }
     var SHOWME = '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>';
+    /** ① Open Show me (strongly recommended)  >>>  ② the step's blue button – dimmed until Show me has been opened, still clickable */
+    var opened = {};
+    function flow(set, what, main) {
+        return '<div class="hr-flow' + (opened[set] ? ' seen' : '') + '"><div class="fl-s"><span class="fl-n">1</span><button class="btn ghost fl-show" data-showme="' + set + '" type="button">🎬 Open Show me</button>' +
+            '<div class="fl-t"><b>Strongly recommended</b> – ' + what + ', in a small window that stays beside Google’s</div></div>' +
+            '<div class="fl-arrow" aria-hidden="true">&gt;&gt;&gt;</div>' +
+            '<div class="fl-s fl-main"><span class="fl-n">2</span>' + main + '<div class="fl-t">' + (opened[set] ? 'Then click this' : 'Open Show me first') + '</div></div></div>';
+    }
     function showBtn(set, label, what) { return '<button class="btn ghost sm" data-showme="' + set + '" type="button">🎬 ' + label + '</button> <span class="mute small">– ' + what + '</span>'; }
     /** Google's screens, in order: a numbered headline above each picture */
     function cols(list) {

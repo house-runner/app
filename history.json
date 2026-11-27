@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.371",
+    "date": "2026-11-17",
+    "notes": [
+      "Show me for the Installer App permissions is a new, realistic clip: a pointer clicks Continue, ticks Select all (all the boxes tick), scrolls down and clicks Continue",
+      "Show me clips play once, with a Play again button, instead of looping"
+    ]
+  },
+  {
     "version": "2026.11.370",
     "date": "2026-11-17",
     "notes": [
