@@ -249,8 +249,9 @@
         draw('<div class="card big"><h3>⚙️ One switch to turn on first</h3>' +
             '<p>Google only lets HouseRunner make your script once you’ve switched on <b>Google Apps Script API</b> in your own Apps Script settings. It’s a one-off for this Google account.</p>' +
             '<div class="note warn" style="margin:12px 0"><b>The next button opens your Apps Script settings in a new tab.</b> In that tab:<ol style="margin:6px 0 0">' +
-            '<li>Click <b>Google Apps Script API</b>.</li><li>Click the switch so it turns <b>On</b> (blue).</li><li><b>Close that tab</b> (click its ✕) and <b>come back to this “HouseRunner setup” tab</b>.</li></ol></div>' +
-            '<img src="../../shared/brand/steps/i-apiswitch.png?v=333" alt="" style="max-width:420px;width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 12px">' +
+            '<li>Click <b>Google Apps Script API</b>.</li><li>Click the switch at the far right so it turns <b>On</b> (blue).</li></ol></div>' +
+            '<div class="note bad" style="margin:0 0 12px;font-size:17px">⚠️ <b>Then close that Apps Script tab</b> (click the ✕ on its tab at the top of the window) and <b>come back to this “HouseRunner setup” tab</b> – setup carries on from here.</div>' +
+            '<video src="../../shared/brand/steps/v-switch.mp4?v=365" autoplay muted loop playsinline style="background:#fff;max-width:520px;width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 12px"></video>' +
             '<div class="row"><button class="btn" id="setGo">Open my Apps Script settings (new tab)</button><span class="mute" id="setMsg"></span></div>' +
             '<p class="mute small">This page watches for the switch and carries on by itself as soon as it’s on.</p><p>' + '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>' + '</p></div>');
         var b = document.getElementById('setGo');

@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.364",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: signing into the Main App and approving its permissions are one step again – Google does them in one go"
+    ]
+  },
+  {
     "version": "2026.11.363",
     "date": "2026-11-17",
     "notes": [
