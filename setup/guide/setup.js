@@ -9,6 +9,7 @@
     var CFG = window.FD_SETUP || {};
     var BYHAND = /byhand/.test(location.hash);      // asked for the by-hand route (Make my copy + the step window)
     var APPROVED = /approved/.test(location.hash);  // just back from Google's approval of the Sheet that "Set it up for me" made
+    var APPCODE = APPROVED ? decodeURIComponent((location.hash.match(/[#&]code=([^&]+)/) || [])[1] || '') : '';   // its access code, sent back by the Sheet itself
     var S = load();
     var $ = function (id) { return document.getElementById(id); };
     function load() { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } }
@@ -746,7 +747,8 @@
             if ($('hrInstall') && window.HRInstall) HRInstall.mount($('hrInstall'), {
                 approved: APPROVED, perms: whyPerms(),
                 // Sheet made, approved and answering: connect to it exactly as the by-hand route's hand-back does
-                onReady: function (url) { location.replace(location.pathname + '#api=' + encodeURIComponent(url) + '&from=sheet'); location.reload(); },
+                approvedCode: APPCODE,
+                onReady: function (url, code) { location.replace(location.pathname + '#api=' + encodeURIComponent(url) + (code ? '&code=' + encodeURIComponent(code) : '') + '&from=sheet'); location.reload(); },
             });
             if ($('showAll')) $('showAll').onclick = function (e) { e.preventDefault(); window.hrCopiedNow = false; window.hrShowAll = true; render(); };
             if ($('floatStart')) $('floatStart').onclick = function () {
@@ -887,7 +889,7 @@
             renderSteps();
             return true;
         }).catch(function (e) {
-            S.connected = false;
+            S.connected = false; S.lastConnErr = e.message;
             if (/access code/i.test(e.message)) { S.needCode = true; }
             save();
             if (st) st.innerHTML = okLine(false, e.message); else if (!quiet) toast(e.message, true);
@@ -1238,6 +1240,8 @@
                 return connect(true).then(function (ok) {
                     var w = document.getElementById('suWait');
                     if (ok) { if (w) w.remove(); return true; }
+                    var why = S.lastConnErr ? ' <span class="mute small">(' + esc(S.lastConnErr) + ')</span>' : '';
+                    if (w && why && w.innerHTML.indexOf('mute small') < 0) w.insertAdjacentHTML('beforeend', why);
                     if (++tries > 24) { if (w) w.innerHTML = '⚠ Your Sheet isn’t answering yet. Click <b>▶ Back to HouseRunner setup</b> again on the “Published!” page – or in your Sheet, click <b>🏠 HouseRunner</b> and its first menu item.'; return false; }
                     if (!w && pg()) pg().insertAdjacentHTML('afterbegin', '<div class="note" id="suWait">⏳ <b>Connecting to your Sheet…</b> Google can take up to a minute after publishing – this page keeps trying by itself.</div>');
                     return new Promise(function (r) { setTimeout(r, 5000); }).then(one);

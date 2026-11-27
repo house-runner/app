@@ -331,7 +331,7 @@
             // Finished before (and handed over then): nothing to carry on with – a new setup on this computer starts clean
             if (S.answered && !back) { forget(); S = {}; stage('start'); }
             else if (S.sheetId && !back && !OPT.resume) { try { localStorage.setItem(PKEY, JSON.stringify(S)); localStorage.removeItem(KEY); } catch (e) { /* fine */ } S = {}; stage('start'); note('earlier unfinished try put aside'); }
-            if (back) { note('back from Google approval'); stage('checking'); if (S.url && !S.answered) { S.approved = true; save(); } }
+            if (back) { note('back from Google approval'); stage('checking'); if (OPT.approvedCode) S.code = OPT.approvedCode; if (S.url && !S.answered) S.approved = true; save(); }
             draw(back && !S.answered ? '<div class="note">⏳ Checking your Sheet answers…</div>' : '');
             if (S.answered) { finish(); return; }
             // Back from Google's approval (or reopened part-way): check the Sheet answers – a few tries, as Google can take a moment
@@ -344,7 +344,7 @@
             })(0);
         });
     }
-    function finish() { stage('done'); var u = S.url; setTimeout(function () { forget(); if (OPT.onReady) OPT.onReady(u); }, 1800); }
+    function finish() { stage('done'); var u = S.url, c = S.code; setTimeout(function () { forget(); if (OPT.onReady) OPT.onReady(u, c); }, 1800); }
     window.HRInstall = {
         mount: mount,
         /** Has an automatic setup been started on this computer (so its card should show rather than the by-hand steps)? */
