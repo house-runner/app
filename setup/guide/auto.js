@@ -105,7 +105,7 @@
         var body = '';
         if (!clientId()) body = devForm();
         else if (S.needSwitch && k <= 2) body = '';
-        else if (k === 0 && !S.gEmail) body = '<div class="card big"><h3>Sign in to Google</h3><p>Sign in to the Google account you want HouseRunner in – ideally the one your family calendar is in. Already signed in? Google just checks which account, then asks you to sign in to HouseRunner.</p>' +
+        else if (k === 0 && !S.gEmail) body = '<div class="card big"><h3>Sign in to Google and the Installer App</h3><p>Sign in to the Google account you want HouseRunner in – ideally the one your family calendar is in. Already signed in? Google just checks which account, then asks you to sign in to HouseRunner.</p>' +
             cols([['Choose your account <span class="mute">(or log in)</span>', 'h-choose.png', 'Click your account – or sign in with your Google email and password. Not listed? <b>Use another account</b>'],
                 ['Sign in to HouseRunner', 'h-signinto.png', 'Google calls it houserunner.app – click <b>Continue</b>']]) +
             '<div class="row"><button class="btn" id="gsign">Sign in to Google</button></div></div>';
@@ -131,7 +131,7 @@
             ' but didn’t finish, so this starts afresh with a new one. <span class="mute">Rather pick up where you left off? <a href="#" id="again">Carry on with that Sheet instead</a>. Either way your earlier Sheet isn’t changed or deleted – it stays in your Google Drive as “HouseRunner MAIN DATA”.</span></div>' : '';
         // What to do now sits straight under the step it belongs to; the steps still to come follow below it
         var g = k > 0 || !!S.gEmail;          // signed in to Google (step 1 of 2 at the start)
-        var rows = [['Sign in to Google', g ? 'ok' : 'now', !g], ['Set up app permissions', k > 0 ? 'ok' : g ? 'now' : '', g && k === 0]]
+        var rows = [['Sign in to Google and the Installer App', g ? 'ok' : 'now', !g], ['Set up app permissions', k > 0 ? 'ok' : g ? 'now' : '', g && k === 0]]
             // Making the Sheet, adding its script and publishing it happen by themselves: one step, with where it's up to beside it
             .concat([['Make your HouseRunner Sheet <span class="mute small">(automatic)</span>' + (k >= 1 && k <= 3 && !S.needSwitch ? ' <span class="hri-sub">⏳ ' + ['', 'Making the Sheet…', 'Adding the script…', 'Publishing…'][k] + '</span>' : ''),
                 k > 3 ? 'ok' : k >= 1 ? 'now' : '', k >= 1 && k <= 3]])
