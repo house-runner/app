@@ -31,7 +31,7 @@ button:disabled{opacity:.4;cursor:default}
  * words for each click in "HouseRunner makes it for you", to follow alongside the computer. ?set= picks the guide, ?at= where it starts.
  * Where a picture shows Google's screens, the account shown is marked "your own Google email": the person sees theirs. */
 (function () {
-    var V = '../../shared/brand/steps/', REV = '373';
+    var V = '../../shared/brand/steps/', REV = '375';
     var SETUP = '🏠 In the <b>HouseRunner setup</b> tab', GWIN = '🔐 In <b>Google’s window</b>', GTAB = '🔐 <b>Google</b>, in the HouseRunner setup tab';
     // [stage, where, what to click, help, media (one, or several shown in turn)]
     var STEPS = [
@@ -53,26 +53,24 @@ button:disabled{opacity:.4;cursor:default}
         ['done', SETUP, '✅ That’s the Google part done', '<div class="done">Setup on your computer connects to your new Sheet and carries on by itself.</div>', 'i-done.png']
     ];
     var SET = (/[?&]set=(\w+)/.exec(location.search) || [])[1] || '';
+    var BACK = '<div class="done">Google’s window closes and setup on your computer carries on by itself. <b>If it doesn’t</b>, go back to the <b>HouseRunner setup</b> tab yourself – then keep following the instructions there.</div>';
     // "Approve Installer App permissions": one video of the whole step, numbered 1–4, with the words beside it
-    if (SET === 'perms') {
-        document.title = 'Show me – Approve Installer App permissions';
-        document.body.innerHTML = '<div class="hd"><b>Approve Installer App permissions</b><span class="n">one video</span></div><div class="bd">' +
-            '<video class="media" src="' + V + 'v-perms-all.mp4?v=' + REV + '" autoplay muted playsinline></video><ol style="margin:4px 0 8px;padding-left:22px">' +
-            '<li><b>“Google hasn’t verified this app”</b> – expected, HouseRunner is new. Click <b>Continue</b> on the left, not “Back to safety”.</li>' +
-            '<li><b>Select all</b>, scroll down to the bottom, click <b>Continue</b>. Google’s window closes and setup carries on.</li></ol>' +
-            '<p class="mute">Then carry on, on your computer.</p></div>';
-        return;
-    }
+    if (SET === 'perms') STEPS = [
+        ['perms', GWIN, '“Google hasn’t verified this app”: click <b>Continue</b>', 'Expected – HouseRunner is new. Click <b>Continue</b> on the <b>left</b>, not “Back to safety”.', 'v-p-testing.mp4'],
+        ['perms', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'Every permission is needed (setup’s “see why” explains each one). Scroll to the bottom and click <b>Continue</b>.', 'v-p-consent.mp4'],
+        ['making', SETUP, '↩ Back to HouseRunner setup', BACK, '']
+    ];
     // "Approve HouseRunner App's permissions": step by step, a short clip and the words for each
     if (SET === 'approve') STEPS = [
         ['google2', GTAB, 'Click <b>REVIEW PERMISSIONS</b>', 'Google says “HouseRunner App (Unverified) needs your permission”. That’s your own private copy of HouseRunner – click the blue <b>REVIEW PERMISSIONS</b>.', 'h-review.mp4'],
         ['google2', GWIN, '<b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>', 'Google says it hasn’t verified the app – expected, it’s your own private copy of HouseRunner. Click <b>Advanced</b> (bottom left), then the link <b>Go to HouseRunner App (unsafe)</b>. <span class="mute">(If Google asks which account first, click yours.)</span>', 'v-a-unsafe.mp4'],
         ['google2', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'A yellow box says the app isn’t verified yet – expected. Every permission is needed (setup’s “see why” explains each one). Then scroll to the bottom and click <b>Continue</b>.', 'v-a-consent.mp4'],
         ['google2', GWIN, 'Wait – it can take a minute or two – then click <b>▶ Back to HouseRunner setup</b>', 'Google shows “Waiting for authorization…”. <b>This can take a minute or two – just wait.</b> Only if nothing happens after 2 minutes, press <b>F5</b>. Then it shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b>.', 'v-a-wait.mp4'],
-        ['finish', SETUP, '✅ Approved – back to your computer', '<div class="done">That’s the Main App approved. On your computer, click <b>Finish publishing</b> in HouseRunner setup.</div>', 'i-finish.png']
+        ['finish', SETUP, '↩ Back to HouseRunner setup', BACK.replace('Google’s window closes and setup', 'Google takes you back, and setup').replace('carries on by itself', 'carries on – one more click there, to finish publishing'), '']
     ];
     var FIRST = {}; STEPS.forEach(function (s, k) { if (!(s[0] in FIRST)) FIRST[s[0]] = k; });
     FIRST.checking = SET === 'approve' ? 4 : FIRST.google2 + 3;      // back from Google, checking the Sheet: the last of Google's steps
+    if (SET === 'perms') { FIRST.perms = 0; FIRST.checking = FIRST.done = 2; }
     if (SET === 'approve') { FIRST.approve = 0; FIRST.finish = 4; FIRST.done = 4; FIRST.checking = 4; }
     var i = 0, cyc = 0, closeT = 0;
     function stageNow() { try { return localStorage.getItem('hrinstall.stage') || 'start'; } catch (e) { return 'start'; } }
@@ -89,12 +87,12 @@ button:disabled{opacity:.4;cursor:default}
         i = Math.max(0, Math.min(STEPS.length - 1, k));
         var s = STEPS[i], last = i === STEPS.length - 1, list = [].concat(s[4]);
         document.body.innerHTML =
-            '<div class="hd"><b>' + (SET === 'approve' ? 'The Main App, step by step' : 'HouseRunner setup, step by step') + '</b><span class="n">' + (i + 1) + ' of ' + STEPS.length + '</span></div>' +
+            '<div class="hd"><b>' + (SET === 'approve' ? 'The Main App, step by step' : SET === 'perms' ? 'Installer App permissions, step by step' : 'HouseRunner setup, step by step') + '</b><span class="n">' + (i + 1) + ' of ' + STEPS.length + '</span></div>' +
             '<div class="bar"><i style="width:' + Math.round((i + 1) / STEPS.length * 100) + '%"></i></div>' +
             '<div class="bd"><div class="where">' + s[1] + '</div><h2>' + s[2] + '</h2><div id="m">' + media(list[0]) + '</div><p>' + s[3] + '</p>' +
-            '<p class="mute">Tap <b>Done – next</b> as you go.</p></div>' +
+            '<p class="mute">Tap <b>Next</b> as you go.</p></div>' +
             '<div class="ft"><button class="gh" id="bk"' + (i ? '' : ' disabled') + '>← Back</button>' +
-            (last ? '<button class="gh" id="st">↺ From the start</button>' : '<button class="go" id="nx">Done – next →</button>') + '</div>';
+            (last ? '<button class="gh" id="st">↺ From the start</button>' : '<button class="go" id="nx">Next →</button>') + '</div>';
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
         on('bk', function () { go(i - 1); }); on('nx', function () { go(i + 1); }); on('st', function () { go(0); });
         document.title = (i + 1) + ' – Step by step – HouseRunner';

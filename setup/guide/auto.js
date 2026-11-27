@@ -113,14 +113,14 @@
             '<div class="card big"><h3>Approve Installer App permissions</h3><p>Google asks you to let the <b>HouseRunner Installer</b> make <b>one new Sheet</b> in your Drive and <b>make and publish its script</b>. It can’t see your other files.</p>' +
             cols([['Continue past the “unverified” screen', 'h-testing.png', 'Expected – HouseRunner is new. <b>Continue</b> is on the left'],
                 ['Agree the permissions it needs <a href="#" data-why="inst">(see why)</a>', 'h-consent-inst2.png', '<b>Select all</b>, scroll down, <b>Continue</b>']]) +
-            flow('perms', 'a short video of this step', '<button class="btn" id="go">' + (S.sheetId ? 'Approve Installer App permissions and carry on' : 'Approve Installer App permissions') + '</button>') +
+            flow('perms', 'a short clip of each click', '<button class="btn" id="go">' + (S.sheetId ? 'Approve Installer App permissions and carry on' : 'Approve Installer App permissions') + '</button>') +
             '<div class="row"><span class="mute small" id="goMsg"></span></div></div>';
         else if (k === 4) body = '<div class="card big"><h3>Sign into Google and the Main App, then approve its permissions</h3><p>Your Sheet is made and published. Now approve the <b>Main App</b> – your own copy of HouseRunner, which Google calls “HouseRunner App”. One click: this tab goes through Google’s pages below, then comes back here.</p>' +
             cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
                 ['Advanced, then Go to HouseRunner App (unsafe)', 'p-advanced.png', 'Expected – it’s your own copy. Click <b>Advanced</b>, then <b>Go to HouseRunner App (unsafe)</b>'],
                 ['Approve the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
                 ['Wait – can take a minute or two – then back to setup', 'h-waitback.png', '“Waiting for authorization…” <b>can take a minute or two</b> – only press <b>F5</b> if nothing happens after 2 minutes. Then click <b>▶ Back to HouseRunner setup</b>']]) +
-            flow('approve', 'a short clip and instructions for each step', '<button class="btn" id="approve">Sign into the Main App</button>') +
+            flow('approve', 'a short clip of each click', '<button class="btn" id="approve">Sign into the Main App</button>') +
             '<div class="row"><span class="mute" id="watch"></span></div></div>';
         else if (k === 5 && !S.answered) body = S.manual ? manualCard() : finishCard();
         else if (k === 5) body = '<div class="note ok" style="font-size:18px">✅ <b>All done with Google.</b> Your Sheet is made, published and approved – HouseRunner checked it answers. Carrying on…</div>';
