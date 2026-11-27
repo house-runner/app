@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.348",
+  "app": "2026.11.349",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: added Google's 'Sign in to houserunner.app' page (click Continue) after choosing your account – in the instructions, pictures and Show me"
+    "Setup: the sign-in permissions picture now shows the installer's page as it really looks (no yellow warning box); the yellow box is shown only for approving your Sheet"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",

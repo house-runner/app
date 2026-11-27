@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.348",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: the sign-in permissions picture now shows the installer's page as it really looks (no yellow warning box); the yellow box is shown only for approving your Sheet"
+    ]
+  },
+  {
     "version": "2026.11.347",
     "date": "2026-11-17",
     "notes": [

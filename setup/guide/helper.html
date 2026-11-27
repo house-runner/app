@@ -32,7 +32,7 @@ button:disabled{opacity:.4;cursor:default}
  * and "Done – next" moves it on where it can't tell (the clicks in Google's own windows).
  * Where a picture shows Google's screens, the account shown is marked "your own Google email": the person sees theirs. */
 (function () {
-    var V = '../../shared/brand/steps/', REV = '348';
+    var V = '../../shared/brand/steps/', REV = '349';
     var SETUP = '🏠 In the <b>HouseRunner setup</b> tab', GWIN = '🔐 In <b>Google’s window</b>', GTAB = '🔐 <b>Google</b>, in the HouseRunner setup tab';
     // [stage, where, what to click, help, media (one, or several shown in turn)]
     var STEPS = [
@@ -40,7 +40,7 @@ button:disabled{opacity:.4;cursor:default}
         ['signin', GWIN, 'Choose <b>your</b> Google account', 'Google opens a small window. Your own name and email are shown where the picture says <i>your name</i> and <i>your own Google email</i>.', 'h-choose.png'],
         ['signin', GWIN, '“Sign in to houserunner.app”: click <b>Continue</b>', 'Google checks it’s you – your own Google email shows where the picture says so. Click <b>Continue</b> on the right.', 'h-signinto.png'],
         ['signin', GWIN, '“Google hasn’t verified this app”: click <b>Continue</b>', 'That’s expected – HouseRunner is new. Click the blue word <b>Continue</b> on the left, <b>not</b> “Back to safety”. <span class="mute">(If it shows <b>Advanced</b> instead, click that, then <b>Go to HouseRunner Installer (unsafe)</b>.)</span>', 'h-testing.png'],
-        ['signin', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'Tick <b>Select all</b> so all three are ticked – one Sheet, its script, and publishing it.', ['h-consent-inst.png', 'p-selectall.png']],
+        ['signin', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'Tick <b>Select all</b> so all three are ticked – one Sheet, its script, and publishing it.', ['h-consent-inst.png', 'h-continue-inst.png']],
         ['api', SETUP, 'Only if asked: switch on <b>Google Apps Script API</b>', 'Click <b>Open my Apps Script settings</b>. In that new tab: click <b>Google Apps Script API</b>, switch it <b>On</b>, then close that tab – setup carries on by itself. <span class="mute">(A simplified picture.)</span>', 'i-apiswitch.png'],
         ['making', SETUP, '⏳ Wait – HouseRunner is making your Sheet', 'About 30 seconds. The list ticks itself off – don’t close the tab.', 'h-making.mp4'],
         ['approve', SETUP, 'Click <b>Approve HouseRunner App</b>', 'Now your own Sheet asks for its permissions. This tab goes to Google, then comes back.', 'i-approve.png'],
