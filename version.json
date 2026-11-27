@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.353",
+  "app": "2026.11.354",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: the Select all picture now shows the Continue button just below it, so it reads as one step"
+    "Setup: Google's screens in the pictures now look like real life – your.account@gmail.com, marked '← this will be you'"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
