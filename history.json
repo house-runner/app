@@ -1,5 +1,12 @@
 [
   {
+    "version": "2026.11.349",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: the sign-in pictures now show the installer's own Continue button at the bottom of Google's page"
+    ]
+  },
+  {
     "version": "2026.11.348",
     "date": "2026-11-17",
     "notes": [

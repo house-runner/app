@@ -1,9 +1,9 @@
 {
-  "app": "2026.11.349",
+  "app": "2026.11.350",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: the sign-in permissions picture now shows the installer's page as it really looks (no yellow warning box); the yellow box is shown only for approving your Sheet"
+    "Setup: the sign-in pictures now show the installer's own Continue button at the bottom of Google's page"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
