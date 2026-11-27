@@ -160,10 +160,6 @@
     function forget() { try { localStorage.setItem('hrinstall.last', JSON.stringify({ email: S.email, sheetId: S.sheetId, at: new Date().toISOString() })); localStorage.removeItem(KEY); } catch (e) { /* fine */ } }
     function wire() {
         var on = function (id, f) { var b = document.getElementById(id); if (b) b.onclick = f; };
-        Array.prototype.forEach.call(app.querySelectorAll('[data-showme]'), function (b) { b.onclick = function () {
-            var set = b.getAttribute('data-showme'); showMe(set); opened[set] = true;
-            var f = b.closest('.hr-flow'); if (f) { f.classList.add('seen'); var t = f.querySelector('.fl-main .fl-t'); if (t) t.textContent = 'Then click this'; }
-        }; });
         Array.prototype.forEach.call(app.querySelectorAll('[data-why]'), function (b) { b.onclick = function (e) { e.preventDefault(); why(b.getAttribute('data-why')); }; });
         on('cidSave', function () { var v = document.getElementById('cid').value.trim(); if (!/\.apps\.googleusercontent\.com$/.test(v)) { alert('That doesn’t look like a Google client ID.'); return; } localStorage.setItem(CKEY, v); draw(); });
         on('republish', republish);
@@ -256,7 +252,7 @@
             '<div class="note bad" style="margin:0 0 12px;font-size:17px">⚠️ <b>Then close that Apps Script tab</b> (click the ✕ on its tab at the top of the window) and <b>come back to this “HouseRunner setup” tab</b> – setup carries on from here.</div>' +
             '<video src="../../shared/brand/steps/v-switch.mp4?v=365" autoplay muted loop playsinline style="background:#fff;max-width:520px;width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 12px"></video>' +
             '<div class="row"><button class="btn" id="setGo">Open my Apps Script settings (new tab)</button><span class="mute" id="setMsg"></span></div>' +
-            '<p class="mute small">This page watches for the switch and carries on by itself as soon as it’s on.</p><p>' + '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>' + '</p></div>');
+            '<p class="mute small">This page watches for the switch and carries on by itself as soon as it’s on.</p><p></p>' + qrMini('', 'api') + '<p></div>');
         var b = document.getElementById('setGo');
         if (b) b.onclick = function () {
             setWin = window.open('https://script.google.com/home/usersettings', 'hrsettings');
@@ -308,7 +304,7 @@
             '<p>Google has approved your Sheet. Now HouseRunner publishes it once more, so your screen and phones can reach it – Google only allows that after approval. A Google window may flash up and close by itself.</p>' +
             '<div class="row"><button class="btn" id="republish">Finish publishing</button><span class="mute" id="repMsg"></span></div>' +
             '<p class="mute small" style="margin-top:12px">Stuck? <a href="#" id="toManual">Publish it by hand instead</a> – 2 minutes in Apps Script.</p>' +
-            '<p><button class="btn ghost sm" data-showme type="button">🎬 Show me</button></p></div>';
+            qrMini('', 'finish') + '</div>';
     }
     function republish() {
         var m = document.getElementById('repMsg'); if (m) m.textContent = '⏳ Publishing…';
@@ -357,41 +353,24 @@
             else m.textContent = 'It didn’t answer yet (' + lastPing + '). Check “Who has access” says Anyone, then try again.';
         });
     }
-    /** 🎬 Show me: a small window beside this one with a clip or picture of each click (helper.html); it follows along by itself */
-    /** 🎬 Show me: a small window with a clip or picture of each click (helper.html), following along by itself.
-     *  Where the browser can (Chrome, Edge) it floats on top of everything, so it never hides behind Google's windows;
-     *  elsewhere it's an ordinary small window. */
-    var pip = null;
-    function showMe(set) {
-        var w = set === 'perms' ? 640 : 400, h = Math.max(520, Math.min(set === 'perms' ? 700 : 760, (screen.availHeight || 900) - 140));
-        var url = 'helper.html' + (set ? '?set=' + set : '');
-        if (window.documentPictureInPicture) {
-            try { if (pip && !pip.closed) pip.close(); } catch (e) { /* fine */ }
-            documentPictureInPicture.requestWindow({ width: w, height: h }).then(function (pw) {
-                pip = pw;
-                pw.document.body.style.cssText = 'margin:0;background:#0f141b';
-                var f = pw.document.createElement('iframe'); f.src = new URL(url, location.href).href;
-                f.style.cssText = 'border:0;width:100vw;height:100vh;display:block'; pw.document.body.appendChild(f);
-            }, function () { plain(); });
-            return;
-        }
-        plain();
-        function plain() {
-            var win = window.open(url, 'hrhelper' + (set || ''), 'popup,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - w - 16) + ',top=60');
-            if (!win) toastish('Your browser blocked the small window – allow pop-ups for houserunner.app, then click again.'); else try { win.focus(); } catch (e) { /* fine */ }
-        }
-    }
     function toastish(t) { var n = document.createElement('div'); n.className = 'note warn'; n.textContent = t; app.insertBefore(n, app.firstChild); setTimeout(function () { n.remove(); }, 8000); }
-    var SHOWME = '<button class="btn ghost sm" data-showme type="button">🎬 Show me</button> <span class="mute small">– a small window with a short clip of each click</span>';
-    /** ① Open Show me (strongly recommended)  >>>  ② the step's blue button – dimmed until Show me has been opened, still clickable */
-    var opened = {};
-    function flow(set, what, main) {
-        return '<div class="hr-flow' + (opened[set] ? ' seen' : '') + '"><div class="fl-s"><span class="fl-n">1</span><button class="btn ghost fl-show" data-showme="' + set + '" type="button">🎬 Open Show me</button>' +
-            '<div class="fl-t"><b>Strongly recommended</b> – ' + what + ', in a small window that stays beside Google’s</div></div>' +
-            '<div class="fl-arrow" aria-hidden="true">&gt;&gt;&gt;</div>' +
-            '<div class="fl-s fl-main"><span class="fl-n">2</span>' + main + '<div class="fl-t">' + (opened[set] ? 'Then click this' : 'Open Show me first') + '</div></div></div>';
+    /** 📱 A step-by-step guide on the phone (helper.html: a clip and instructions for each step), reached by QR code –
+     *  followed alongside this screen, so nothing pops up over Google's pages. */
+    function guideUrl(set, at) { return new URL('helper.html' + (set || at ? '?' : '') + (set ? 'set=' + set : '') + (set && at ? '&' : '') + (at ? 'at=' + at : ''), location.href).href; }
+    function qrSvg(text) {
+        if (!window.qrcode) return '';
+        var q = window.qrcode(0, 'L'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
     }
-    function showBtn(set, label, what) { return '<button class="btn ghost sm" data-showme="' + set + '" type="button">🎬 ' + label + '</button> <span class="mute small">– ' + what + '</span>'; }
+    function qrMini(set, at) {
+        return '<div class="fl-qr sm"><div class="qrb">' + qrSvg(guideUrl(set, at)) + '</div><div><b>📱 Step by step on your phone</b><div class="fl-t">Scan with your phone’s camera for a short video of each click.</div></div></div>';
+    }
+    /** ① the phone guide (strongly recommended)  >>>  ② the step's blue button */
+    function flow(set, what, main) {
+        return '<div class="hr-flow"><div class="fl-s"><span class="fl-n">1</span><div class="fl-qr"><div class="qrb">' + qrSvg(guideUrl(set)) + '</div>' +
+            '<div><b>📱 Scan this with your phone first</b><div class="fl-t"><b>Strongly recommended</b> – ' + what + ' on your phone.</div></div></div></div>' +
+            '<div class="fl-arrow" aria-hidden="true">&gt;&gt;&gt;</div>' +
+            '<div class="fl-s fl-main"><span class="fl-n">2</span>' + main + '<div class="fl-t">Then click this</div></div></div>';
+    }
     /** Google's screens, in order: a numbered headline above each picture */
     function cols(list) {
         return '<div class="hri-cols">' + list.map(function (c, n) {
@@ -417,13 +396,7 @@
 
     /** Approval happens in this same tab (a separate window couldn't be closed for you once Google had shown its pages in it).
      *  The script's "Approved" page then brings this tab straight back to setup (#approved), which checks it and carries on. */
-    function approve() {
-        note('approve: going to Google'); stage('google2'); stage.now = 'google2'; S.approving = Date.now(); save();
-        var w = Math.min(720, (screen.availWidth || 1200) - 460), h = Math.min(820, (screen.availHeight || 900) - 80);
-        var win = window.open(S.url + '?hrbeta=1', 'hrapprove', 'popup,width=' + w + ',height=' + h + ',left=40,top=40');
-        if (!win) { location.href = S.url + '?hrbeta=1'; return; }      // pop-ups blocked: this tab goes instead, and comes back as before
-        draw('<div class="note" style="font-size:17px">⏳ <b>Google’s approval is open in its own window.</b> Work through it there – this tab carries on by itself when it’s approved. <span class="mute small">Can’t see it? It may be behind this window.</span></div>');
-    }
+    function approve() { note('approve: going to Google'); stage('google2'); stage.now = 'google2'; save(); location.href = S.url + '?hrbeta=1'; }
     /* The approval window's last page (approved.html) says so here, with the access code */
     window.addEventListener('storage', function (e) {
         if (e.key !== 'hrinstall.approved' || !e.newValue || !app) return;

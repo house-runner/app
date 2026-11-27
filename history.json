@@ -1,5 +1,13 @@
 [
   {
+    "version": "2026.11.372",
+    "date": "2026-11-17",
+    "notes": [
+      "Installer steps: ① Open Show me (strongly recommended) >>> ② the blue button, side by side; the blue button stays dimmed until Show me is open",
+      "The waiting picture shows Google's 'Waiting for authorization…' much bigger, with HouseRunner's advice clearly in a separate label stuck on top"
+    ]
+  },
+  {
     "version": "2026.11.371",
     "date": "2026-11-17",
     "notes": [

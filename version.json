@@ -1,10 +1,10 @@
 {
-  "app": "2026.11.372",
+  "app": "2026.11.373",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Show me for the Installer App permissions is a new, realistic clip: a pointer clicks Continue, ticks Select all (all the boxes tick), scrolls down and clicks Continue",
-    "Show me clips play once, with a Play again button, instead of looping"
+    "Installer steps: ① Open Show me (strongly recommended) >>> ② the blue button, side by side; the blue button stays dimmed until Show me is open",
+    "The waiting picture shows Google's 'Waiting for authorization…' much bigger, with HouseRunner's advice clearly in a separate label stuck on top"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
