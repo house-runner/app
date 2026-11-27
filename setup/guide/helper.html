@@ -32,7 +32,7 @@ button:disabled{opacity:.4;cursor:default}
  * and "Done – next" moves it on where it can't tell (the clicks in Google's own windows).
  * Where a picture shows Google's screens, the account shown is marked "your own Google email": the person sees theirs. */
 (function () {
-    var V = '../../shared/brand/steps/', REV = '358';
+    var V = '../../shared/brand/steps/', REV = '359';
     var SETUP = '🏠 In the <b>HouseRunner setup</b> tab', GWIN = '🔐 In <b>Google’s window</b>', GTAB = '🔐 <b>Google</b>, in the HouseRunner setup tab';
     // [stage, where, what to click, help, media (one, or several shown in turn)]
     var STEPS = [
@@ -46,7 +46,7 @@ button:disabled{opacity:.4;cursor:default}
         ['making', SETUP, '⏳ Wait – HouseRunner makes your Sheet by itself', 'About 30 seconds. Beside the step it shows where it’s up to – making the Sheet, adding the script, publishing. Don’t close the tab.', 'i-making.png'],
         ['approve', SETUP, 'Click <b>Approve HouseRunner App</b>', 'Now your own Sheet asks for its permissions. This tab goes to Google, then comes back.', 'i-approve.png'],
         ['google2', GTAB, 'Click <b>REVIEW PERMISSIONS</b>', 'Google says “HouseRunner App (Unverified) needs your permission” – that’s your own private copy.', 'h-review.mp4'],
-        ['google2', GWIN, 'Choose <b>your</b> Google account', 'The same account as before. If Google then says <b>“Google hasn’t verified this app”</b>, click <b>Continue</b> on the left.', ['h-choose.png', 'h-testing.png']],
+        ['google2', GWIN, '“Google hasn’t verified this app”: click <b>Continue</b>', 'Expected – it’s your own private copy. <b>Continue</b> is on the left, not “Back to safety”.', 'h-testing.png'],
         ['google2', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'A yellow box saying the app isn’t verified yet is expected – it’s your own private copy. Every permission is needed; setup explains each one.', ['h-consent.png', 'p-selectall.png']],
         ['google2', GTAB, 'Wait for Google', 'It shows “Waiting for authorization…” for a few seconds. <b>Stuck there?</b> Press <b>F5</b> to reload.', 'h-waiting.png'],
         ['google2', GTAB, 'Click <b>▶ Back to HouseRunner setup</b>', 'Google shows <b>✅ Approved – your Sheet is switched on</b>.', 'h-approved.mp4'],
@@ -71,7 +71,7 @@ button:disabled{opacity:.4;cursor:default}
     // "Approve HouseRunner App's permissions": step by step, a short clip and the words for each
     if (SET === 'approve') STEPS = [
         ['google2', GTAB, 'Click <b>REVIEW PERMISSIONS</b>', 'Google says “HouseRunner App (Unverified) needs your permission”. That’s your own private copy of HouseRunner – click the blue <b>REVIEW PERMISSIONS</b>.', 'h-review.mp4'],
-        ['google2', GWIN, 'Choose <b>your</b> account', 'A Google window opens. Click your account – your own name and email show there. If Google then says <b>“Google hasn’t verified this app”</b>, click <b>Continue</b> on the left.', 'v-a-choose.mp4'],
+        ['google2', GWIN, '“Google hasn’t verified this app”: click <b>Continue</b>', 'Expected – it’s your own private copy of HouseRunner. Click the blue word <b>Continue</b> on the left, <b>not</b> “Back to safety”. <span class="mute">(If Google asks which account first, click yours.)</span>', 'v-a-testing.mp4'],
         ['google2', GWIN, 'Tick <b>Select all</b>, scroll down, click <b>Continue</b>', 'A yellow box says the app isn’t verified yet – expected. Every permission is needed (setup’s “see why” explains each one). Then scroll to the bottom and click <b>Continue</b>.', 'v-a-consent.mp4'],
         ['google2', GTAB, 'Wait, then click <b>▶ Back to HouseRunner setup</b>', 'Google shows “Waiting for authorization…” for a few seconds – <b>stuck?</b> Press <b>F5</b>. Then it shows <b>✅ Approved</b>: click <b>▶ Back to HouseRunner setup</b>.', 'v-a-wait.mp4'],
         ['done', SETUP, '✅ Approved', '<div class="done">Back in setup: one last click, <b>Finish publishing</b>. This window closes in a moment.</div>', 'i-finish.png']

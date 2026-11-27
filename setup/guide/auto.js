@@ -116,8 +116,8 @@
             '<p>' + showBtn('perms', 'Show me', 'one short video of the whole of this step') + '</p>' +
             '<div class="row"><button class="btn" id="go">' + (S.sheetId ? 'Set up permissions and carry on' : 'Set up app permissions') + '</button></div></div>';
         else if (k === 4) body = '<div class="card big"><h3>One Google approval for HouseRunner App</h3><p>Your Sheet is made and published. Now approve what <b>HouseRunner App</b> – your own copy – does in your account. This tab goes to Google, then comes back here.</p>' +
-            cols([['Review permissions', 'h-review.png', 'Click <b>REVIEW PERMISSIONS</b>'],
-                ['Choose your account', 'h-choose.png', 'Then <b>Continue</b> past “unverified” if it’s shown – expected, it’s your own copy'],
+            cols([['Review permissions', 'h-review.png', '“HouseRunner App (Unverified) needs your permission” – click <b>REVIEW PERMISSIONS</b>'],
+                ['Continue past “Google hasn’t verified this app”', 'h-testing.png', 'Expected – it’s your own copy. <b>Continue</b> is on the left'],
                 ['Agree the permissions your Sheet needs <a href="#" data-why="app">(see why)</a>', 'h-consent2.png', '<b>Select all</b>, scroll down, <b>Continue</b>'],
                 ['Wait, then back to setup', 'h-waitback.png', 'Wait for “Waiting for authorization…” (stuck? press <b>F5</b>), then click <b>▶ Back to HouseRunner setup</b>']]) +
             '<p>' + showBtn('approve', 'Show me, step by step', 'a small window with a short clip and instructions for each step') + '</p>' +

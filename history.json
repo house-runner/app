@@ -1,5 +1,14 @@
 [
   {
+    "version": "2026.11.357",
+    "date": "2026-11-17",
+    "notes": [
+      "Setup: approving your Sheet now has four steps – the last is 'Wait, then back to setup'",
+      "Show me on 'Set up app permissions' plays one short video of the whole step, numbered 1–4, with the words beside it",
+      "Show me on 'Approve HouseRunner App' goes step by step, with a short clip and instructions for each"
+    ]
+  },
+  {
     "version": "2026.11.356",
     "date": "2026-11-17",
     "notes": [

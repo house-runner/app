@@ -1,10 +1,11 @@
 {
-  "app": "2026.11.357",
+  "app": "2026.11.358",
   "script": "2026.11.139",
   "date": "2026-11-17",
   "notes": [
-    "Setup: signing in is now its own first step – 'Sign in to Google' – with a green ✅ showing your account; then 'Set up app permissions'",
-    "Making the Sheet, adding its script and publishing it are now one step, 'Make your HouseRunner Sheet (automatic)', showing where it's up to beside it"
+    "Setup: approving your Sheet now has four steps – the last is 'Wait, then back to setup'",
+    "Show me on 'Set up app permissions' plays one short video of the whole step, numbered 1–4, with the words beside it",
+    "Show me on 'Approve HouseRunner App' goes step by step, with a short clip and instructions for each"
   ],
   "licence": "https://script.google.com/macros/s/AKfycbzKksmqLXKhVIyZj1orEdvqznf-9vdasvl-gS1rDS7n1TqHF6f-SXU5TvN8fcVYVZkbgA/exec",
   "licenceServer": "2026.11.25",
