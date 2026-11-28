@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.11.377",
+    "date": "2026-11-17",
+    "notes": [
+      "Saving the family (and reading your Sheet) is much faster: the Sheet is read about 5 times less – from ~190 reads down to ~37 for a family save",
+      "The calendar's 'still saving' wait shows a running count and asks you not to refresh",
+      "Make your Google Sheet: one QR code at the top for a step-by-step phone guide to the whole page; steps numbered 1–5, Google's screens within each lettered A, B, C",
+      "New click-through clips for choosing your account and signing in to HouseRunner"
+    ]
+  },
+  {
     "version": "2026.11.376",
     "date": "2026-11-17",
     "notes": [
